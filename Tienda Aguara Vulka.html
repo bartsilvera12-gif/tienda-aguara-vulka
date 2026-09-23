@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#fff}
+  a{color:#11181C;text-decoration:none}
+  a:hover{color:#C2522A}
+  input,button{font-family:inherit}
+  ::placeholder{color:#9AA1A6}
+  .dcard{position:relative;overflow:hidden;border-radius:14px;transition:transform .5s ease,box-shadow .5s ease}
+  .dcard-bg{position:absolute;inset:0;background-size:cover;background-position:center;background-repeat:no-repeat;transition:transform .7s ease;will-change:transform}
+  .dcard:hover{transform:scale(1.025)}
+  .dcard:hover .dcard-bg{transform:scale(1.12)}
+  .dcard-arrow{display:inline-block;transition:transform .3s ease}
+  .dcard:hover .dcard-arrow{transform:translateX(6px)}
+  .dcard-btn{transition:background .3s ease,border-color .3s ease}
+  .dcard--aguara{box-shadow:0 12px 40px -20px rgba(194,82,42,.65)}
+  .dcard--aguara:hover{box-shadow:0 0 60px -8px rgba(194,82,42,.6)}
+  .dcard--aguara:hover .dcard-btn{background:rgba(194,82,42,.46);border-color:rgba(194,82,42,.7)}
+  .dcard--vulka{box-shadow:0 12px 40px -22px rgba(17,24,28,.4)}
+  .dcard--vulka:hover{box-shadow:0 0 55px -12px rgba(17,24,28,.35)}
+  .dcard--vulka:hover .dcard-btn{background:rgba(255,255,255,.26);border-color:rgba(255,255,255,.5)}
+  .pcard{box-shadow:0 6px 18px -10px rgba(17,24,28,.14);transition:transform .3s ease,box-shadow .3s ease,border-color .3s ease}
+  .pcard:hover{transform:translateY(-5px);box-shadow:0 18px 36px -14px rgba(17,24,28,.3)}
+  .pcard-img{transition:transform .55s ease}
+  .pcard:hover .pcard-img{transform:scale(1.07)}
+  .ctile{position:relative;overflow:hidden;border-radius:12px;cursor:pointer;border:0;padding:0;display:block;transition:box-shadow .3s ease}
+  .ctile:hover{box-shadow:0 14px 30px -14px rgba(17,24,28,.4)}
+  .ctile-img{position:absolute;inset:0;background-size:cover;background-position:center 22%;transition:transform .5s ease}
+  .ctile:hover .ctile-img{transform:scale(1.09)}
+  .vk-explore{position:relative;min-height:280px;display:flex}
+  .vk-rows{width:58%;position:relative;z-index:2}
+  .vk-panelimg{position:absolute;top:0;right:0;width:32%;max-width:300px;height:100%;border-radius:12px;background-size:cover;background-position:center 20%;background-repeat:no-repeat;opacity:0;transition:opacity .4s ease,transform .4s ease;transform:scale(1.04);pointer-events:none;box-shadow:0 16px 36px -18px rgba(17,24,28,.4)}
+  .vk-default{opacity:1;transform:scale(1)}
+  .vk-explore:hover .vk-default{opacity:0}
+  .vk-row{position:static;display:flex;align-items:baseline;gap:14px;width:100%;text-align:left;border:0;background:transparent;cursor:pointer;padding:13px 0;border-bottom:1px solid #ECEEF0;font-family:Jost,sans-serif;color:#A3A9AD;transition:color .3s ease,padding-left .3s ease}
+  .vk-row:hover{color:#11181C;padding-left:12px}
+  .vk-row:hover .vk-panelimg{opacity:1;transform:scale(1)}
+  .vk-name{font-size:clamp(20px,2.4vw,30px);font-weight:400;line-height:1.1}
+  .vk-num{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#C6CBCF}
+  .vk-row:hover .vk-num{color:#11181C}
+  @media(max-width:720px){.vk-rows{width:100%}.vk-panelimg{display:none}}
+  @keyframes giftFloat{0%,100%{transform:rotate(-5deg) translateY(0)}50%{transform:rotate(-5deg) translateY(-13px)}}
+  .gift-float{animation:giftFloat 4.5s ease-in-out infinite;will-change:transform}
+  @keyframes giftShine{0%{transform:translateX(-80px) skewX(-18deg)}55%,100%{transform:translateX(1500px) skewX(-18deg)}}
+  .gift-shine{position:absolute;left:0;top:-20%;height:140%;width:46px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.14),transparent);z-index:1;pointer-events:none;animation:giftShine 5s ease-in-out infinite}
+  .gift-banner{transition:box-shadow .45s ease,transform .45s ease}
+  .gift-banner:hover{box-shadow:0 26px 64px -22px rgba(194,82,42,.55);transform:translateY(-2px)}
+</style>
+</helmet>
+<div style="font-family:Archivo,Helvetica,sans-serif;color:#11181C;background:#fff;min-height:100vh;display:flex;flex-direction:column">
+
+  <header style="position:sticky;top:0;z-index:40;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-bottom:1px solid #E6E8EA;padding:12px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+    <button onClick="{{ goHome }}" style="border:0;background:transparent;padding:0 4px;cursor:pointer;font-size:13px;font-weight:600;letter-spacing:.04em;color:#5A6268" style-hover="color:#11181C">Inicio</button>
+    <div style="display:flex;gap:2px;background:#F2F3F4;border-radius:999px;padding:3px">
+      <button onClick="{{ goAguara }}" style="{{ tabAguara }}"><img src="uploads/opt/aguara-word.png" alt="Aguara" style="height:15px;width:auto;display:block" /></button>
+      <button onClick="{{ goVulka }}" style="{{ tabVulka }}"><img src="uploads/opt/vulka-word.png" alt="Vulka" style="height:18px;width:auto;display:block" /></button>
+    </div>
+    <nav style="display:flex;gap:18px;flex-wrap:wrap;flex:1;min-width:0">
+      <sc-for list="{{ navCats }}" as="c" hint-placeholder-count="4">
+        <button onClick="{{ c.onClick }}" style="{{ c.style }}" style-hover="color:#11181C">{{ c.name }}</button>
+      </sc-for>
+    </nav>
+    <div style="display:flex;align-items:center;gap:10px;margin-left:auto">
+      <input value="{{ query }}" onChange="{{ onQuery }}" placeholder="Buscar producto" style="border:1px solid #E0E2E4;border-radius:999px;padding:8px 14px;font-size:13px;width:150px;outline:none;color:#11181C" />
+      <button onClick="{{ openCart }}" style="display:flex;align-items:center;gap:8px;border:1px solid #11181C;background:#11181C;color:#fff;border-radius:999px;padding:8px 15px;font-size:13px;font-weight:600;cursor:pointer" style-hover="opacity:.85">Carrito <span style="background:#fff;color:#11181C;border-radius:999px;min-width:19px;height:19px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">{{ cartCount }}</span></button>
+    </div>
+  </header>
+
+  <main style="flex:1">
+
+    <sc-if value="{{ isProduct }}" hint-placeholder-val="{{ false }}">
+      <section style="max-width:1100px;margin:0 auto;padding:22px 20px 44px">
+        <button onClick="{{ closeProduct }}" style="border:0;background:transparent;padding:8px 0;cursor:pointer;font-size:14px;color:#5A6268;display:flex;align-items:center;gap:6px" style-hover="color:#11181C"><span>←</span> Volver a la tienda</button>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:34px;margin-top:14px;align-items:start">
+          <div style="{{ pdImgStyle }}">
+            <span style="position:absolute;top:12px;left:12px;font-size:10px;font-weight:700;letter-spacing:.1em;padding:4px 8px;border-radius:2px;background:#11181C;color:#fff">{{ pdBrandLabel }}</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:16px;padding-top:6px">
+            <div style="font-size:12px;color:#8B9297;letter-spacing:.1em;text-transform:uppercase">{{ pdCat }}</div>
+            <h1 style="margin:0;font-size:32px;font-weight:800;letter-spacing:-.02em;line-height:1.08">{{ pdName }}</h1>
+            <div style="font-size:26px;font-weight:800;color:{{ pdPriceColor }}">{{ pdPriceLabel }}</div>
+            <sc-if value="{{ pdHasSizes }}" hint-placeholder-val="{{ true }}">
+              <div>
+                <div style="font-size:12px;color:#5A6268;margin-bottom:8px;letter-spacing:.04em">{{ pdSizeTitle }}</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <sc-for list="{{ pdSizeChips }}" as="sz" hint-placeholder-count="5">
+                    <button onClick="{{ sz.onClick }}" style="{{ sz.style }}">{{ sz.name }}</button>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ pdHasAmounts }}" hint-placeholder-val="{{ false }}">
+              <div>
+                <div style="font-size:12px;color:#5A6268;margin-bottom:8px;letter-spacing:.04em">Monto</div>
+                <select onChange="{{ pdOnAmount }}" style="border:1px solid #D5D8DA;border-radius:6px;padding:10px 12px;font-size:14px;color:#11181C;background:#fff;outline:none;cursor:pointer;min-width:180px">
+                  <sc-for list="{{ pdAmountOpts }}" as="o" hint-placeholder-count="3">
+                    <option value="{{ o.value }}">{{ o.label }}</option>
+                  </sc-for>
+                </select>
+              </div>
+            </sc-if>
+            <div>
+              <div style="font-size:12px;color:#5A6268;margin-bottom:8px;letter-spacing:.04em">Cantidad</div>
+              <div style="display:inline-flex;align-items:center;border:1px solid #D5D8DA;border-radius:6px;overflow:hidden">
+                <button onClick="{{ pdDec }}" style="width:40px;height:42px;border:0;background:#fff;cursor:pointer;font-size:18px">−</button>
+                <span style="min-width:44px;text-align:center;font-size:15px;font-weight:600">{{ pdQty }}</span>
+                <button onClick="{{ pdInc }}" style="width:40px;height:42px;border:0;background:#fff;cursor:pointer;font-size:18px">+</button>
+              </div>
+            </div>
+            <button onClick="{{ pdAdd }}" style="{{ pdBtnStyle }}" style-hover="transform:translateY(-2px)">{{ pdAddLabel }}</button>
+            <div style="font-size:13px;color:#8B9297;line-height:1.6;margin-top:4px">Envíos a todo el país · Cambios dentro de los 15 días · Pago seguro online.</div>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+      <section style="max-width:1280px;margin:0 auto;padding:28px 20px 8px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px">
+
+          <div class="dcard dcard--aguara" style="min-height:440px;background:#1B2226">
+            <div class="dcard-bg" style="background-image:url(uploads/opt/PAT07019.webp?v=2);background-position:center 18%"></div>
+            <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(17,24,28,.92) 0%,rgba(194,82,42,.42) 30%,rgba(17,24,28,0) 62%)"></div>
+            <div style="position:relative;min-height:440px;display:flex;flex-direction:column;justify-content:flex-end;padding:30px;color:#fff">
+              <img src="uploads/opt/aguara-logo.png" alt="Aguara Fitwear" style="position:absolute;top:22px;left:30px;width:52px;height:52px;object-fit:contain" />
+              <div style="font-size:13px;letter-spacing:.24em;color:#F0A985;font-weight:600;margin-bottom:8px">DEPORTE</div>
+              <div style="font-size:46px;line-height:.95;font-weight:800;letter-spacing:-.03em;color:#fff">AGUARA<br />FITWEAR</div>
+              <p style="color:rgba(255,255,255,.85);font-size:15px;line-height:1.5;max-width:340px;margin:14px 0 20px;text-wrap:pretty">Training, running, ciclismo y casual deportiva. Made in PY.</p>
+              <button onClick="{{ goAguara }}" class="dcard-btn" style="display:flex;align-items:center;justify-content:space-between;gap:14px;background:rgba(194,82,42,.24);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(194,82,42,.4);border-radius:11px;padding:14px 18px;color:#fff;cursor:pointer;font-size:14px;font-weight:700;letter-spacing:.03em;max-width:290px"><span>EXPLORAR AGUARA</span><span class="dcard-arrow">→</span></button>
+            </div>
+          </div>
+
+          <div class="dcard dcard--vulka" style="min-height:440px;background:#1B2226">
+            <div class="dcard-bg" style="background-image:url(uploads/opt/vulka-card.webp);background-position:center 26%"></div>
+            <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(17,24,28,.9) 0%,rgba(17,24,28,.5) 32%,rgba(17,24,28,0) 62%)"></div>
+            <div style="position:relative;min-height:440px;display:flex;flex-direction:column;justify-content:flex-end;padding:30px;color:#fff">
+              <img src="uploads/opt/vulka-logo.png" alt="Vulka" style="position:absolute;top:22px;left:30px;width:52px;height:52px;object-fit:contain" />
+              <div style="font-family:Jost,sans-serif;font-size:13px;letter-spacing:.24em;color:rgba(255,255,255,.85);font-weight:500;margin-bottom:8px">VIDA COTIDIANA</div>
+              <div style="font-family:Jost,sans-serif;font-size:46px;line-height:1;font-weight:500;letter-spacing:.14em;color:#fff">VULKA</div>
+              <p style="font-family:Jost,sans-serif;color:rgba(255,255,255,.85);font-size:15px;line-height:1.55;max-width:320px;margin:14px 0 20px;text-wrap:pretty">Casual, oficina y tendencias.</p>
+              <button onClick="{{ goVulka }}" class="dcard-btn" style="display:flex;align-items:center;justify-content:space-between;gap:14px;background:rgba(255,255,255,.14);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.28);border-radius:11px;padding:14px 18px;color:#fff;cursor:pointer;font-family:Jost,sans-serif;font-size:14px;font-weight:500;letter-spacing:.08em;max-width:290px"><span>EXPLORAR VULKA</span><span class="dcard-arrow">→</span></button>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ isBrand }}" hint-placeholder-val="{{ true }}">
+        <sc-if value="{{ heroCarousel }}" hint-placeholder-val="{{ true }}">
+          <div style="{{ heroStageStyle }}">
+            <div style="{{ heroLayerA }}"></div>
+            <div style="{{ heroLayerB }}"></div>
+            <div style="{{ heroDarkStyle }}"></div>
+            <div style="{{ heroTopStyle }}"><span>AGUARA FITWEAR</span><span>·</span><span>{{ heroTag }}</span></div>
+            <div style="{{ heroHeadWrap }}">
+              <h2 style="{{ heroTitleBig }}">
+                <sc-for list="{{ heroLines }}" as="ln" hint-placeholder-count="2">
+                  <span style="display:block">{{ ln }}</span>
+                </sc-for>
+              </h2>
+            </div>
+            <button onClick="{{ heroPrev }}" style="{{ heroPrevBtnStyle }}">‹</button>
+            <button onClick="{{ heroNext }}" style="{{ heroNextBtnStyle }}">›</button>
+            <div style="{{ heroThumbsWrap }}">
+              <sc-for list="{{ heroThumbs }}" as="c" hint-placeholder-count="6">
+                <button onClick="{{ c.onClick }}" style="{{ c.style }}">
+                  <img src="{{ c.img }}" alt="" draggable="false" style="{{ c.imgStyle }}" />
+                </button>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ heroPlain }}" hint-placeholder-val="{{ false }}">
+          <section style="max-width:1280px;margin:0 auto;padding:20px 20px 0">
+          <div style="{{ heroStyle }}">
+            <div style="position:absolute;top:18px;left:26px;font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.12em;color:{{ heroNote }}">{{ heroPlaceholder }}</div>
+            <div style="max-width:520px">
+              <div style="font-size:12px;letter-spacing:.22em;margin-bottom:10px;color:{{ heroKicker }}">{{ heroEyebrow }}</div>
+              <div style="{{ heroTitleStyle }}">{{ heroTitle }}</div>
+              <p style="{{ heroTextStyle }}">{{ heroText }}</p>
+            </div>
+          </div>
+          </section>
+        </sc-if>
+
+      <section style="max-width:1280px;margin:0 auto;padding:22px 20px 0;display:flex;gap:8px;flex-wrap:wrap">
+        <sc-for list="{{ chips }}" as="ch" hint-placeholder-count="5">
+          <button onClick="{{ ch.onClick }}" style="{{ ch.style }}">{{ ch.name }}</button>
+        </sc-for>
+      </section>
+
+      <sc-if value="{{ vkListShow }}" hint-placeholder-val="{{ false }}">
+        <section style="max-width:1280px;margin:0 auto;padding:30px 20px 0">
+          <div style="font-family:Jost,sans-serif;font-size:12px;letter-spacing:.2em;color:#8B9297;font-weight:500;margin-bottom:14px">EXPLORÁ POR CATEGORÍA</div>
+          <div class="vk-explore">
+            <div class="vk-panelimg vk-default" style="{{ vkDefaultStyle }}"></div>
+            <div class="vk-rows">
+              <sc-for list="{{ vkCats }}" as="t" hint-placeholder-count="3">
+                <button onClick="{{ t.onClick }}" class="vk-row">
+                  <span class="vk-name">{{ t.name }}</span>
+                  <span class="vk-num">{{ t.count }}</span>
+                  <span class="vk-panelimg" style="{{ t.imgStyle }}"></span>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+        </section>
+      </sc-if>
+
+
+      <sc-if value="{{ catTilesShow }}" hint-placeholder-val="{{ true }}">
+        <section style="max-width:1280px;margin:0 auto;padding:26px 20px 0">
+          <div style="font-size:12px;letter-spacing:.18em;color:#8B9297;font-weight:700;margin-bottom:14px">EXPLORÁ POR CATEGORÍA</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:12px">
+            <sc-for list="{{ catTiles }}" as="t" hint-placeholder-count="5">
+              <button class="ctile" onClick="{{ t.onClick }}" style="aspect-ratio:4/3;background:#1B2226;width:100%">
+                <div class="ctile-img" style="background-image:url({{ t.img }})"></div>
+                <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(17,24,28,.85) 0%,rgba(17,24,28,.2) 55%,transparent 100%)"></div>
+                <div style="position:absolute;left:0;right:0;bottom:0;padding:12px 14px;text-align:left">
+                  <div style="color:#fff;font-size:15px;font-weight:700;line-height:1.12">{{ t.name }}</div>
+                  <div style="color:rgba(255,255,255,.75);font-size:11px;margin-top:2px">{{ t.count }}</div>
+                </div>
+              </button>
+            </sc-for>
+          </div>
+        </section>
+      </sc-if>
+
+      <section style="max-width:1280px;margin:0 auto;padding:22px 20px 0">
+        <sc-for list="{{ sections }}" as="sec" hint-placeholder-count="3">
+        <div style="display:flex;align-items:center;gap:14px;margin:34px 0 16px">
+          <span style="width:6px;height:22px;border-radius:3px;background:{{ sectionAccent }};display:inline-block"></span>
+          <h2 style="margin:0;font-size:22px;font-weight:800;letter-spacing:-.01em;white-space:nowrap">{{ sec.title }}</h2>
+          <span style="height:1px;flex:1;background:#E6E8EA"></span>
+          <sc-if value="{{ sec.showMore }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ sec.onMore }}" style="border:0;background:transparent;color:{{ sectionAccent }};font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;padding:0" style-hover="opacity:.7">{{ sec.moreLabel }} →</button>
+          </sc-if>
+          <sc-if value="{{ sec.notMore }}" hint-placeholder-val="{{ true }}">
+            <span style="font-size:12px;color:#8B9297;white-space:nowrap">{{ sec.countLabel }}</span>
+          </sc-if>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:14px">
+          <sc-for list="{{ sec.products }}" as="p" hint-placeholder-count="8">
+            <div class="{{ p.cardClass }}" style="{{ p.cardWrap }}" style-hover="border-color:#C9CDD0">
+              <div onClick="{{ p.onOpen }}" style="{{ p.imgWrap }}">
+                <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ true }}">
+                  <img class="pcard-img" src="{{ p.imgSrc }}" alt="" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" />
+                </sc-if>
+                <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-family:ui-monospace,Menlo,monospace;font-size:9px;letter-spacing:.1em;color:#8B9297">{{ p.imgNote }}</span>
+                </sc-if>
+                <span style="position:absolute;top:10px;left:10px;font-size:10px;font-weight:700;letter-spacing:.1em;padding:4px 8px;border-radius:2px;background:#11181C;color:#fff;z-index:2">{{ p.brandLabel }}</span>
+              </div>
+              <div style="padding:13px 14px 15px;display:flex;flex-direction:column;gap:7px;flex:1">
+                <div style="font-size:11px;color:#8B9297;letter-spacing:.08em">{{ p.cat }}</div>
+                <div onClick="{{ p.onOpen }}" style="font-size:14px;font-weight:600;line-height:1.3;cursor:pointer">{{ p.name }}</div>
+                <div style="font-size:12px;color:#5A6268">{{ p.sizes }}</div>
+                <sc-if value="{{ p.hasAmounts }}" hint-placeholder-val="{{ false }}">
+                  <select onChange="{{ p.onAmount }}" style="border:1px solid #E0E2E4;border-radius:3px;padding:7px 9px;font-size:12px;color:#11181C;background:#fff;outline:none;cursor:pointer">
+                    <sc-for list="{{ p.amountOpts }}" as="o" hint-placeholder-count="3">
+                      <option value="{{ o.value }}">{{ o.label }}</option>
+                    </sc-for>
+                  </select>
+                </sc-if>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:8px">
+                  <span style="font-size:15px;font-weight:700">{{ p.priceLabel }}</span>
+                  <button onClick="{{ p.onAdd }}" style="{{ p.btnStyle }}">{{ p.btnLabel }}</button>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ sec.showGiftBanner }}" hint-placeholder-val="{{ false }}">
+          <div class="gift-banner" style="margin:40px 0 8px;position:relative;overflow:hidden;border-radius:22px;padding:44px 42px;background:linear-gradient(135deg,#12181c 0%,#1d1411 58%,#3a1d11 100%);border:1px solid rgba(255,255,255,.08)">
+            <div class="gift-shine"></div>
+            <div style="position:absolute;top:-90px;right:150px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(194,82,42,.4),transparent 70%);pointer-events:none"></div>
+            <div style="position:absolute;bottom:-120px;left:-50px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(227,138,94,.14),transparent 70%);pointer-events:none"></div>
+            <div style="position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:34px;flex-wrap:wrap">
+              <div style="max-width:520px;min-width:260px;flex:1">
+                <div style="display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.18em;color:#0b0f12;font-weight:800;background:#E38A5E;border-radius:999px;padding:6px 14px;margin-bottom:16px">PARA REGALAR</div>
+                <div style="font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1.02;color:#fff;margin-bottom:10px">Regalá una <span style="color:#E38A5E">Gift Card</span></div>
+                <p style="font-size:14.5px;color:rgba(255,255,255,.8);line-height:1.55;margin:0 0 18px;max-width:440px">El regalo perfecto: que elijan lo que quieran. Vos elegís el monto.</p>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px">
+                  <span style="font-size:12px;font-weight:700;color:#fff;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:7px 13px">Gs. 100.000</span>
+                  <span style="font-size:12px;font-weight:700;color:#fff;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:7px 13px">Gs. 300.000</span>
+                  <span style="font-size:12px;font-weight:700;color:#fff;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:7px 13px">Gs. 500.000</span>
+                  <span style="font-size:12px;font-weight:700;color:#0b0f12;background:#fff;border-radius:999px;padding:7px 13px">hasta 1.000.000</span>
+                </div>
+                <button onClick="{{ giftOpen }}" style="background:#C2522A;color:#fff;border:0;border-radius:11px;padding:15px 28px;font-size:14px;font-weight:700;letter-spacing:.02em;cursor:pointer;box-shadow:0 14px 30px -12px rgba(194,82,42,.9)" style-hover="background:#A9451F">Elegir Gift Card →</button>
+              </div>
+              <div style="position:relative;flex:none">
+                <div style="position:absolute;inset:-24px;border-radius:50%;background:radial-gradient(circle,rgba(227,138,94,.35),transparent 70%);filter:blur(6px)"></div>
+                <img src="{{ giftImg }}" alt="Gift Card Aguará" class="gift-float" style="position:relative;width:300px;max-width:80vw;border-radius:16px;object-fit:cover;box-shadow:0 26px 60px -20px rgba(0,0,0,.85)" />
+              </div>
+            </div>
+          </div>
+        </sc-if>
+        </sc-for>
+        <sc-if value="{{ noProducts }}" hint-placeholder-val="{{ false }}">
+          <div style="border:1px dashed #D8DBDD;padding:46px 20px;text-align:center;color:#8B9297;font-size:14px;line-height:1.6">Sin productos cargados en esta categoría.<br /><span style="font-size:13px">Se completa con la migración del catálogo vigente.</span></div>
+        </sc-if>
+      </section>
+
+      <section style="max-width:1280px;margin:36px auto 0;padding:0 20px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:0;border:1px solid #E6E8EA">
+          <div style="{{ storyImgStyle }}"><span style="font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.12em;color:#8B9297">{{ storyPlaceholder }}</span></div>
+          <div style="padding:34px;display:flex;flex-direction:column;justify-content:center;gap:12px">
+            <div style="font-size:12px;letter-spacing:.2em;color:#8B9297">{{ storyEyebrow }}</div>
+            <h3 style="{{ storyTitleStyle }}">{{ storyTitle }}</h3>
+            <p style="{{ storyTextStyle }}">{{ storyText }}</p>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <section style="max-width:1280px;margin:40px auto 0;padding:0 20px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:#E6E8EA;border:1px solid #E6E8EA">
+        <div style="background:#FAFAFA;padding:18px 20px;font-size:13px;color:#454D52"><strong style="display:block;color:#11181C;margin-bottom:4px">Delivery gratis</strong>En pedidos mayores a 2.500.000 Gs.</div>
+        <div style="background:#FAFAFA;padding:18px 20px;font-size:13px;color:#454D52"><strong style="display:block;color:#11181C;margin-bottom:4px">Pago seguro</strong>Procesado online por la pasarela contratada.</div>
+        <div style="background:#FAFAFA;padding:18px 20px;font-size:13px;color:#454D52"><strong style="display:block;color:#11181C;margin-bottom:4px">Cambios y devoluciones</strong>Según política vigente publicada.</div>
+        <div style="background:#FAFAFA;padding:18px 20px;font-size:13px;color:#454D52"><strong style="display:block;color:#11181C;margin-bottom:4px">Atención al cliente</strong>Lunes a viernes para tus consultas.</div>
+      </div>
+    </section>
+  </main>
+
+  <footer style="margin-top:48px;background:#11181C;color:#fff;padding:44px 20px 26px">
+    <div style="max-width:1280px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:28px">
+      <div>
+        <div style="font-weight:800;font-size:18px;margin-bottom:10px">AGUARA FITWEAR</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.6);line-height:1.8">Training<br />Running<br />Ciclismo<br />Aire libre<br />Casual deportiva<br />Court Sports · Swimming</div>
+      </div>
+      <div>
+        <div style="font-family:Jost,sans-serif;font-weight:500;font-size:18px;letter-spacing:.14em;margin-bottom:10px">VULKA</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.6);line-height:1.8">Casual<br />Oficina<br />Tendencias</div>
+      </div>
+      <div>
+        <div style="font-weight:700;font-size:13px;letter-spacing:.1em;margin-bottom:10px">AYUDA</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.6);line-height:1.8">Tabla de tallas<br />Políticas de envío, cambios y devoluciones<br />Descargar catálogo (PDF)<br />Instagram · Facebook</div>
+      </div>
+    </div>
+    <div style="max-width:1280px;margin:30px auto 0;padding-top:16px;border-top:1px solid rgba(255,255,255,.14);display:flex;gap:14px;flex-wrap:wrap;justify-content:space-between;font-size:12px;color:rgba(255,255,255,.45)">
+      <span>aguarafitwear.com.py · vulka.com.py — una sola plataforma</span>
+      <span>© 2026 · Todos los derechos reservados</span>
+    </div>
+  </footer>
+
+  <sc-if value="{{ cartOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:60;display:flex;justify-content:flex-end">
+      <div onClick="{{ closeCart }}" style="position:absolute;inset:0;background:rgba(17,24,28,.45)"></div>
+      <aside style="position:relative;width:min(390px,100%);background:#fff;height:100%;display:flex;flex-direction:column;box-shadow:-20px 0 60px rgba(0,0,0,.2)">
+        <div style="padding:20px;border-bottom:1px solid #EAECED;display:flex;align-items:center;justify-content:space-between">
+          <div style="font-weight:700;font-size:16px">Tu carrito</div>
+          <button onClick="{{ closeCart }}" style="border:0;background:transparent;font-size:20px;cursor:pointer;color:#5A6268;line-height:1">×</button>
+        </div>
+        <div style="flex:1;overflow:auto;padding:8px 20px">
+          <sc-for list="{{ cartItems }}" as="it" hint-placeholder-count="2">
+            <div style="display:flex;gap:12px;padding:14px 0;border-bottom:1px solid #F0F1F2">
+              <div style="width:56px;height:70px;flex:none;background:repeating-linear-gradient(115deg,#F2F3F4 0 7px,#E9EAEB 7px 14px)"></div>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:10px;font-weight:700;letter-spacing:.1em;color:#8B9297">{{ it.brandLabel }}</div>
+                <div style="font-size:13px;font-weight:600;line-height:1.35;margin:3px 0">{{ it.name }}</div>
+                <div style="font-size:12px;color:#5A6268">{{ it.size }}</div>
+                <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+                  <button onClick="{{ it.dec }}" style="width:24px;height:24px;border:1px solid #DDE0E2;background:#fff;border-radius:2px;cursor:pointer">−</button>
+                  <span style="font-size:13px;min-width:14px;text-align:center">{{ it.qty }}</span>
+                  <button onClick="{{ it.inc }}" style="width:24px;height:24px;border:1px solid #DDE0E2;background:#fff;border-radius:2px;cursor:pointer">+</button>
+                  <span style="margin-left:auto;font-size:13px;font-weight:700">{{ it.lineLabel }}</span>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+          <sc-if value="{{ cartEmpty }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:44px 0;text-align:center;color:#8B9297;font-size:14px">Tu carrito está vacío.</div>
+          </sc-if>
+        </div>
+        <div style="border-top:1px solid #EAECED;padding:18px 20px 22px;display:flex;flex-direction:column;gap:12px">
+          <sc-if value="{{ mixed }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#F6F7F7;border-left:3px solid #C2522A;padding:10px 12px;font-size:12px;color:#454D52;line-height:1.45">Carrito mixto Aguara + Vulka: un solo pago y una sola confirmación de pedido.</div>
+          </sc-if>
+          <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700"><span>Subtotal</span><span>{{ cartTotalLabel }}</span></div>
+          <div style="font-size:12px;color:#8B9297">Envío calculado en el checkout.</div>
+          <button style="background:#11181C;color:#fff;border:0;border-radius:2px;padding:15px;font-size:14px;font-weight:700;letter-spacing:.04em;cursor:pointer" style-hover="background:#000">FINALIZAR COMPRA</button>
+        </div>
+      </aside>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{}">
+const CAT = {
+  aguara: ["Training", "Running", "Ciclismo", "Aire libre", "Casual deportiva"],
+  vulka: ["Casual", "Oficina", "Tendencias"]
+};
+const EXTRA_AGUARA = ["Court Sports", "Swimming"];
+const U = "https://aguarafitwear.com.py/wp-content/uploads/2026/06/";
+const IMG = {
+  a1: U + "PAT07019-700x1050.jpg",
+  a2: U + "PAT06720.jpg",
+  a4: U + "PAT06674.jpg",
+  heroA: "uploads/opt/SJD_3728.webp?v=2",
+  storyA: "uploads/opt/PAT06737.webp?v=hi"
+};
+const PRODUCTS = [
+  { id: "ag-01", b: "aguara", cat: "Training", name: "AGUARA CRUX TOP", price: 140000, sizes: "XS · S · M · G · XG", img: "uploads/opt/SJD_3638-2.webp" },
+  { id: "ag-02", b: "aguara", cat: "Training", name: "AGUARA FLOW CLASSIC", price: 190000, sizes: "XS · S · M · G · XG", img: "uploads/opt/3.webp" },
+  { id: "ag-03", b: "aguara", cat: "Court Sports", name: "AGUARA FLOW SKIRT", price: 160000, sizes: "XS · S · M · G · XG", img: "uploads/opt/SJD_3019-scaled.webp" },
+  { id: "ag-04", b: "aguara", cat: "Training", name: "AGUARA FLOW TOP", price: 150000, sizes: "XS · S · M · G · XG", img: "uploads/opt/SJD_3014-scaled.webp" },
+  { id: "ag-05", b: "aguara", cat: "Court Sports", name: "AGUARA GLOW SKIRT", price: 160000, sizes: "XS · S · M · G · XG", img: "uploads/opt/Historia-de-Instagram-Frase-Mate-de-Mate-Minimalista-Blanco-y-Negro.webp" },
+  { id: "ag-06", b: "aguara", cat: "Running", name: "AGUARA PULSE + UV", price: 160000, sizes: "XS · S · M · G · XG", img: "uploads/opt/63.webp" },
+  { id: "ag-07", b: "aguara", cat: "Training", name: "AGUARA TOP SECURE", price: 150000, sizes: "XS · S · M · G · XG", img: "uploads/opt/SJD_2966-scaled.webp" },
+  { id: "ag-08", b: "aguara", cat: "Casual deportiva", name: "BOLSO AGUARA", price: 80000, sizes: "Único", img: "uploads/opt/45.webp" },
+  { id: "ag-09", b: "aguara", cat: "Casual deportiva", name: "Camisillas Cotton Fem", price: 120000, sizes: "XS · S · M · G · XG", img: "uploads/opt/cottonAguara01.webp" },
+  { id: "ag-10", b: "aguara", cat: "Running", name: "Camisilla Ligera Pro Run", price: 110000, sizes: "XS · S · M · G · XG", img: "uploads/opt/PAT03613-scaled.webp" },
+  { id: "ag-11", b: "aguara", cat: "Running", name: "Camisilla Pro Run", price: 140000, sizes: "XS · S · M · G · XG", img: "uploads/opt/PAT03708-scaled.webp" },
+  { id: "ag-12", b: "aguara", cat: "Training", name: "Campera Aguara Training", price: 190000, sizes: "XS · S · M · G · XG", img: "uploads/opt/PAT06271-1.webp" },
+  { id: "ag-13", b: "aguara", cat: "Casual deportiva", name: "Camisilla Cotton Flow", price: 125000, sizes: "XS · S · M · G · XG", img: "uploads/opt/carmen-blanco01.webp" },
+  { id: "ag-14", b: "aguara", cat: "Ciclismo", name: "Chaleco Aguara Bike", price: 210000, sizes: "XS · S · M · G · XG", img: "uploads/opt/PAT07304.webp" },
+  { id: "ag-15", b: "aguara", cat: "Casual deportiva", name: "Chaqueta Aguara Sport", price: 210000, sizes: "XS · S · M · G · XG", img: "uploads/opt/PAT06674.webp" },
+  { id: "ag-16", b: "aguara", cat: "Ciclismo", name: "Ciclista Medio", price: 159000, sizes: "XS · S · M · G · XG", img: "uploads/opt/ciclistamedio04.webp" },
+  { id: "ag-17", b: "aguara", cat: "Ciclismo", name: "Ciclista Corto", price: 150000, sizes: "XS · S · M · G · XG", img: "uploads/opt/ciclistacorto03.webp" },
+  { id: "ag-18", b: "aguara", cat: "Ciclismo", name: "Ciclista Pro Run", price: 140000, sizes: "XS · S · M · G · XG", img: "uploads/opt/PAT03705-scaled.webp" },
+  { id: "ag-19", b: "aguara", cat: "Ciclismo", name: "Ciclista Stride Cargo", price: 150000, sizes: "XS · S · M · G · XG", img: "uploads/opt/PAT03542-scaled.webp" },
+  { id: "ag-20", b: "aguara", cat: "Training", name: "Enterizo Aguara Clasico", price: 390000, sizes: "XS · S · M · G · XG", img: "uploads/opt/PAT06741-1.webp" },
+  { id: "ag-21", b: "aguara", cat: "Training", name: "ENTERIZO AGUARA LUMEN OVAL", price: 190000, sizes: "XS · S · M · G · XG", img: "uploads/opt/46.webp" },
+  { id: "ag-22", b: "aguara", cat: "Training", name: "ENTERIZO AGUARA LUMEN TIRA", price: 190000, sizes: "XS · S · M · G · XG", img: "uploads/opt/27.webp" },
+  { id: "ag-23", b: "aguara", cat: "Training", name: "Enterizo Aguara Pata Ancha", price: 390000, sizes: "XS · S · M · G · XG", img: "uploads/opt/PAT06616.webp" },
+  { id: "ag-24", b: "aguara", cat: "Casual deportiva", name: "Gift Card", price: 100000, sizes: "Monto a elegir", amounts: [100000, 200000, 300000, 350000, 400000, 500000, 600000, 700000, 800000, 900000, 1000000], img: "uploads/opt/gIFT-CARD.webp" },
+  { id: "ag-25", b: "aguara", cat: "Casual deportiva", name: "Pantalón Strai AGUARÁ", price: 160000, sizes: "XS · S · M · G · XG", img: "uploads/opt/40.webp" },
+  { id: "ag-26", b: "aguara", cat: "Training", name: "Legging Aguara Oxford", price: 280000, sizes: "XS · S · M · G · XG", img: "uploads/opt/PAT03661-scaled.webp" },
+  { id: "ag-27", b: "aguara", cat: "Training", name: "Legging Clásico", price: 260000, sizes: "XS · S · M · G · XG", img: "uploads/opt/54.webp" },
+  { id: "ag-28", b: "aguara", cat: "Training", name: "Legging Cruzado", price: 260000, sizes: "XS · S · M · G · XG", img: "uploads/opt/topEmma01.webp" },
+  { id: "ag-29", b: "aguara", cat: "Training", name: "Musculosa AFLC", price: 125000, sizes: "XS · S · M · G · XG", img: "uploads/opt/aflc01.webp" },
+  { id: "ag-30", b: "aguara", cat: "Casual deportiva", name: "Musculosa Cotton Masc", price: 130000, sizes: "XS · S · M · G · XG", img: "uploads/opt/cottonMasc01.webp" },
+  { id: "ag-31", b: "aguara", cat: "Casual deportiva", name: "Oversize Urban Aguara", price: 160000, sizes: "XS · S · M · G · XG", img: "uploads/opt/PAT03691-scaled.webp" },
+  { id: "ag-32", b: "aguara", cat: "Training", name: "Pantalón Aguara Training", price: 140000, sizes: "XS · S · M · G · XG", img: "uploads/opt/PAT06277.webp" },
+  { id: "ag-33", b: "aguara", cat: "Casual deportiva", name: "PULLOVER NACIONAL", price: 220000, sizes: "XS · S · M · G · XG", img: "uploads/opt/ChatGPT-Image-16-jun-2026-04_00_54-p.m.webp" },
+  { id: "ag-34", b: "aguara", cat: "Training", name: "Pupera", price: 115000, sizes: "XS · S · M · G · XG", img: "uploads/opt/pupera01.webp" },
+  { id: "ag-35", b: "aguara", cat: "Casual deportiva", name: "Remera Aguara", price: 135000, sizes: "XS · S · M · G · XG", img: "uploads/opt/SJD_8577.webp" },
+  { id: "ag-36", b: "aguara", cat: "Running", name: "Remera Dry Fit Lisa", price: 90000, sizes: "XS · S · M · G · XG", img: "uploads/opt/dryFit01.webp" },
+  { id: "ag-37", b: "aguara", cat: "Casual deportiva", name: "Remera Premium", price: 120000, sizes: "XS · S · M · G · XG", img: "uploads/opt/SJD_8538.webp" },
+  { id: "ag-38", b: "aguara", cat: "Training", name: "Short Cross", price: 112000, sizes: "XS · S · M · G · XG", img: "uploads/opt/shortCross02.webp" },
+  { id: "ag-39", b: "aguara", cat: "Running", name: "Short Running Freedom", price: 150000, sizes: "XS · S · M · G · XG", img: "uploads/opt/8-7.webp" },
+  { id: "ag-40", b: "aguara", cat: "Running", name: "Short Running", price: 150000, sizes: "XS · S · M · G · XG", img: "uploads/opt/shortRunning01.webp" },
+  { id: "ag-41", b: "aguara", cat: "Casual deportiva", name: "SUDADERA ESSENCE AGUARA", price: 190000, sizes: "XS · S · M · G · XG", img: "uploads/opt/25.webp" },
+  { id: "ag-42", b: "aguara", cat: "Training", name: "Top Aguara Aura", price: 160000, sizes: "XS · S · M · G · XG", img: "uploads/opt/PAT07019-scaled.webp" },
+  { id: "ag-43", b: "aguara", cat: "Training", name: "Top Aguara Classic", price: 160000, sizes: "XS · S · M · G · XG", img: "uploads/opt/PAT06720.webp" },
+  { id: "ag-44", b: "aguara", cat: "Training", name: "Top Aguara Sport", price: 160000, sizes: "XS · S · M · G · XG", img: "uploads/opt/PAT06926-scaled.webp" },
+  { id: "ag-45", b: "aguara", cat: "Training", name: "Top Deportivo Clásico", price: 150000, sizes: "XS · S · M · G · XG", img: "uploads/opt/topClasico01.webp" },
+  { id: "ag-46", b: "aguara", cat: "Training", name: "Top Deportivo Corrugado", price: 145000, sizes: "XS · S · M · G · XG", img: "uploads/opt/topCorrugado08.webp" },
+  { id: "ag-47", b: "aguara", cat: "Training", name: "Top Deportivo Cuello Alto Corto", price: 130000, sizes: "XS · S · M · G · XG", img: "uploads/opt/topCuelloAlto01.webp" },
+  { id: "ag-48", b: "aguara", cat: "Running", name: "Top Stride Pocket", price: 160000, sizes: "XS · S · M · G · XG", img: "uploads/opt/PAT03539-scaled.webp" },
+];
+// Hero filmstrip: fotos Aguará, título en 2 líneas y color al que se tiñe el fondo.
+const AU = "https://aguarafitwear.com.py/wp-content/uploads/";
+const HERO = [
+  { t: "SI ELEGÍS\nMOVERTE", tag: "TRAINING", acc: "#C2522A", pos: "50% 38%", img: "uploads/opt/PAT06737.webp" },
+  { t: "JUGÁ TU\nJUEGO", tag: "COURT SPORTS", acc: "#3E6B57", pos: "50% 42%", img: "uploads/opt/SJD_3072.webp" },
+  { t: "ENTRENÁ\nSIN LÍMITES", tag: "TRAINING", acc: "#33475A", pos: "50% 36%", img: "uploads/opt/PAT06786.webp" },
+  { t: "TU RITMO,\nTU REGLA", tag: "AIRE LIBRE", acc: "#1E7A74", pos: "50% 45%", img: "uploads/opt/SJD_2997.webp" },
+  { t: "HECHO EN\nPARAGUAY", tag: "CASUAL", acc: "#9A5A2C", pos: "50% 38%", img: "uploads/opt/SJD_2896.webp" },
+  { t: "COLECCIÓN\nEN MOVIMIENTO", tag: "COLECCIÓN", acc: "#45406B", pos: "50% 42%", img: "uploads/opt/SJD_3728.webp?v=2" },
+];
+const gs = (n) => "Gs. " + n.toLocaleString("es-PY");
+// Sirve imágenes redimensionadas + WebP (mucho más livianas) vía wsrv.nl.
+const px = (u, w) => u ? "https://wsrv.nl/?url=" + encodeURIComponent(u.replace(/^https?:\/\//, "")) + "&w=" + w + "&output=webp&q=80&maxage=30d" : u;
+
+
+class Component extends DCLogic {
+  state = { view: "home", cat: null, query: "", cart: [], cartOpen: false, vulka: [], sel: {}, hero: 2, heroTop: "A", aIdx: 2, bIdx: 2, pd: null, pdSize: null, pdQty: 1, vkHover: 0 };
+
+  componentDidMount() {
+    import("./vulka-catalog.js?v=2").then((m) => this.setState({ vulka: m.VULKA }));
+  }
+
+  setBrand(b) { this.setState({ view: b, cat: null, query: "" }); }
+
+  goHero(i) {
+    this.setState((s) => {
+      const n = HERO.length;
+      const c = ((i % n) + n) % n;
+      if (c === s.hero) return null;
+      const top = s.heroTop === "A" ? "B" : "A";
+      const patch = { hero: c, heroTop: top };
+      if (top === "A") patch.aIdx = c; else patch.bIdx = c;
+      return patch;
+    });
+  }
+
+  // Abre la página de un producto.
+  openProduct(p) {
+    const opts = (p.sizes || "").split(" · ");
+    const isSize = opts.length > 1 && opts.every((o) => o.length <= 3);
+    this.setState({ pd: p, pdSize: isSize ? opts[0] : null, pdQty: 1, cartOpen: false });
+    try { window.scrollTo(0, 0); } catch (e) {}
+  }
+
+  // Agrega el producto abierto al carrito, respetando talle, monto y cantidad.
+  pdAdd() {
+    const p = this.state.pd;
+    if (!p) return;
+    const amt = p.amounts ? (this.state.sel[p.id] || p.amounts[0]) : null;
+    const price = p.amounts ? amt : p.price;
+    if (!price) return;
+    const variant = p.amounts ? gs(amt) : this.state.pdSize;
+    const qty = Math.max(1, this.state.pdQty);
+    this.setState((s) => {
+      const key = p.id + (variant || "std");
+      const found = s.cart.find((i) => i.key === key);
+      const cart = found
+        ? s.cart.map((i) => (i.key === key ? { ...i, qty: i.qty + qty } : i))
+        : [...s.cart, { key, id: p.id, name: p.name, b: p.b, price, size: variant, qty }];
+      return { cart, cartOpen: true };
+    });
+  }
+
+  add(p, variant) {
+    this.setState((s) => {
+      const opts = (p.sizes || "").split(" · ");
+      const isSize = opts.length > 1 && opts.every((o) => o.length <= 3);
+      const size = variant !== undefined ? variant : (isSize ? opts[1] : null);
+      const key = p.id + (size || "std");
+      const found = s.cart.find((i) => i.key === key);
+      const cart = found
+        ? s.cart.map((i) => (i.key === key ? { ...i, qty: i.qty + 1 } : i))
+        : [...s.cart, { key, id: p.id, name: p.name, b: p.b, price: p.price, size, qty: 1 }];
+      return { cart, cartOpen: true };
+    });
+  }
+  bump(key, d) {
+    this.setState((s) => ({
+      cart: s.cart.map((i) => (i.key === key ? { ...i, qty: i.qty + d } : i)).filter((i) => i.qty > 0)
+    }));
+  }
+
+  renderVals() {
+    const v = this.state.view;
+    const isHome = v === "home";
+    const isAguara = v === "aguara";
+    const isVulka = v === "vulka";
+    const accent = isVulka ? "#11181C" : "#C2522A";
+    const jost = isVulka ? "font-family:Jost,sans-serif;" : "";
+    const q = this.state.query.trim().toLowerCase();
+
+    const ALL = PRODUCTS.concat(this.state.vulka);
+    const hasSin = this.state.vulka.some((p) => p.cat === "Sin clasificar");
+    const list = ALL.filter((p) => p.b === v)
+      .filter((p) => (this.state.cat ? p.cat === this.state.cat : true))
+      .filter((p) => (q ? (p.name + " " + p.cat).toLowerCase().includes(q) : true));
+
+    const chipBase = "border:1px solid #E0E2E4;background:#fff;color:#454D52;border-radius:999px;padding:9px 16px;font-size:13px;cursor:pointer;" + jost;
+    const chipOn = "border:1px solid " + accent + ";background:" + accent + ";color:#fff;border-radius:999px;padding:9px 16px;font-size:13px;cursor:pointer;font-weight:600;" + jost;
+
+    const tab = (on) =>
+      "border:0;border-radius:999px;padding:7px 14px;cursor:pointer;display:flex;align-items:center;transition:opacity .2s,background .2s;" +
+      (on ? "background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.15)" : "background:transparent;opacity:.5");
+
+    const navStyle = (on) =>
+      "border:0;background:transparent;padding:0;cursor:pointer;font-size:13.5px;letter-spacing:.02em;" +
+      (on ? "color:#11181C;font-weight:700" : "color:#5A6268;font-weight:500") + ";" + jost;
+
+    const cart = this.state.cart;
+    const total = cart.reduce((a, i) => a + i.price * i.qty, 0);
+    const brands = new Set(cart.map((i) => i.b));
+
+    // --- Hero filmstrip (solo Aguara) ---
+    const H = Math.min(Math.max(this.state.hero, 0), HERO.length - 1);
+    const hs = HERO[H];
+    const CW = 118, CG = 8, FULL = 158, HALF = 104;
+    const ease = "cubic-bezier(.22,1,.36,1)";
+    const aI = Math.min(Math.max(this.state.aIdx, 0), HERO.length - 1);
+    const bI = Math.min(Math.max(this.state.bIdx, 0), HERO.length - 1);
+    const heroTop = this.state.heroTop;
+    const bgLayer = (idx) => "position:absolute;inset:0;background:#000 url(" + HERO[idx].img + ") " + HERO[idx].pos + "/cover no-repeat;transition:opacity 1.1s ease,transform 1.7s ease";
+
+    // --- Página de producto ---
+    const pd = this.state.pd;
+    const pdOpts = pd ? (pd.sizes || "").split(" · ") : [];
+    const pdIsSize = pdOpts.length > 1 && pdOpts.every((o) => o.length <= 3);
+    const pdAmt = pd && pd.amounts ? (this.state.sel[pd.id] || pd.amounts[0]) : null;
+    const pdAccent = pd ? (pd.b === "vulka" ? "#11181C" : "#C2522A") : "#11181C";
+    const chipS = "border:1px solid #D5D8DA;background:#fff;color:#11181C;border-radius:8px;padding:10px 16px;font-size:13px;cursor:pointer;min-width:46px;transition:border-color .2s,background .2s";
+    const chipSOn = "border:1px solid " + pdAccent + ";background:" + pdAccent + ";color:#fff;border-radius:8px;padding:10px 16px;font-size:13px;cursor:pointer;font-weight:700;min-width:46px";
+
+    // Tarjeta de producto para la grilla
+    const mapProduct = (p) => {
+      const amt = p.amounts ? (this.state.sel[p.id] || p.amounts[0]) : null;
+      const buyable = !!(p.amounts || p.price);
+      return {
+        name: p.name, cat: p.cat, sizes: p.sizes,
+        hasAmounts: !!p.amounts,
+        amountOpts: (p.amounts || []).map((v) => ({ value: String(v), label: gs(v) })),
+        onAmount: (e) => this.setState((s) => ({ sel: { ...s.sel, [p.id]: Number(e.target.value) } })),
+        priceLabel: p.amounts ? gs(amt) : (p.price ? gs(p.price) : "Precio a migrar"),
+        btnLabel: buyable ? "Agregar" : "Pendiente",
+        brandLabel: p.b === "vulka" ? "VULKA" : "AGUARA",
+        imgNote: p.img ? "" : "FOTO PRODUCTO",
+        hasImg: !!p.img,
+        noImg: !p.img,
+        cardClass: p.b === "aguara" ? "pcard" : "",
+        cardWrap: "display:flex;flex-direction:column;border:1px solid #EAECED;overflow:hidden;background:#fff;border-radius:" + (p.b === "aguara" ? "12px" : "3px"),
+        imgSrc: p.img ? p.img + "?v=hi" : p.img,
+        imgWrap:
+          "position:relative;aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;background:" +
+          (p.img ? "#F1F2F3" : p.b === "vulka" ? "repeating-linear-gradient(115deg,#F2F2F1 0 9px,#EAEAE9 9px 18px)" : "repeating-linear-gradient(115deg,#F1F2F3 0 9px,#E8EAEB 9px 18px)"),
+        btnStyle: buyable
+          ? "border:1px solid " + accent + ";background:#fff;color:" + accent + ";border-radius:2px;padding:7px 13px;font-size:12px;font-weight:700;cursor:pointer;" + jost
+          : "border:1px dashed #C9CDD0;background:#fff;color:#8B9297;border-radius:2px;padding:7px 13px;font-size:12px;font-weight:600;cursor:not-allowed;" + jost,
+        onAdd: () => { if (p.amounts) this.add({ ...p, price: amt }, gs(amt)); else if (p.price) this.add(p); },
+        onOpen: () => this.openProduct(p)
+      };
+    };
+    const cnt = (n) => n + (n === 1 ? " producto" : " productos");
+    const allCats = isHome ? [] : CAT[v].concat(isAguara ? EXTRA_AGUARA : []);
+    const PREVIEW = 4;
+    const FEAT_AG = ["ag-42", "ag-26", "ag-12", "ag-15", "ag-23", "ag-44"];
+    const mkSection = (key, title, items, sliced) => {
+      const shown = sliced ? items.slice(0, PREVIEW) : items;
+      const more = items.length - shown.length;
+      return {
+        key, title, countLabel: cnt(items.length),
+        products: shown.map(mapProduct),
+        showMore: more > 0, notMore: !(more > 0),
+        moreLabel: "Ver todos (" + items.length + ")",
+        onMore: () => { this.setState({ cat: key }); try { window.scrollTo(0, 0); } catch (e) {} },
+        showGiftBanner: false
+      };
+    };
+    const giftCard = PRODUCTS.find((p) => p.amounts);
+    const giftShow = isAguara && !this.state.cat && !q && !!giftCard;
+    let sections;
+    if (q) {
+      sections = [mkSection("q", "Resultados", list, false)];
+    } else if (this.state.cat) {
+      sections = [mkSection(this.state.cat, this.state.cat, list, false)];
+    } else {
+      const feat = isAguara
+        ? FEAT_AG.map((id) => list.find((p) => p.id === id)).filter(Boolean)
+        : list.slice(0, 6);
+      const featSection = { key: "dest", title: "Destacados", countLabel: "", products: feat.map(mapProduct), showMore: false, notMore: true, moreLabel: "", onMore: () => {}, showGiftBanner: false };
+      const catSections = allCats.map((c) => mkSection(c, c, list.filter((p) => p.cat === c), true)).filter((s) => s.products.length > 0);
+      sections = (feat.length ? [featSection] : []).concat(catSections);
+      if (giftShow && sections.length) {
+        const mid = Math.min(sections.length - 1, Math.max(1, Math.floor(sections.length / 2)));
+        sections[mid] = { ...sections[mid], showGiftBanner: true };
+      }
+    }
+    const brandAll = isHome ? [] : ALL.filter((p) => p.b === v);
+    const catData = allCats.map((c) => {
+      const items = brandAll.filter((p) => p.cat === c);
+      if (!items.length) return null;
+      const wi = items.find((p) => p.img) || items[0];
+      return { name: c, count: cnt(items.length), img: wi.img ? wi.img + "?v=hi" : "" };
+    }).filter(Boolean);
+    const catTiles = catData.map((t) => ({ name: t.name, count: t.count, img: t.img, onClick: () => { this.setState({ cat: t.name }); try { window.scrollTo(0, 0); } catch (e) {} } }));
+    const catTilesShow = isAguara && !this.state.cat && !q;
+    // Lista hover-reveal para Vulka (CSS puro)
+    const vkCats = catData.map((t) => ({
+      name: t.name,
+      count: t.count,
+      imgStyle: "background-image:url(" + t.img + ")",
+      onClick: () => { this.setState({ cat: t.name }); try { window.scrollTo(0, 0); } catch (e) {} }
+    }));
+    const vkListShow = isVulka && !this.state.cat && !q && catData.length > 0;
+    const vkDefaultStyle = catData.length ? "background-image:url(" + catData[0].img + ")" : "";
+
+    return {
+      isHome: isHome && !pd, isBrand: !isHome && !pd, isProduct: !!pd, cartOpen: this.state.cartOpen,
+      pdCat: pd ? pd.cat : "",
+      pdName: pd ? pd.name : "",
+      pdBrandLabel: pd ? (pd.b === "vulka" ? "VULKA" : "AGUARA") : "",
+      pdImgStyle: pd && pd.img ? "position:relative;aspect-ratio:3/4;border-radius:16px;overflow:hidden;background:#F1F2F3 url(" + pd.img + "?v=hi) center/cover no-repeat;box-shadow:0 24px 50px -22px rgba(17,24,28,.4)" : "position:relative;aspect-ratio:3/4;border-radius:16px;background:repeating-linear-gradient(115deg,#F1F2F3 0 9px,#E8EAEB 9px 18px)",
+      pdPriceLabel: pd ? (pd.amounts ? gs(pdAmt) : (pd.price ? gs(pd.price) : "Precio a consultar")) : "",
+      pdPriceColor: pdAccent,
+      pdBtnStyle: "margin-top:8px;background:" + pdAccent + ";color:#fff;border:0;border-radius:10px;padding:17px 24px;font-size:15px;font-weight:700;letter-spacing:.03em;cursor:pointer;max-width:360px;box-shadow:0 14px 30px -12px " + pdAccent + "aa;transition:transform .2s,box-shadow .2s",
+      pdSizeTitle: pd && pdIsSize ? "Talle" : "",
+      pdHasSizes: !!(pd && pdIsSize),
+      pdSizeChips: (pd && pdIsSize ? pdOpts : []).map((sz) => ({
+        name: sz,
+        onClick: () => this.setState({ pdSize: sz }),
+        style: sz === this.state.pdSize ? chipSOn : chipS
+      })),
+      pdHasAmounts: !!(pd && pd.amounts),
+      pdAmountOpts: (pd && pd.amounts ? pd.amounts : []).map((val) => ({ value: String(val), label: gs(val) })),
+      pdOnAmount: (e) => { const v = Number(e.target.value); this.setState((s) => ({ sel: { ...s.sel, [pd.id]: v } })); },
+      pdQty: String(this.state.pdQty),
+      pdDec: () => this.setState((s) => ({ pdQty: Math.max(1, s.pdQty - 1) })),
+      pdInc: () => this.setState((s) => ({ pdQty: s.pdQty + 1 })),
+      pdBuyable: !!(pd && (pd.amounts || pd.price)),
+      pdAddLabel: pd && (pd.amounts || pd.price) ? "Agregar al carrito" : "No disponible",
+      pdAdd: () => this.pdAdd(),
+      closeProduct: () => this.setState({ pd: null }),
+      wordmark: isVulka ? "VULKA" : isAguara ? "AGUARA FITWEAR" : "AGUARA + VULKA",
+      wordmarkLogo: isVulka ? "uploads/opt/vulka-word.png" : "uploads/opt/aguara-word.png",
+      wordmarkAlt: isVulka ? "Vulka" : "Aguara Fitwear",
+      wordmarkH: isVulka ? "30px" : "26px",
+      tabAguara: tab(isAguara), tabVulka: tab(isVulka),
+      goHome: () => this.setState({ view: "home", cat: null, query: "" }),
+      goAguara: () => this.setBrand("aguara"),
+      goVulka: () => this.setBrand("vulka"),
+      navCats: isHome ? [] : CAT[v].map((c) => ({
+        name: c, style: navStyle(this.state.cat === c),
+        onClick: () => this.setState({ cat: this.state.cat === c ? null : c })
+      })),
+      chips: isHome ? [] : [{ name: "Todo", on: !this.state.cat, c: null }].concat(CAT[v].concat(isAguara ? EXTRA_AGUARA : []).map((c) => ({ name: c, on: this.state.cat === c, c })))
+        .map((o) => ({ name: o.name, style: o.on ? chipOn : chipBase, onClick: () => this.setState({ cat: o.c }) })),
+
+      query: this.state.query,
+      onQuery: (e) => this.setState({ query: e.target.value }),
+
+      heroStyle:
+        "position:relative;min-height:420px;display:flex;align-items:flex-end;padding:36px;border-radius:14px;overflow:hidden;background:" +
+        "linear-gradient(90deg,rgba(17,24,28,.78) 0%,rgba(17,24,28,.4) 55%,rgba(17,24,28,.08) 100%), #1B2226 url(uploads/opt/vulka-hero.webp) center 26%/cover no-repeat",
+      heroNote: "rgba(255,255,255,0)",
+      heroKicker: "rgba(255,255,255,.82)",
+      heroPlaceholder: "",
+      heroEyebrow: isVulka ? "NUEVA TEMPORADA" : "COLECCIÓN EN MOVIMIENTO",
+      heroTitle: isVulka ? "Tu mejor versión sigue siendo vos" : "Si elegís moverte, ya sos parte",
+      heroTitleStyle: "font-family:Jost,sans-serif;font-size:clamp(30px,4.4vw,44px);font-weight:500;letter-spacing:.02em;line-height:1.12;color:#fff;text-shadow:0 2px 20px rgba(0,0,0,.35)",
+      heroTextStyle: "font-family:Jost,sans-serif;font-size:15px;line-height:1.6;color:rgba(255,255,255,.85);margin:12px 0 0;max-width:440px;text-wrap:pretty",
+      heroText: isVulka
+        ? "Prendas versátiles para el trabajo, la ciudad y todo lo que pasa entre medio."
+        : "Training, running, ciclismo, aire libre y casual deportiva. Hecho en Paraguay.",
+
+      heroCarousel: isAguara,
+      heroPlain: isVulka,
+      heroStageStyle: "position:relative;width:100%;height:clamp(520px,80vh,760px);overflow:hidden;background:#0b0f12",
+      heroLayerA: bgLayer(aI) + ";opacity:" + (heroTop === "A" ? "1" : "0") + ";transform:scale(" + (heroTop === "A" ? "1" : "1.08") + ")",
+      heroLayerB: bgLayer(bI) + ";opacity:" + (heroTop === "B" ? "1" : "0") + ";transform:scale(" + (heroTop === "B" ? "1" : "1.08") + ")",
+      heroDarkStyle: "position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(8,11,13,.55) 0%,rgba(8,11,13,.12) 32%,rgba(8,11,13,0) 54%,rgba(8,11,13,.66) 100%)",
+      heroTopStyle: "position:absolute;left:0;right:0;top:16px;display:flex;align-items:center;justify-content:center;gap:12px;z-index:3;font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.2em;color:rgba(255,255,255,.85)",
+      heroTag: hs.tag,
+      heroHeadWrap: "position:absolute;left:0;right:0;top:0;height:52%;display:flex;flex-direction:column;justify-content:flex-start;padding:clamp(54px,9vh,96px) clamp(18px,3vw,40px) 16px;z-index:2",
+      heroKickerStyle: "font-size:12px;letter-spacing:.24em;color:#E38A5E;font-weight:600;margin-bottom:10px",
+      heroTitleBig: "margin:0;font-weight:800;letter-spacing:-.03em;line-height:.92;color:#fff;font-size:clamp(28px,4.6vw,56px);text-transform:uppercase;text-shadow:0 2px 24px rgba(0,0,0,.35)",
+      heroLines: hs.t.split("\n"),
+      heroSubStyle: "color:rgba(255,255,255,.82);font-size:15px;line-height:1.5;max-width:430px;margin:12px 0 0;text-wrap:pretty",
+      heroThumbsWrap: "position:absolute;left:0;right:0;bottom:26px;z-index:3;display:flex;justify-content:center;align-items:center;gap:9px;padding:0 16px;flex-wrap:wrap",
+      heroThumbs: HERO.map((s, i) => ({
+        img: s.img,
+        onClick: () => this.goHero(i),
+        style: "flex:none;width:104px;height:66px;border-radius:5px;overflow:hidden;padding:0;cursor:pointer;background:#0b0f12;border:2px solid " + (i === H ? "#fff" : "rgba(255,255,255,.25)") + ";opacity:" + (i === H ? "1" : ".55") + ";transform:translateY(" + (i === H ? "-6px" : "0") + ");transition:opacity .35s,border-color .35s,transform .35s;box-shadow:" + (i === H ? "0 10px 26px rgba(0,0,0,.5)" : "none"),
+        imgStyle: "width:100%;height:100%;object-fit:cover;object-position:" + s.pos + ";display:block"
+      })),
+      heroPrevBtnStyle: "position:absolute;left:clamp(14px,2vw,26px);top:50%;transform:translateY(-50%);z-index:4;width:44px;height:44px;border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.28);color:#fff;border-radius:999px;cursor:pointer;font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px)",
+      heroNextBtnStyle: "position:absolute;right:clamp(14px,2vw,26px);top:50%;transform:translateY(-50%);z-index:4;width:44px;height:44px;border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.28);color:#fff;border-radius:999px;cursor:pointer;font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px)",
+      heroPrev: () => this.goHero(H - 1),
+      heroNext: () => this.goHero(H + 1),
+
+      sections: sections,
+      sectionAccent: isVulka ? "#11181C" : "#C2522A",
+      noProducts: list.length === 0,
+      giftShow: giftShow,
+      catTiles: catTiles,
+      catTilesShow: catTilesShow,
+      vkCats: vkCats,
+      vkListShow: vkListShow,
+      vkDefaultStyle: vkDefaultStyle,
+      vulkaEditorialShow: isVulka && !this.state.cat && !q,
+      giftImg: giftCard && giftCard.img ? giftCard.img + "?v=hi" : "",
+      giftFrom: giftCard && giftCard.amounts ? gs(giftCard.amounts[0]) : "",
+      giftOpen: () => { if (giftCard) this.openProduct(giftCard); },
+
+      storyImgStyle:
+        "min-height:300px;display:flex;align-items:center;justify-content:center;background:" +
+        (isVulka
+          ? "#EEF0F1 url(uploads/opt/vulka-life-1.webp) center 22%/cover no-repeat"
+          : "#F1F2F3 url(" + IMG.storyA + ") center 32%/cover no-repeat"),
+      storyPlaceholder: "",
+      storyEyebrow: isVulka ? "LA MARCA" : "LA MARCA",
+      storyTitle: isVulka ? "La expresión cotidiana del carácter" : "Somos movimiento con identidad",
+      storyTitleStyle: isVulka
+        ? "font-family:Jost,sans-serif;font-weight:400;font-size:26px;letter-spacing:.02em;margin:0"
+        : "font-weight:800;font-size:26px;letter-spacing:-.02em;margin:0",
+      storyText: isVulka
+        ? "Vulka diseña para la persona completa: una mañana de trabajo, una reunión, un viaje, una tarde con amigos. La ropa no crea quién sos, pero ayuda a expresarlo."
+        : "El Aguara representa instinto, resistencia y libertad. Creamos prendas para personas reales: para quienes entrenan aunque cueste. Aguara no viste cuerpos, acompaña procesos.",
+      storyTextStyle: isVulka
+        ? "font-family:Jost,sans-serif;font-size:15px;line-height:1.65;color:#454D52;margin:0;max-width:460px;text-wrap:pretty"
+        : "font-size:15px;line-height:1.6;color:#454D52;margin:0;max-width:460px;text-wrap:pretty",
+
+      cartItems: cart.map((i) => ({
+        name: i.name, qty: i.qty,
+        size: i.size ? (i.size.indexOf("Gs.") === 0 ? "Monto " + i.size : "Talle " + i.size) : "Variante a confirmar",
+        brandLabel: i.b === "vulka" ? "VULKA" : "AGUARA",
+        lineLabel: gs(i.price * i.qty),
+        inc: () => this.bump(i.key, 1),
+        dec: () => this.bump(i.key, -1)
+      })),
+      cartEmpty: cart.length === 0,
+      mixed: brands.size > 1,
+      cartCount: cart.reduce((a, i) => a + i.qty, 0),
+      cartTotalLabel: gs(total),
+      openCart: () => this.setState({ cartOpen: true }),
+      closeCart: () => this.setState({ cartOpen: false })
+    };
+  }
+}
+</script>
+</body>
+</html>

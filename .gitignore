@@ -1,0 +1,9 @@
+# Material fuente interno (no se publica)
+uploads/*.pdf
+uploads/*.xlsx
+.thumbnail
+
+# Sistema
+Thumbs.db
+desktop.ini
+.DS_Store
