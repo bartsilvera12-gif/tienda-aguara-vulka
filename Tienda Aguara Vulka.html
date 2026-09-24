@@ -70,7 +70,7 @@
   .side-cat{text-align:left;border:0;background:transparent;cursor:pointer;font-size:15px;padding:5px 0;color:#5A6268;transition:color .15s}
   .side-cat:hover{color:#11181C}
   .side-cat.on{font-weight:700}
-  .fbox{border:1px solid #E6E1DF;border-radius:14px;padding:18px 18px 20px;background:#FBFAF9}
+  .fbox{border:1px solid rgba(0,0,0,.05);border-radius:16px;padding:18px 18px 20px;background:#fff;box-shadow:0 6px 22px -14px rgba(0,0,0,.3)}
   .rng{--acc:#C2522A;position:relative;height:30px;margin:10px 2px 0}
   .rng .track{position:absolute;top:50%;left:0;right:0;height:4px;transform:translateY(-50%);background:#E4DAD8;border-radius:4px}
   .rng .fill{position:absolute;top:50%;height:4px;transform:translateY(-50%);background:var(--acc);border-radius:4px}
@@ -353,7 +353,8 @@
     </sc-if>
 
     <sc-if value="{{ isCatalog }}" hint-placeholder-val="{{ false }}">
-      <section style="max-width:1280px;margin:0 auto;padding:22px 20px 0">
+      <div style="{{ catBgStyle }}">
+      <section style="max-width:1280px;margin:0 auto;padding:24px 20px 52px">
         <button onClick="{{ backToBrand }}" style="border:0;background:transparent;padding:6px 0;cursor:pointer;font-size:13px;color:#5A6268" style-hover="color:#11181C">{{ backToBrandLabel }}</button>
         <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:6px">
           <div>
@@ -447,6 +448,7 @@
           </div>
         </div>
       </section>
+      </div>
     </sc-if>
 
     <section style="max-width:1280px;margin:40px auto 0;padding:0 20px">
@@ -870,6 +872,9 @@ class Component extends DCLogic {
       backToBrand: () => this.setState({ catalog: false, ...this.resetFilters() }),
       backToBrandLabel: "← Volver a " + (isVulka ? "Vulka" : "Aguará"),
       rngAccentStyle: "--acc:" + accent,
+      catBgStyle: isVulka
+        ? "background:radial-gradient(760px 340px at 88% -14%,rgba(17,24,28,.06),transparent 70%),linear-gradient(180deg,#F7F8F9 0%,#EAEEEF 100%);border-top:1px solid #E4E7E8;border-bottom:1px solid #E4E7E8"
+        : "background:radial-gradient(760px 340px at 88% -14%,rgba(194,82,42,.11),transparent 70%),linear-gradient(180deg,#FBF7F4 0%,#F2E9E3 100%);border-top:1px solid #EEE4DE;border-bottom:1px solid #EEE4DE",
       sideCats: [{ name: "Todas", on: !this.state.cat, onClick: () => this.setState({ cat: null }) }]
         .concat(catsAvail.map((c) => ({ name: c, on: this.state.cat === c, onClick: () => this.setState({ cat: c }) })))
         .map((o) => ({ name: o.name, onClick: o.onClick, cls: o.on ? "side-cat on" : "side-cat", style: o.on ? "color:" + accent : "" })),
