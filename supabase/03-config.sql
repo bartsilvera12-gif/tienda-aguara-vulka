@@ -14,6 +14,9 @@ grant all    on aguaravulka.config to authenticated, service_role;
 
 alter table aguaravulka.config enable row level security;
 
+drop policy if exists "lectura publica" on aguaravulka.config;
+drop policy if exists "escritura admin" on aguaravulka.config;
+
 create policy "lectura publica" on aguaravulka.config for select using (true);
 create policy "escritura admin" on aguaravulka.config for all to authenticated
   using ((auth.jwt() ->> 'email') = 'admin@aguaravulka.com.py')
