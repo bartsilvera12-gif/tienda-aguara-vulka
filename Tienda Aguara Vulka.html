@@ -300,7 +300,7 @@
       <sc-if value="{{ vkListShow }}" hint-placeholder-val="{{ false }}">
         <section style="max-width:1280px;margin:0 auto;padding:34px 20px 0">
           <div style="font-family:Jost,sans-serif;font-size:12px;letter-spacing:.2em;color:#8B9297;font-weight:500;margin-bottom:16px">EXPLORÁ POR CATEGORÍA</div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,205px));gap:14px;justify-content:start">
             <sc-for list="{{ vkCats }}" as="t" hint-placeholder-count="3">
               <button onClick="{{ t.onClick }}" class="vkcat" style="aspect-ratio:3/4;width:100%">
                 <div class="vkcat-img" style="{{ t.imgStyle }}"></div>
