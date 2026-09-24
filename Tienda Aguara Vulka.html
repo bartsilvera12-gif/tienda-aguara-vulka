@@ -993,7 +993,7 @@ class Component extends DCLogic {
     } else {
       const featSet0 = new Set(FEAT_AG);
       const marked = list.filter((p) => featSet0.has(p.id));
-      const feat = (marked.length ? marked : list).slice(0, 6);
+      const feat = marked.length ? marked : list.slice(0, 6);
       const featSection = { key: "dest", title: "Destacados", countLabel: "", products: feat.map(mapProduct), showMore: false, notMore: true, moreLabel: "", onMore: () => {}, showGiftBanner: false };
       const catSections = allCats.map((c) => mkSection(c, c, list.filter((p) => p.cat === c), true)).filter((s) => s.products.length > 0);
       sections = (feat.length ? [featSection] : []).concat(catSections);
@@ -1096,9 +1096,9 @@ class Component extends DCLogic {
       pdCat: pd ? pd.cat : "",
       pdName: pd ? pd.name : "",
       pdBrandLabel: pd ? (pd.b === "vulka" ? "VULKA" : "AGUARA") : "",
-      pdIsGift: !!(pd && pd.amounts),
+      pdIsGift: !!(pd && pd.amounts && !pd.img),
       pdGiftAmount: pd && pd.amounts ? gs(pdAmt) : "",
-      pdImgStyle: pd && pd.amounts
+      pdImgStyle: (pd && pd.amounts && !pd.img)
         ? "position:relative;aspect-ratio:3/4;border-radius:16px;overflow:hidden;background:linear-gradient(160deg,#1b1512,#120d0b)"
         : (pd && (this.state.pdImg || pd.img) ? "position:relative;aspect-ratio:3/4;border-radius:16px;overflow:hidden;background:#F1F2F3 url(" + (this.state.pdImg || pd.img) + "?v=hi) center/cover no-repeat;box-shadow:0 24px 50px -22px rgba(17,24,28,.4)" : "position:relative;aspect-ratio:3/4;border-radius:16px;background:repeating-linear-gradient(115deg,#F1F2F3 0 9px,#E8EAEB 9px 18px)"),
       pdHasGallery: !!(pd && !pd.amounts && pd.gallery && pd.gallery.length > 1),
