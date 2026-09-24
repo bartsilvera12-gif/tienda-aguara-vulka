@@ -79,19 +79,19 @@
   .rng input::-moz-range-thumb{pointer-events:auto;width:16px;height:16px;border-radius:50%;background:var(--acc);border:3px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.28);cursor:pointer}
   .chk{display:flex;align-items:center;gap:9px;font-size:14px;color:#454D52;cursor:pointer;padding:5px 0}
   .chk input{width:16px;height:16px;accent-color:var(--acc);cursor:pointer}
-  /* Header con logo centrado y grupos agrupados cerca del logo */
+  /* Header con logo centrado y todo agrupado cerca del logo (desktop) */
   .site-header{justify-content:center !important}
   .hdr-left{flex:none;display:flex;gap:18px;align-items:center}
   .hdr-center{flex:none;display:flex;justify-content:center}
-  .hdr-right{flex:none;display:flex;gap:12px;align-items:center}
   .hdr-link{border:0;background:transparent;padding:2px 4px;cursor:pointer;font-size:15px;font-weight:600;letter-spacing:.02em;color:#4A5157;transition:color .15s}
   .hdr-link:hover{color:#11181C}
   @media(max-width:760px){
-    .site-header{justify-content:space-between !important}
-    .hdr-center{order:-1;flex-basis:100%;justify-content:center;margin-bottom:2px}
-    .hdr-left{flex:0 0 auto;order:1}
-    .hdr-right{order:2;flex:1 1 auto;min-width:0;justify-content:flex-end}
-    .hdr-search{flex:1 1 0;min-width:0;width:auto !important}
+    .site-header{justify-content:space-between !important;align-items:center;row-gap:10px;column-gap:10px}
+    .hdr-center{order:-1;flex-basis:100%;justify-content:center;margin-bottom:4px}
+    .hdr-left{order:1;flex:0 0 auto;gap:22px}
+    .hdr-link{font-size:16px}
+    .hdr-cart{order:2;margin-left:auto}
+    .hdr-search{order:3;flex-basis:100%;width:100% !important}
   }
   /* Boton CTA catalogo (usa var para el hover, evita texto invisible) */
   .cta-full{--acc:#C2522A;display:inline-flex;align-items:center;gap:10px;border:1px solid var(--acc);background:#fff;color:var(--acc);border-radius:999px;padding:14px 30px;font-size:14px;font-weight:700;letter-spacing:.02em;cursor:pointer;transition:background .25s ease,color .25s ease}
@@ -153,10 +153,8 @@
         <button onClick="{{ goVulka }}" style="{{ tabVulka }}"><img src="uploads/opt/vulka-word.png" alt="Vulka" style="height:26px;width:auto;display:block" /></button>
       </div>
     </div>
-    <div class="hdr-right">
-      <input class="hdr-search" value="{{ query }}" onInput="{{ onQuery }}" onChange="{{ onQuery }}" placeholder="Buscar producto" style="border:1px solid #E0E2E4;border-radius:999px;padding:9px 14px;font-size:13px;width:140px;outline:none;color:#11181C" />
-      <button onClick="{{ openCart }}" style="display:flex;align-items:center;gap:8px;border:1px solid #11181C;background:#11181C;color:#fff;border-radius:999px;padding:10px 18px;font-size:14.5px;font-weight:600;cursor:pointer;white-space:nowrap" style-hover="opacity:.85">Carrito <span style="background:#fff;color:#11181C;border-radius:999px;min-width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">{{ cartCount }}</span></button>
-    </div>
+    <input class="hdr-search" value="{{ query }}" onInput="{{ onQuery }}" onChange="{{ onQuery }}" placeholder="Buscar producto" style="border:1px solid #E0E2E4;border-radius:999px;padding:9px 14px;font-size:13px;width:150px;outline:none;color:#11181C" />
+    <button class="hdr-cart" onClick="{{ openCart }}" style="display:flex;align-items:center;gap:8px;border:1px solid #11181C;background:#11181C;color:#fff;border-radius:999px;padding:10px 18px;font-size:14.5px;font-weight:600;cursor:pointer;white-space:nowrap" style-hover="opacity:.85">Carrito <span style="background:#fff;color:#11181C;border-radius:999px;min-width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">{{ cartCount }}</span></button>
   </header>
 
   <main style="flex:1">
