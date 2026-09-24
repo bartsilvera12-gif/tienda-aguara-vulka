@@ -62,6 +62,23 @@
   .gift-shine{position:absolute;left:0;top:-20%;height:140%;width:46px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.14),transparent);z-index:1;pointer-events:none;animation:giftShine 5s ease-in-out infinite}
   .gift-banner{transition:box-shadow .45s ease,transform .45s ease}
   .gift-banner:hover{box-shadow:0 26px 64px -22px rgba(194,82,42,.55);transform:translateY(-2px)}
+  /* Catálogo con barra lateral de filtros */
+  .cat-layout{display:grid;grid-template-columns:238px 1fr;gap:32px;align-items:start;margin-top:18px}
+  .cat-side{position:sticky;top:78px;display:flex;flex-direction:column;gap:26px}
+  @media(max-width:860px){.cat-layout{grid-template-columns:1fr}.cat-side{position:static}}
+  .side-h{font-size:12px;letter-spacing:.2em;color:#8B9297;font-weight:700;margin-bottom:12px}
+  .side-cat{text-align:left;border:0;background:transparent;cursor:pointer;font-size:15px;padding:5px 0;color:#5A6268;transition:color .15s}
+  .side-cat:hover{color:#11181C}
+  .side-cat.on{font-weight:700}
+  .fbox{border:1px solid #E6E1DF;border-radius:14px;padding:18px 18px 20px;background:#FBFAF9}
+  .rng{--acc:#C2522A;position:relative;height:30px;margin:10px 2px 0}
+  .rng .track{position:absolute;top:50%;left:0;right:0;height:4px;transform:translateY(-50%);background:#E4DAD8;border-radius:4px}
+  .rng .fill{position:absolute;top:50%;height:4px;transform:translateY(-50%);background:var(--acc);border-radius:4px}
+  .rng input{position:absolute;top:0;left:0;width:100%;height:30px;margin:0;background:none;pointer-events:none;-webkit-appearance:none;appearance:none}
+  .rng input::-webkit-slider-thumb{-webkit-appearance:none;pointer-events:auto;width:18px;height:18px;border-radius:50%;background:var(--acc);border:3px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.28);cursor:pointer}
+  .rng input::-moz-range-thumb{pointer-events:auto;width:16px;height:16px;border-radius:50%;background:var(--acc);border:3px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.28);cursor:pointer}
+  .chk{display:flex;align-items:center;gap:9px;font-size:14px;color:#454D52;cursor:pointer;padding:5px 0}
+  .chk input{width:16px;height:16px;accent-color:var(--acc);cursor:pointer}
 </style>
 </helmet>
 <div style="font-family:Archivo,Helvetica,sans-serif;color:#11181C;background:#fff;min-height:100vh;display:flex;flex-direction:column">
@@ -346,25 +363,55 @@
           <span style="font-size:13px;color:#8B9297">{{ catCountLabel }}</span>
         </div>
 
-        <div style="position:relative;margin:16px 0 14px">
-          <span style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#9AA1A6;font-size:16px">⌕</span>
-          <input value="{{ query }}" onInput="{{ onQuery }}" onChange="{{ onQuery }}" placeholder="Buscar en el catálogo…" style="width:100%;box-sizing:border-box;border:1px solid #E0E2E4;border-radius:12px;padding:14px 16px 14px 44px;font-size:15px;outline:none;color:#11181C" />
-        </div>
+        <div class="cat-layout">
+          <aside class="cat-side" style="{{ rngAccentStyle }}">
+            <div>
+              <div class="side-h">CATEGORÍAS</div>
+              <div style="display:flex;flex-direction:column">
+                <sc-for list="{{ sideCats }}" as="c" hint-placeholder-count="5">
+                  <button onClick="{{ c.onClick }}" class="{{ c.cls }}" style="{{ c.style }}">{{ c.name }}</button>
+                </sc-for>
+              </div>
+            </div>
 
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
-          <sc-for list="{{ chips }}" as="ch" hint-placeholder-count="5">
-            <button onClick="{{ ch.onClick }}" style="{{ ch.style }}">{{ ch.name }}</button>
-          </sc-for>
-          <span style="flex:1;min-width:12px"></span>
-          <select onChange="{{ onSort }}" value="{{ sortValue }}" style="border:1px solid #E0E2E4;border-radius:999px;padding:9px 14px;font-size:13px;color:#454D52;background:#fff;outline:none;cursor:pointer">
-            <sc-for list="{{ sortOpts }}" as="o" hint-placeholder-count="4">
-              <option value="{{ o.value }}">{{ o.label }}</option>
-            </sc-for>
-          </select>
-        </div>
+            <div class="fbox">
+              <div class="side-h" style="margin-bottom:2px">RANGO DE PRECIO</div>
+              <div style="display:flex;justify-content:space-between;font-size:14px;color:#11181C;font-weight:700;margin-top:8px">
+                <span>{{ priceMinLabel }}</span><span>{{ priceMaxLabel }}</span>
+              </div>
+              <div class="rng">
+                <div class="track"></div>
+                <div class="fill" style="{{ priceFillStyle }}"></div>
+                <input type="range" min="{{ priceBoundMin }}" max="{{ priceBoundMax }}" step="{{ priceStep }}" value="{{ priceMinVal }}" onInput="{{ onPriceMin }}" onChange="{{ onPriceMin }}" />
+                <input type="range" min="{{ priceBoundMin }}" max="{{ priceBoundMax }}" step="{{ priceStep }}" value="{{ priceMaxVal }}" onInput="{{ onPriceMax }}" onChange="{{ onPriceMax }}" />
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;color:#9AA1A6;margin-top:4px">
+                <span>{{ priceBoundMinLabel }}</span><span>{{ priceBoundMaxLabel }}</span>
+              </div>
+            </div>
 
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:14px;margin-top:14px">
-          <sc-for list="{{ catalogProducts }}" as="p" hint-placeholder-count="8">
+            <div class="fbox">
+              <label class="chk"><input type="checkbox" checked="{{ onlyFeatured }}" onChange="{{ onFeatured }}" /> Sólo destacados</label>
+              <label class="chk"><input type="checkbox" checked="{{ onlyPhoto }}" onChange="{{ onPhoto }}" /> Sólo con foto</label>
+              <button onClick="{{ onClearFilters }}" style="margin-top:12px;border:0;background:transparent;padding:0;cursor:pointer;font-size:13px;color:{{ sectionAccent }};font-weight:600" style-hover="opacity:.7">Limpiar filtros</button>
+            </div>
+          </aside>
+
+          <div>
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+              <div style="position:relative;flex:1;min-width:200px">
+                <span style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#9AA1A6;font-size:16px">⌕</span>
+                <input value="{{ query }}" onInput="{{ onQuery }}" onChange="{{ onQuery }}" placeholder="Buscar en el catálogo…" style="width:100%;box-sizing:border-box;border:1px solid #E0E2E4;border-radius:12px;padding:13px 16px 13px 44px;font-size:15px;outline:none;color:#11181C" />
+              </div>
+              <select onChange="{{ onSort }}" value="{{ sortValue }}" style="border:1px solid #E0E2E4;border-radius:999px;padding:11px 14px;font-size:13px;color:#454D52;background:#fff;outline:none;cursor:pointer">
+                <sc-for list="{{ sortOpts }}" as="o" hint-placeholder-count="4">
+                  <option value="{{ o.value }}">{{ o.label }}</option>
+                </sc-for>
+              </select>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px">
+              <sc-for list="{{ catalogProducts }}" as="p" hint-placeholder-count="8">
             <div class="{{ p.cardClass }}" style="{{ p.cardWrap }}" style-hover="border-color:#C9CDD0">
               <div onClick="{{ p.onOpen }}" style="{{ p.imgWrap }}">
                 <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ true }}">
@@ -392,11 +439,13 @@
                 </div>
               </div>
             </div>
-          </sc-for>
+              </sc-for>
+            </div>
+            <sc-if value="{{ catalogEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="border:1px dashed #D8DBDD;padding:46px 20px;text-align:center;color:#8B9297;font-size:14px;line-height:1.6">No encontramos productos con esos filtros.<br /><span style="font-size:13px">Probá con otra búsqueda o quitá los filtros.</span></div>
+            </sc-if>
+          </div>
         </div>
-        <sc-if value="{{ catalogEmpty }}" hint-placeholder-val="{{ false }}">
-          <div style="border:1px dashed #D8DBDD;padding:46px 20px;text-align:center;color:#8B9297;font-size:14px;line-height:1.6">No encontramos productos con esos filtros.<br /><span style="font-size:13px">Probá con otra búsqueda o quitá los filtros.</span></div>
-        </sc-if>
       </section>
     </sc-if>
 
@@ -569,16 +618,17 @@ const px = (u, w) => u ? "https://wsrv.nl/?url=" + encodeURIComponent(u.replace(
 
 
 class Component extends DCLogic {
-  state = { view: "home", cat: null, query: "", cart: [], cartOpen: false, vulka: [], sel: {}, hero: 2, heroTop: "A", aIdx: 2, bIdx: 2, pd: null, pdSize: null, pdQty: 1, vkHover: 0, catalog: false, sort: "relevancia" };
+  state = { view: "home", cat: null, query: "", cart: [], cartOpen: false, vulka: [], sel: {}, hero: 2, heroTop: "A", aIdx: 2, bIdx: 2, pd: null, pdSize: null, pdQty: 1, vkHover: 0, catalog: false, sort: "relevancia", priceMin: null, priceMax: null, onlyFeatured: false, onlyPhoto: false };
 
   componentDidMount() {
     import("./vulka-catalog.js?v=2").then((m) => this.setState({ vulka: m.VULKA }));
   }
 
-  setBrand(b) { this.setState({ view: b, cat: null, query: "", catalog: false }); }
+  resetFilters() { return { cat: null, query: "", priceMin: null, priceMax: null, onlyFeatured: false, onlyPhoto: false, sort: "relevancia" }; }
+  setBrand(b) { this.setState({ view: b, catalog: false, ...this.resetFilters() }); }
   openCatalog(brand, cat) {
     const b = brand || (this.state.view === "vulka" ? "vulka" : "aguara");
-    this.setState({ view: b, catalog: true, cat: cat || null, query: "", pd: null });
+    this.setState({ view: b, catalog: true, pd: null, ...this.resetFilters(), cat: cat || null });
     try { window.scrollTo(0, 0); } catch (e) {}
   }
 
@@ -757,17 +807,30 @@ class Component extends DCLogic {
         sections[mid] = { ...sections[mid], showGiftBanner: true };
       }
     }
-    // --- Catálogo completo (grilla + buscador + orden) ---
+    // --- Catálogo completo (grilla + barra lateral de filtros) ---
     const isBrandView = !isHome && !pd;
     const inCatalog = isBrandView && this.state.catalog;
     const sortMode = this.state.sort || "relevancia";
     const priceOf = (p) => p.price || (p.amounts ? p.amounts[0] : 0);
-    const catalogList = list.slice().sort((a, b) => {
+    const brandProducts = isHome ? [] : ALL.filter((p) => p.b === v);
+    const brandPrices = brandProducts.map(priceOf).filter((n) => n > 0);
+    const roundTo = 10000;
+    const PMIN = brandPrices.length ? Math.floor(Math.min(...brandPrices) / roundTo) * roundTo : 0;
+    const PMAX = brandPrices.length ? Math.ceil(Math.max(...brandPrices) / roundTo) * roundTo : 0;
+    const pmin = this.state.priceMin == null ? PMIN : this.state.priceMin;
+    const pmax = this.state.priceMax == null ? PMAX : this.state.priceMax;
+    const featIds = isAguara ? FEAT_AG : brandProducts.slice(0, 6).map((p) => p.id);
+    const featSet = new Set(featIds);
+    let catalogList = list.filter((p) => { const pr = priceOf(p); return pr >= pmin && pr <= pmax; });
+    if (this.state.onlyFeatured) catalogList = catalogList.filter((p) => featSet.has(p.id));
+    if (this.state.onlyPhoto) catalogList = catalogList.filter((p) => !!p.img);
+    catalogList = catalogList.slice().sort((a, b) => {
       if (sortMode === "precio-asc") return priceOf(a) - priceOf(b);
       if (sortMode === "precio-desc") return priceOf(b) - priceOf(a);
       if (sortMode === "nombre") return a.name.localeCompare(b.name, "es");
       return 0;
     });
+    const pct = (val) => (PMAX > PMIN ? ((val - PMIN) / (PMAX - PMIN)) * 100 : 0);
 
     const brandAll = isHome ? [] : ALL.filter((p) => p.b === v);
     const catData = allCats.map((c) => {
@@ -804,8 +867,29 @@ class Component extends DCLogic {
       ],
       onSort: (e) => this.setState({ sort: e.target.value }),
       openCatalog: () => this.openCatalog(),
-      backToBrand: () => this.setState({ catalog: false, cat: null, query: "" }),
+      backToBrand: () => this.setState({ catalog: false, ...this.resetFilters() }),
       backToBrandLabel: "← Volver a " + (isVulka ? "Vulka" : "Aguará"),
+      rngAccentStyle: "--acc:" + accent,
+      sideCats: [{ name: "Todas", on: !this.state.cat, onClick: () => this.setState({ cat: null }) }]
+        .concat(catsAvail.map((c) => ({ name: c, on: this.state.cat === c, onClick: () => this.setState({ cat: c }) })))
+        .map((o) => ({ name: o.name, onClick: o.onClick, cls: o.on ? "side-cat on" : "side-cat", style: o.on ? "color:" + accent : "" })),
+      priceBoundMin: String(PMIN),
+      priceBoundMax: String(PMAX),
+      priceMinVal: String(pmin),
+      priceMaxVal: String(pmax),
+      priceStep: String(roundTo),
+      priceMinLabel: gs(pmin),
+      priceMaxLabel: gs(pmax),
+      priceBoundMinLabel: gs(PMIN),
+      priceBoundMaxLabel: gs(PMAX),
+      priceFillStyle: "left:" + pct(pmin) + "%;right:" + (100 - pct(pmax)) + "%",
+      onPriceMin: (e) => { const val = Math.min(Number(e.target.value), pmax); this.setState({ priceMin: val }); },
+      onPriceMax: (e) => { const val = Math.max(Number(e.target.value), pmin); this.setState({ priceMax: val }); },
+      onlyFeatured: this.state.onlyFeatured,
+      onlyPhoto: this.state.onlyPhoto,
+      onFeatured: (e) => this.setState({ onlyFeatured: e.target.checked }),
+      onPhoto: (e) => this.setState({ onlyPhoto: e.target.checked }),
+      onClearFilters: () => this.setState(this.resetFilters()),
       pdCat: pd ? pd.cat : "",
       pdName: pd ? pd.name : "",
       pdBrandLabel: pd ? (pd.b === "vulka" ? "VULKA" : "AGUARA") : "",
