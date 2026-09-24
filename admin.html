@@ -129,8 +129,8 @@
         </div>
         <div class="field"><label>Nombre</label><input id="p_nombre" placeholder="Ej: Top Aguará Aura"></div>
         <div class="row">
-          <div class="field"><label>Precio (Gs.)</label><input id="p_precio" type="number" placeholder="150000"></div>
-          <div class="field"><label>Talles (separados por · )</label><input id="p_talles" placeholder="XS · S · M · G · XG"></div>
+          <div class="field"><label>Precio (Gs.)</label><input id="p_precio" type="text" inputmode="numeric" placeholder="150.000"></div>
+          <div class="field"><label>Talles (separados por coma)</label><input id="p_talles" placeholder="XS, S, M, G, XG"></div>
         </div>
         <div class="field"><label>Descripción (opcional)</label><textarea id="p_desc" rows="2"></textarea></div>
         <div class="row">
@@ -266,6 +266,12 @@ const $ = (id) => document.getElementById(id);
 function toast(msg, err){ const t=$("toast"); t.textContent=msg; t.className="toast show"+(err?" err":""); setTimeout(()=>t.className="toast",2600); }
 function esc(s){ return (s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 const gs = (n) => n==null?"—":"Gs. "+Number(n).toLocaleString("es-PY");
+const fmtMiles = (s) => String(s||"").replace(/\D/g,"").replace(/\B(?=(\d{3})+(?!\d))/g,".");
+document.getElementById("p_precio").addEventListener("input",(e)=>{
+  const pos=e.target.value.length-e.target.selectionStart;
+  e.target.value=fmtMiles(e.target.value);
+  const np=e.target.value.length-pos; try{e.target.setSelectionRange(np,np);}catch(_){}
+});
 
 // ---------- Auth ----------
 if (!configured) {
@@ -451,8 +457,8 @@ $("prodSearch").addEventListener("input",renderProdList);
 window.editProd = (id)=>{ const p=PRODS.find(x=>x.id===id); if(!p)return;
   $("p_id").value=p.id; $("p_marca").value=p.marca; if($("p_marca")._render)$("p_marca")._render(); fillCatSelect();
   if(p.categoria_id){ $("p_categoria").value=p.categoria_id; if($("p_categoria")._render)$("p_categoria")._render(); }
-  $("p_nombre").value=p.nombre; $("p_precio").value=p.precio||""; $("p_talles").value=p.talles||"";
-  $("p_desc").value=p.descripcion||""; $("p_montos").value=p.montos?p.montos.join(","):"";
+  $("p_nombre").value=p.nombre; $("p_precio").value=p.precio?fmtMiles(String(p.precio)):""; $("p_talles").value=(p.talles||"").replace(/\s*·\s*/g,", ");
+  $("p_desc").value=p.descripcion||""; $("p_montos").value=p.montos?p.montos.join(", "):"";
   $("p_destacado").checked=!!p.destacado; $("p_activo").checked=p.activo!==false;
   $("p_imagen").value=p.imagen||""; const pr=$("p_imgprev"); if(p.imagen){pr.src=p.imagen;pr.style.display="block";}else pr.style.display="none";
   renderGallery(p);
@@ -486,10 +492,12 @@ function resetProd(){ ["p_id","p_nombre","p_precio","p_talles","p_desc","p_monto
 $("p_save").addEventListener("click", async ()=>{
   const nombre=$("p_nombre").value.trim(); if(!nombre){toast("Poné un nombre",true);return;}
   const montosRaw=$("p_montos").value.trim();
-  const montos = montosRaw? montosRaw.split(",").map(x=>parseInt(x.replace(/\D/g,""),10)).filter(Boolean) : null;
-  const precio = montos&&montos.length ? montos[0] : ($("p_precio").value?parseInt($("p_precio").value,10):null);
+  const montos = montosRaw? montosRaw.split(/[,\-]+/).map(x=>parseInt(x.replace(/\D/g,""),10)).filter(Boolean) : null;
+  const precioDigits = $("p_precio").value.replace(/\D/g,"");
+  const precio = montos&&montos.length ? montos[0] : (precioDigits?parseInt(precioDigits,10):null);
+  const tallesNorm = $("p_talles").value.split(/[,\-\/·|]+/).map(s=>s.trim()).filter(Boolean).join(" · ");
   const rec={ marca:$("p_marca").value, categoria_id:$("p_categoria").value||null, nombre,
-    precio, talles:$("p_talles").value||null, descripcion:$("p_desc").value||null,
+    precio, talles:tallesNorm||null, descripcion:$("p_desc").value||null,
     destacado:$("p_destacado").checked, activo:$("p_activo").checked,
     montos:montos&&montos.length?montos:null, imagen:$("p_imagen").value||null };
   let error, saved;
