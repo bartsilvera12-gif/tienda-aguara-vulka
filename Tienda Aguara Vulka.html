@@ -79,16 +79,38 @@
   .rng input::-moz-range-thumb{pointer-events:auto;width:16px;height:16px;border-radius:50%;background:var(--acc);border:3px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.28);cursor:pointer}
   .chk{display:flex;align-items:center;gap:9px;font-size:14px;color:#454D52;cursor:pointer;padding:5px 0}
   .chk input{width:16px;height:16px;accent-color:var(--acc);cursor:pointer}
-  /* Header con logo centrado */
-  .hdr-left{flex:1;display:flex;gap:16px;align-items:center;min-width:0}
+  /* Header con logo centrado y grupos agrupados cerca del logo */
+  .site-header{justify-content:center !important}
+  .hdr-left{flex:none;display:flex;gap:18px;align-items:center}
   .hdr-center{flex:none;display:flex;justify-content:center}
-  .hdr-right{flex:1;display:flex;gap:10px;align-items:center;justify-content:flex-end;min-width:0}
+  .hdr-right{flex:none;display:flex;gap:12px;align-items:center}
+  .hdr-link{border:0;background:transparent;padding:2px 4px;cursor:pointer;font-size:15px;font-weight:600;letter-spacing:.02em;color:#4A5157;transition:color .15s}
+  .hdr-link:hover{color:#11181C}
   @media(max-width:760px){
+    .site-header{justify-content:space-between !important}
     .hdr-center{order:-1;flex-basis:100%;justify-content:center;margin-bottom:2px}
     .hdr-left{flex:0 0 auto;order:1}
-    .hdr-right{order:2;flex:1 1 auto;min-width:0}
+    .hdr-right{order:2;flex:1 1 auto;min-width:0;justify-content:flex-end}
     .hdr-search{flex:1 1 0;min-width:0;width:auto !important}
   }
+  /* Boton CTA catalogo (usa var para el hover, evita texto invisible) */
+  .cta-full{--acc:#C2522A;display:inline-flex;align-items:center;gap:10px;border:1px solid var(--acc);background:#fff;color:var(--acc);border-radius:999px;padding:14px 30px;font-size:14px;font-weight:700;letter-spacing:.02em;cursor:pointer;transition:background .25s ease,color .25s ease}
+  .cta-full:hover{background:var(--acc);color:#fff}
+  .cta-full:hover span{color:#fff}
+  /* Tiles de categorias Vulka (reemplazo del hover que quedaba en blanco) */
+  .vkcat{position:relative;overflow:hidden;border-radius:14px;cursor:pointer;border:0;padding:0;display:block;background:#1B2226;transition:box-shadow .35s ease,transform .35s ease}
+  .vkcat:hover{transform:translateY(-4px);box-shadow:0 22px 44px -20px rgba(17,24,28,.5)}
+  .vkcat-img{position:absolute;inset:0;background-size:cover;background-position:center 22%;transition:transform .6s ease;filter:grayscale(.15)}
+  .vkcat:hover .vkcat-img{transform:scale(1.07);filter:grayscale(0)}
+  .vkcat-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(17,24,28,.9) 0%,rgba(17,24,28,.25) 55%,rgba(17,24,28,.05) 100%)}
+  .vkcat-line{position:absolute;left:20px;bottom:16px;width:26px;height:2px;background:#fff;opacity:.75;transition:width .4s ease}
+  .vkcat:hover .vkcat-line{width:52px}
+  /* Momentos Vulka (seccion La marca) */
+  .vkmoment{position:relative;overflow:hidden;aspect-ratio:1/1}
+  .vkmoment-img{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform .6s ease;filter:grayscale(.12)}
+  .vkmoment:hover .vkmoment-img{transform:scale(1.08);filter:grayscale(0)}
+  .vkmoment-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(17,24,28,.8),rgba(17,24,28,.05) 62%)}
+  .vkmoment-lbl{position:absolute;left:14px;right:14px;bottom:12px;font-family:Jost,sans-serif;color:#fff;font-size:13px;letter-spacing:.03em;line-height:1.25}
   /* Grilla de productos */
   .prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
   @media(max-width:560px){.prod-grid{grid-template-columns:repeat(2,1fr);gap:10px}}
@@ -120,10 +142,10 @@
 </helmet>
 <div style="font-family:Archivo,Helvetica,sans-serif;color:#11181C;background:#fff;min-height:100vh;display:flex;flex-direction:column">
 
-  <header style="position:sticky;top:0;z-index:40;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-bottom:1px solid #E6E8EA;padding:12px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+  <header class="site-header" style="position:sticky;top:0;z-index:40;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-bottom:1px solid #E6E8EA;padding:12px 20px;display:flex;align-items:center;gap:18px;flex-wrap:wrap">
     <div class="hdr-left">
-      <button onClick="{{ goHome }}" style="border:0;background:transparent;padding:0 4px;cursor:pointer;font-size:13px;font-weight:600;letter-spacing:.04em;color:#5A6268" style-hover="color:#11181C">Inicio</button>
-      <button onClick="{{ openCatalog }}" style="border:0;background:transparent;padding:0 4px;cursor:pointer;font-size:13px;font-weight:600;letter-spacing:.04em;color:#5A6268" style-hover="color:#11181C">Catálogo</button>
+      <button onClick="{{ goHome }}" class="hdr-link">Inicio</button>
+      <button onClick="{{ openCatalog }}" class="hdr-link">Catálogo</button>
     </div>
     <div class="hdr-center">
       <div style="display:flex;gap:4px;background:#F2F3F4;border-radius:999px;padding:4px">
@@ -132,8 +154,8 @@
       </div>
     </div>
     <div class="hdr-right">
-      <input class="hdr-search" value="{{ query }}" onInput="{{ onQuery }}" onChange="{{ onQuery }}" placeholder="Buscar producto" style="border:1px solid #E0E2E4;border-radius:999px;padding:8px 14px;font-size:13px;width:150px;outline:none;color:#11181C" />
-      <button onClick="{{ openCart }}" style="display:flex;align-items:center;gap:8px;border:1px solid #11181C;background:#11181C;color:#fff;border-radius:999px;padding:8px 15px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap" style-hover="opacity:.85">Carrito <span style="background:#fff;color:#11181C;border-radius:999px;min-width:19px;height:19px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">{{ cartCount }}</span></button>
+      <input class="hdr-search" value="{{ query }}" onInput="{{ onQuery }}" onChange="{{ onQuery }}" placeholder="Buscar producto" style="border:1px solid #E0E2E4;border-radius:999px;padding:9px 14px;font-size:13px;width:140px;outline:none;color:#11181C" />
+      <button onClick="{{ openCart }}" style="display:flex;align-items:center;gap:8px;border:1px solid #11181C;background:#11181C;color:#fff;border-radius:999px;padding:10px 18px;font-size:14.5px;font-weight:600;cursor:pointer;white-space:nowrap" style-hover="opacity:.85">Carrito <span style="background:#fff;color:#11181C;border-radius:999px;min-width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">{{ cartCount }}</span></button>
     </div>
   </header>
 
@@ -267,19 +289,19 @@
       </section>
 
       <sc-if value="{{ vkListShow }}" hint-placeholder-val="{{ false }}">
-        <section style="max-width:1280px;margin:0 auto;padding:30px 20px 0">
-          <div style="font-family:Jost,sans-serif;font-size:12px;letter-spacing:.2em;color:#8B9297;font-weight:500;margin-bottom:14px">EXPLORÁ POR CATEGORÍA</div>
-          <div class="vk-explore">
-            <div class="vk-panelimg vk-default" style="{{ vkDefaultStyle }}"></div>
-            <div class="vk-rows">
-              <sc-for list="{{ vkCats }}" as="t" hint-placeholder-count="3">
-                <button onClick="{{ t.onClick }}" class="vk-row">
-                  <span class="vk-name">{{ t.name }}</span>
-                  <span class="vk-num">{{ t.count }}</span>
-                  <span class="vk-panelimg" style="{{ t.imgStyle }}"></span>
-                </button>
-              </sc-for>
-            </div>
+        <section style="max-width:1280px;margin:0 auto;padding:34px 20px 0">
+          <div style="font-family:Jost,sans-serif;font-size:12px;letter-spacing:.2em;color:#8B9297;font-weight:500;margin-bottom:16px">EXPLORÁ POR CATEGORÍA</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
+            <sc-for list="{{ vkCats }}" as="t" hint-placeholder-count="3">
+              <button onClick="{{ t.onClick }}" class="vkcat" style="aspect-ratio:3/4;width:100%">
+                <div class="vkcat-img" style="{{ t.imgStyle }}"></div>
+                <div class="vkcat-ov"></div>
+                <div style="position:absolute;left:22px;right:22px;bottom:26px;text-align:left">
+                  <div style="font-family:Jost,sans-serif;color:#fff;font-size:23px;font-weight:400;letter-spacing:.04em;line-height:1.1">{{ t.name }}</div>
+                  <div style="font-family:Jost,sans-serif;color:rgba(255,255,255,.78);font-size:12px;margin-top:6px;letter-spacing:.06em">{{ t.count }}</div>
+                </div>
+              </button>
+            </sc-for>
           </div>
         </section>
       </sc-if>
@@ -341,7 +363,16 @@
                 </sc-if>
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:8px">
                   <span style="font-size:15px;font-weight:700">{{ p.priceLabel }}</span>
-                  <button onClick="{{ p.onAdd }}" style="{{ p.btnStyle }}">{{ p.btnLabel }}</button>
+                  <sc-if value="{{ p.notInCart }}" hint-placeholder-val="{{ true }}">
+                    <button onClick="{{ p.onAdd }}" style="{{ p.btnStyle }}">{{ p.btnLabel }}</button>
+                  </sc-if>
+                  <sc-if value="{{ p.inCart }}" hint-placeholder-val="{{ false }}">
+                    <div style="{{ p.stepWrap }}">
+                      <button onClick="{{ p.onDec }}" style="{{ p.stepBtn }}">−</button>
+                      <span style="min-width:20px;text-align:center;font-size:13px;font-weight:700">{{ p.inQty }}</span>
+                      <button onClick="{{ p.onInc }}" style="{{ p.stepBtn }}">+</button>
+                    </div>
+                  </sc-if>
                 </div>
               </div>
             </div>
@@ -377,13 +408,26 @@
           <div style="border:1px dashed #D8DBDD;padding:46px 20px;text-align:center;color:#8B9297;font-size:14px;line-height:1.6">Sin productos cargados en esta categoría.<br /><span style="font-size:13px">Se completa con la migración del catálogo vigente.</span></div>
         </sc-if>
         <div style="display:flex;justify-content:center;margin:38px 0 4px">
-          <button onClick="{{ openCatalog }}" style="display:inline-flex;align-items:center;gap:10px;border:1px solid {{ sectionAccent }};background:#fff;color:{{ sectionAccent }};border-radius:999px;padding:14px 30px;font-size:14px;font-weight:700;letter-spacing:.02em;cursor:pointer" style-hover="background:{{ sectionAccent }};color:#fff">Ver catálogo completo <span>→</span></button>
+          <button onClick="{{ openCatalog }}" class="cta-full" style="--acc:{{ sectionAccent }}">Ver catálogo completo <span>→</span></button>
         </div>
       </section>
 
       <section style="max-width:1280px;margin:36px auto 0;padding:0 20px">
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:0;border:1px solid #E6E8EA">
-          <div style="{{ storyImgStyle }}"><span style="font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.12em;color:#8B9297">{{ storyPlaceholder }}</span></div>
+          <sc-if value="{{ storyIsVulka }}" hint-placeholder-val="{{ false }}">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+              <sc-for list="{{ storyMoments }}" as="m" hint-placeholder-count="4">
+                <div class="vkmoment">
+                  <div class="vkmoment-img" style="{{ m.imgStyle }}"></div>
+                  <div class="vkmoment-ov"></div>
+                  <div class="vkmoment-lbl">{{ m.label }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ storyIsAguara }}" hint-placeholder-val="{{ true }}">
+            <div style="{{ storyImgStyle }}"><span style="font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.12em;color:#8B9297">{{ storyPlaceholder }}</span></div>
+          </sc-if>
           <div style="padding:34px;display:flex;flex-direction:column;justify-content:center;gap:12px">
             <div style="font-size:12px;letter-spacing:.2em;color:#8B9297">{{ storyEyebrow }}</div>
             <h3 style="{{ storyTitleStyle }}">{{ storyTitle }}</h3>
@@ -477,7 +521,16 @@
                 </sc-if>
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:8px">
                   <span style="font-size:15px;font-weight:700">{{ p.priceLabel }}</span>
-                  <button onClick="{{ p.onAdd }}" style="{{ p.btnStyle }}">{{ p.btnLabel }}</button>
+                  <sc-if value="{{ p.notInCart }}" hint-placeholder-val="{{ true }}">
+                    <button onClick="{{ p.onAdd }}" style="{{ p.btnStyle }}">{{ p.btnLabel }}</button>
+                  </sc-if>
+                  <sc-if value="{{ p.inCart }}" hint-placeholder-val="{{ false }}">
+                    <div style="{{ p.stepWrap }}">
+                      <button onClick="{{ p.onDec }}" style="{{ p.stepBtn }}">−</button>
+                      <span style="min-width:20px;text-align:center;font-size:13px;font-weight:700">{{ p.inQty }}</span>
+                      <button onClick="{{ p.onInc }}" style="{{ p.stepBtn }}">+</button>
+                    </div>
+                  </sc-if>
                 </div>
               </div>
             </div>
@@ -736,7 +789,7 @@ class Component extends DCLogic {
       const cart = found
         ? s.cart.map((i) => (i.key === key ? { ...i, qty: i.qty + 1 } : i))
         : [...s.cart, { key, id: p.id, name: p.name, b: p.b, price: p.price, size, qty: 1, img: p.img, isGift: !!p.amounts }];
-      return { cart, cartOpen: true };
+      return { cart };
     });
   }
   bump(key, d) {
@@ -803,7 +856,20 @@ class Component extends DCLogic {
     const mapProduct = (p) => {
       const amt = p.amounts ? (this.state.sel[p.id] || p.amounts[0]) : null;
       const buyable = !!(p.amounts || p.price);
+      const pOpts = (p.sizes || "").split(" · ");
+      const pIsSize = pOpts.length > 1 && pOpts.every((o) => o.length <= 3);
+      const pVariant = p.amounts ? gs(amt) : (pIsSize ? pOpts[1] : null);
+      const cKey = p.id + (pVariant || "std");
+      const cItem = this.state.cart.find((c) => c.key === cKey);
+      const cQty = cItem ? cItem.qty : 0;
       return {
+        inQty: String(cQty),
+        inCart: cQty > 0,
+        notInCart: !(cQty > 0),
+        onInc: () => this.bump(cKey, 1),
+        onDec: () => this.bump(cKey, -1),
+        stepWrap: "display:inline-flex;align-items:center;gap:2px;border:1px solid " + accent + ";border-radius:4px;overflow:hidden",
+        stepBtn: "width:26px;height:26px;border:0;background:#fff;color:" + accent + ";cursor:pointer;font-size:16px;font-weight:700;line-height:1;display:flex;align-items:center;justify-content:center",
         name: p.name, cat: p.cat, sizes: p.sizes,
         hasAmounts: !!p.amounts,
         amountOpts: (p.amounts || []).map((v) => ({ value: String(v), label: gs(v) })),
@@ -1059,6 +1125,14 @@ class Component extends DCLogic {
           ? "#EEF0F1 url(uploads/opt/vulka-life-1.webp) center 22%/cover no-repeat"
           : "#F1F2F3 url(" + IMG.storyA + ") center 32%/cover no-repeat"),
       storyPlaceholder: "",
+      storyIsVulka: isVulka,
+      storyIsAguara: !isVulka,
+      storyMoments: [
+        { label: "Una mañana de trabajo", img: "uploads/opt/vulka-work.webp" },
+        { label: "Una reunión", img: "uploads/opt/vulka-meet.webp" },
+        { label: "Un viaje", img: "uploads/opt/vulka-trip.webp" },
+        { label: "Una tarde con amigos", img: "uploads/opt/vulka-friends.webp" }
+      ].map((m) => ({ label: m.label, imgStyle: "background-image:url(" + m.img + ")" })),
       storyEyebrow: isVulka ? "LA MARCA" : "LA MARCA",
       storyTitle: isVulka ? "La expresión cotidiana del carácter" : "Somos movimiento con identidad",
       storyTitleStyle: isVulka
