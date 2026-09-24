@@ -134,7 +134,7 @@
         </div>
         <div class="field"><label>Descripción (opcional)</label><textarea id="p_desc" rows="2"></textarea></div>
         <div class="row">
-          <div class="field"><label>Montos gift card (opcional, coma)</label><input id="p_montos" placeholder="100000,200000,300000"></div>
+          <div class="field"><label>Montos gift card (opcional, separados por coma)</label><input id="p_montos" inputmode="numeric" placeholder="100.000, 200.000, 300.000"></div>
           <div class="field"><label>Opciones</label>
             <div style="display:flex;gap:18px;align-items:center;height:42px">
               <label style="display:flex;align-items:center;gap:6px;margin:0;font-weight:500;color:#11181C"><input type="checkbox" id="p_destacado" style="width:auto"> Destacado</label>
@@ -282,6 +282,11 @@ document.getElementById("p_precio").addEventListener("input",(e)=>{
   const pos=e.target.value.length-e.target.selectionStart;
   e.target.value=fmtMiles(e.target.value);
   const np=e.target.value.length-pos; try{e.target.setSelectionRange(np,np);}catch(_){}
+});
+document.getElementById("p_montos").addEventListener("input",(e)=>{
+  const pos=e.target.value.length-e.target.selectionStart;
+  e.target.value=e.target.value.split(",").map(p=>fmtMiles(p)).join(", ");
+  const np=Math.max(0,e.target.value.length-pos); try{e.target.setSelectionRange(np,np);}catch(_){}
 });
 
 // ---------- Auth ----------
@@ -484,7 +489,7 @@ window.editProd = (id)=>{ const p=PRODS.find(x=>x.id===id); if(!p)return;
   $("p_id").value=p.id; $("p_marca").value=p.marca; if($("p_marca")._render)$("p_marca")._render(); fillCatSelect();
   if(p.categoria_id){ $("p_categoria").value=p.categoria_id; if($("p_categoria")._render)$("p_categoria")._render(); }
   $("p_nombre").value=p.nombre; $("p_precio").value=p.precio?fmtMiles(String(p.precio)):""; $("p_talles").value=(p.talles||"").replace(/\s*·\s*/g,", ");
-  $("p_desc").value=p.descripcion||""; $("p_montos").value=p.montos?p.montos.join(", "):"";
+  $("p_desc").value=p.descripcion||""; $("p_montos").value=p.montos?p.montos.map(m=>fmtMiles(String(m))).join(", "):"";
   $("p_destacado").checked=!!p.destacado; $("p_activo").checked=p.activo!==false;
   $("p_imagen").value=p.imagen||""; const pr=$("p_imgprev"); if(p.imagen){pr.src=p.imagen;pr.style.display="block";}else pr.style.display="none";
   renderGallery(p);
