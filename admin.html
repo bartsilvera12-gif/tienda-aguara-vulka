@@ -62,6 +62,25 @@
   .toast.err{background:#B4451F}
   .imgprev{width:70px;height:88px;object-fit:cover;border-radius:8px;border:1px solid #E6E8EA;background:#F1F2F3;margin-top:8px;display:none}
   .hidden{display:none !important}
+  .panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+  .panel-head h2{margin:0}
+  /* Select personalizado integrado */
+  .sel{position:relative;width:100%}
+  .sel-btn{width:100%;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:8px;background:#fff;border:1px solid #D5D8DA;border-radius:8px;padding:10px 12px;font-size:14px;color:#11181C}
+  .sel.open .sel-btn,.sel-btn:focus{border-color:#C2522A;outline:none}
+  .sel-btn svg{width:16px;height:16px;color:#8B9297;transition:transform .2s;flex:none}
+  .sel.open .sel-btn svg{transform:rotate(180deg)}
+  .sel-menu{position:absolute;top:calc(100% + 5px);left:0;right:0;background:#fff;border:1px solid #E6E8EA;border-radius:10px;box-shadow:0 16px 40px -14px rgba(0,0,0,.28);padding:6px;z-index:30;display:none;max-height:280px;overflow:auto}
+  .sel.open .sel-menu{display:block}
+  .sel-opt{padding:9px 11px;border-radius:7px;font-size:14px;cursor:pointer;color:#11181C;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sel-opt:hover{background:#F5F1EF}
+  .sel-opt.on{background:#C2522A;color:#fff;font-weight:600}
+  /* Input de archivo integrado */
+  .filebox{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .filebtn{border:1px solid #D5D8DA;background:#fff;border-radius:8px;padding:9px 14px;font-size:13px;font-weight:600;color:#11181C;display:inline-flex;align-items:center;gap:8px;transition:border-color .15s,color .15s}
+  .filebtn:hover{border-color:#C2522A;color:#C2522A}
+  .filebtn svg{width:15px;height:15px}
+  .filename{font-size:13px;color:#8B9297}
   @media(max-width:620px){.row{grid-template-columns:1fr}}
 </style>
 </head>
@@ -91,12 +110,13 @@
     <button data-tab="productos" class="on">Productos</button>
     <button data-tab="categorias">Categorías</button>
     <button data-tab="portadas">Portadas</button>
+    <button data-tab="config">Configuración</button>
   </nav>
   <main>
     <!-- PRODUCTOS -->
     <section id="tab-productos">
-      <div class="panel">
-        <h2 id="prodFormTitle">Nuevo producto</h2>
+      <div class="panel hidden" id="prodForm">
+        <div class="panel-head"><h2 id="prodFormTitle">Nuevo producto</h2><button class="btn btn-ghost btn-sm" id="p_cancel">Cancelar</button></div>
         <input type="hidden" id="p_id">
         <div class="row">
           <div class="field"><label>Empresa</label>
@@ -125,19 +145,18 @@
           <input type="hidden" id="p_imagen">
         </div>
         <div class="field"><label>Galería (varias fotos) — sólo al editar un producto guardado</label>
-          <input type="file" id="p_galfile" accept="image/*" multiple disabled>
+          <input type="file" id="p_galfile" accept="image/*" multiple>
           <div class="gallery" id="p_gallery"></div>
         </div>
         <div style="display:flex;gap:10px">
           <button class="btn btn-accent" id="p_save">Guardar producto</button>
-          <button class="btn btn-ghost" id="p_reset">Limpiar</button>
         </div>
       </div>
       <div class="panel">
-        <h2>Productos cargados (<span id="prodCount">0</span>)</h2>
+        <div class="panel-head"><h2>Productos (<span id="prodCount">0</span>)</h2><button class="btn btn-accent" id="p_new">+ Nuevo producto</button></div>
         <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
-          <select id="prodFilter" style="max-width:200px"><option value="">Todas las empresas</option><option value="aguara">Aguará</option><option value="vulka">Vulka</option></select>
-          <input id="prodSearch" placeholder="Buscar por nombre…" style="max-width:260px">
+          <div style="width:200px"><select id="prodFilter"><option value="">Todas las empresas</option><option value="aguara">Aguará</option><option value="vulka">Vulka</option></select></div>
+          <input id="prodSearch" placeholder="Buscar por nombre…" style="max-width:260px;flex:1">
         </div>
         <div class="list" id="prodList"></div>
       </div>
@@ -145,8 +164,8 @@
 
     <!-- CATEGORIAS -->
     <section id="tab-categorias" class="hidden">
-      <div class="panel">
-        <h2 id="catFormTitle">Nueva categoría</h2>
+      <div class="panel hidden" id="catForm">
+        <div class="panel-head"><h2 id="catFormTitle">Nueva categoría</h2><button class="btn btn-ghost btn-sm" id="c_cancel">Cancelar</button></div>
         <input type="hidden" id="c_id">
         <div class="row">
           <div class="field"><label>Empresa</label>
@@ -161,19 +180,19 @@
         </div>
         <div style="display:flex;gap:10px">
           <button class="btn btn-accent" id="c_save">Guardar categoría</button>
-          <button class="btn btn-ghost" id="c_reset">Limpiar</button>
         </div>
       </div>
       <div class="panel">
-        <h2>Categorías</h2>
+        <div class="panel-head"><h2>Categorías</h2><button class="btn btn-accent" id="c_new">+ Nueva categoría</button></div>
+        <div style="width:200px;margin-bottom:14px"><select id="catFilter"><option value="">Todas las empresas</option><option value="aguara">Aguará</option><option value="vulka">Vulka</option></select></div>
         <div class="list" id="catList"></div>
       </div>
     </section>
 
     <!-- PORTADAS -->
     <section id="tab-portadas" class="hidden">
-      <div class="panel">
-        <h2 id="portFormTitle">Nueva imagen de portada</h2>
+      <div class="panel hidden" id="portForm">
+        <div class="panel-head"><h2 id="portFormTitle">Nueva imagen de portada</h2><button class="btn btn-ghost btn-sm" id="h_cancel">Cancelar</button></div>
         <p class="muted" style="margin-top:-8px">Aguará usa varias (carrusel). Vulka usa la primera como portada.</p>
         <input type="hidden" id="h_id">
         <div class="row">
@@ -195,12 +214,36 @@ MOVERTE"></textarea></div>
         </div>
         <div style="display:flex;gap:10px">
           <button class="btn btn-accent" id="h_save">Guardar portada</button>
-          <button class="btn btn-ghost" id="h_reset">Limpiar</button>
         </div>
       </div>
       <div class="panel">
-        <h2>Portadas</h2>
+        <div class="panel-head"><h2>Portadas</h2><button class="btn btn-accent" id="h_new">+ Nueva portada</button></div>
+        <div style="width:200px;margin-bottom:14px"><select id="portFilter"><option value="">Todas las empresas</option><option value="aguara">Aguará</option><option value="vulka">Vulka</option></select></div>
         <div class="list" id="portList"></div>
+      </div>
+    </section>
+
+    <!-- CONFIGURACION -->
+    <section id="tab-config" class="hidden">
+      <div class="panel">
+        <div class="panel-head"><h2>Datos de contacto</h2></div>
+        <p class="muted" style="margin-top:-8px">Se usan en el pie de página y en el botón de finalizar compra por WhatsApp.</p>
+        <div class="row">
+          <div class="field"><label>WhatsApp (solo números, con código de país)</label><input id="cfg_whatsapp" placeholder="595975517443"></div>
+          <div class="field"><label>Email de contacto</label><input id="cfg_email" placeholder="hola@aguaravulka.com.py"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Instagram Aguará (URL)</label><input id="cfg_ig_aguara" placeholder="https://www.instagram.com/aguarafitwear"></div>
+          <div class="field"><label>Instagram Vulka (URL)</label><input id="cfg_ig_vulka" placeholder="https://www.instagram.com/vulka"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Facebook (URL)</label><input id="cfg_facebook" placeholder="https://www.facebook.com/aguarafitwear"></div>
+          <div class="field"><label>Dirección / ciudad</label><input id="cfg_direccion" placeholder="Asunción, Paraguay"></div>
+        </div>
+        <div class="field"><label>Horario de atención</label><input id="cfg_horario" placeholder="Lunes a viernes, 9 a 18 h"></div>
+        <div style="display:flex;gap:10px;margin-top:6px">
+          <button class="btn btn-accent" id="cfg_save">Guardar configuración</button>
+        </div>
       </div>
     </section>
   </main>
@@ -245,7 +288,8 @@ async function boot(){
   $("login").style.display = "none";
   $("app").style.display = "block";
   $("whoEmail").textContent = session.user.email;
-  await Promise.all([loadCats(), loadProducts(), loadPortadas()]);
+  await Promise.all([loadCats(), loadProducts(), loadPortadas(), loadConfig()]);
+  enhanceAllSelects(); enhanceAllFiles();
 }
 if (configured) sb.auth.getSession().then(({data:{session}})=>{ if(session) boot(); });
 document.addEventListener("click", (e)=>{ if(e.target.id==="logout"){ e.preventDefault(); sb.auth.signOut().then(()=>location.reload()); }});
@@ -254,8 +298,58 @@ document.addEventListener("click", (e)=>{ if(e.target.id==="logout"){ e.preventD
 document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>{
   document.querySelectorAll("nav.tabs button").forEach(x=>x.classList.remove("on"));
   b.classList.add("on");
-  ["productos","categorias","portadas"].forEach(t=>$("tab-"+t).classList.toggle("hidden", t!==b.dataset.tab));
+  ["productos","categorias","portadas","config"].forEach(t=>$("tab-"+t).classList.toggle("hidden", t!==b.dataset.tab));
 }));
+
+// ---------- Select personalizado (integrado al diseño) ----------
+function enhanceSelect(sel){
+  if(sel._enhanced) return; sel._enhanced=true;
+  sel.style.display="none";
+  const wrap=document.createElement("div"); wrap.className="sel";
+  const btn=document.createElement("button"); btn.type="button"; btn.className="sel-btn";
+  const menu=document.createElement("div"); menu.className="sel-menu";
+  const caret='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>';
+  function render(){
+    const o=sel.options[sel.selectedIndex];
+    btn.innerHTML="<span style='overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>"+((o?o.textContent:"")||"—")+"</span>"+caret;
+    menu.innerHTML=[...sel.options].map((o,i)=>`<div class="sel-opt${i===sel.selectedIndex?" on":""}" data-i="${i}">${o.textContent}</div>`).join("");
+  }
+  sel.parentNode.insertBefore(wrap, sel);
+  wrap.appendChild(btn); wrap.appendChild(menu); wrap.appendChild(sel);
+  render();
+  btn.addEventListener("click",(e)=>{ e.stopPropagation(); const open=wrap.classList.contains("open"); document.querySelectorAll(".sel.open").forEach(w=>w.classList.remove("open")); if(!open) wrap.classList.add("open"); });
+  menu.addEventListener("click",(e)=>{ const d=e.target.closest(".sel-opt"); if(!d)return; sel.selectedIndex=+d.dataset.i; render(); wrap.classList.remove("open"); sel.dispatchEvent(new Event("change",{bubbles:true})); });
+  new MutationObserver(()=>render()).observe(sel,{childList:true});
+  sel._render=render;
+}
+function enhanceAllSelects(){ document.querySelectorAll("main select").forEach(enhanceSelect); }
+document.addEventListener("click",()=>document.querySelectorAll(".sel.open").forEach(w=>w.classList.remove("open")));
+
+// ---------- Input de archivo personalizado ----------
+function enhanceFile(input){
+  if(input._enh) return; input._enh=true;
+  input.style.display="none";
+  const box=document.createElement("div"); box.className="filebox";
+  const btn=document.createElement("button"); btn.type="button"; btn.className="filebtn";
+  btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><span>'+(input.multiple?"Elegir fotos":"Elegir imagen")+"</span>";
+  const name=document.createElement("span"); name.className="filename"; name.textContent="Ninguna seleccionada";
+  input.parentNode.insertBefore(box, input);
+  box.appendChild(btn); box.appendChild(name); box.appendChild(input);
+  btn.addEventListener("click",()=>input.click());
+  input.addEventListener("change",()=>{ const fs=input.files; name.textContent = !fs||!fs.length?"Ninguna seleccionada":(fs.length===1?fs[0].name:fs.length+" archivos"); });
+}
+function enhanceAllFiles(){ document.querySelectorAll('main input[type=file]').forEach(enhanceFile); }
+
+// ---------- Mostrar/ocultar formularios ----------
+function showForm(id, show){ $(id).classList.toggle("hidden", !show); if(show) window.scrollTo({top:0,behavior:"smooth"}); }
+$("p_new").addEventListener("click",()=>{ resetProd(); showForm("prodForm",true); });
+$("p_cancel").addEventListener("click",()=>{ resetProd(); showForm("prodForm",false); });
+$("c_new").addEventListener("click",()=>{ resetCat(); showForm("catForm",true); });
+$("c_cancel").addEventListener("click",()=>{ resetCat(); showForm("catForm",false); });
+$("h_new").addEventListener("click",()=>{ resetPort(); showForm("portForm",true); });
+$("h_cancel").addEventListener("click",()=>{ resetPort(); showForm("portForm",false); });
+$("catFilter").addEventListener("change",renderCatList);
+$("portFilter").addEventListener("change",renderPortList);
 
 // ---------- Storage upload ----------
 async function uploadImage(file, folder){
@@ -291,10 +385,13 @@ function fillCatSelect(){
   const opts = CATS.filter(c=>c.marca===marca);
   sel.innerHTML = opts.map(c=>`<option value="${c.id}">${esc(c.nombre)}</option>`).join("") || `<option value="">(sin categorías)</option>`;
   if (opts.some(c=>c.id===cur)) sel.value = cur;
+  if (sel._render) sel._render();
 }
 $("p_marca").addEventListener("change", fillCatSelect);
 function renderCatList(){
-  $("catList").innerHTML = CATS.map(c=>`
+  const f=$("catFilter").value;
+  const list = CATS.filter(c=>!f||c.marca===f);
+  $("catList").innerHTML = list.map(c=>`
     <div class="item">
       <img src="${esc(c.imagen||"")}" onerror="this.style.visibility='hidden'">
       <div class="meta"><div class="n"><span class="pill ${c.marca==='aguara'?'ag':'vk'}">${c.marca==='aguara'?'AGUARÁ':'VULKA'}</span>${esc(c.nombre)}</div><div class="s">orden ${c.orden}</div></div>
@@ -303,16 +400,15 @@ function renderCatList(){
     </div>`).join("") || `<div class="muted">Sin categorías todavía.</div>`;
 }
 window.editCat = (id)=>{ const c=CATS.find(x=>x.id===id); if(!c)return;
-  $("c_id").value=c.id; $("c_marca").value=c.marca; $("c_nombre").value=c.nombre;
+  $("c_id").value=c.id; $("c_marca").value=c.marca; if($("c_marca")._render)$("c_marca")._render(); $("c_nombre").value=c.nombre;
   $("c_imagen").value=c.imagen||""; const p=$("c_imgprev"); if(c.imagen){p.src=c.imagen;p.style.display="block";}else p.style.display="none";
-  $("catFormTitle").textContent="Editar categoría"; window.scrollTo(0,0);
+  $("catFormTitle").textContent="Editar categoría"; showForm("catForm",true);
 };
 window.delCat = async (id)=>{ if(!confirm("¿Borrar esta categoría? Los productos quedarán sin categoría."))return;
   const { error } = await sb.from("categorias").delete().eq("id",id);
   if(error){toast("Error: "+error.message,true);return;} toast("Categoría borrada"); loadCats();
 };
-$("c_reset").addEventListener("click",resetCat);
-function resetCat(){ ["c_id","c_nombre","c_imagen"].forEach(i=>$(i).value=""); $("c_imgprev").style.display="none"; $("catFormTitle").textContent="Nueva categoría"; $("c_imgfile").value=""; }
+function resetCat(){ ["c_id","c_nombre","c_imagen"].forEach(i=>$(i).value=""); $("c_marca").value="aguara"; if($("c_marca")._render)$("c_marca")._render(); $("c_imgprev").style.display="none"; $("catFormTitle").textContent="Nueva categoría"; $("c_imgfile").value=""; }
 $("c_save").addEventListener("click", async ()=>{
   const nombre=$("c_nombre").value.trim(); if(!nombre){toast("Poné un nombre",true);return;}
   const rec={ marca:$("c_marca").value, nombre, imagen:$("c_imagen").value||null };
@@ -320,7 +416,7 @@ $("c_save").addEventListener("click", async ()=>{
   if($("c_id").value){ ({error}=await sb.from("categorias").update(rec).eq("id",$("c_id").value)); }
   else { rec.orden = CATS.filter(c=>c.marca===rec.marca).length; ({error}=await sb.from("categorias").insert(rec)); }
   if(error){toast("Error: "+error.message,true);return;}
-  toast("Categoría guardada ✓"); resetCat(); loadCats();
+  toast("Categoría guardada ✓"); resetCat(); showForm("catForm",false); loadCats();
 });
 
 // ================= PRODUCTOS =================
@@ -350,14 +446,14 @@ $("prodFilter").addEventListener("change",renderProdList);
 $("prodSearch").addEventListener("input",renderProdList);
 
 window.editProd = (id)=>{ const p=PRODS.find(x=>x.id===id); if(!p)return;
-  $("p_id").value=p.id; $("p_marca").value=p.marca; fillCatSelect();
-  if(p.categoria_id) $("p_categoria").value=p.categoria_id;
+  $("p_id").value=p.id; $("p_marca").value=p.marca; if($("p_marca")._render)$("p_marca")._render(); fillCatSelect();
+  if(p.categoria_id){ $("p_categoria").value=p.categoria_id; if($("p_categoria")._render)$("p_categoria")._render(); }
   $("p_nombre").value=p.nombre; $("p_precio").value=p.precio||""; $("p_talles").value=p.talles||"";
   $("p_desc").value=p.descripcion||""; $("p_montos").value=p.montos?p.montos.join(","):"";
   $("p_destacado").checked=!!p.destacado; $("p_activo").checked=p.activo!==false;
   $("p_imagen").value=p.imagen||""; const pr=$("p_imgprev"); if(p.imagen){pr.src=p.imagen;pr.style.display="block";}else pr.style.display="none";
-  $("p_galfile").disabled=false; renderGallery(p);
-  $("prodFormTitle").textContent="Editar producto"; window.scrollTo(0,0);
+  renderGallery(p);
+  $("prodFormTitle").textContent="Editar producto"; showForm("prodForm",true);
 };
 function renderGallery(p){
   const imgs=(p.producto_imagenes||[]).sort((a,b)=>a.orden-b.orden);
@@ -380,10 +476,10 @@ window.delProd = async (id)=>{ if(!confirm("¿Borrar este producto?"))return;
   const { error } = await sb.from("productos").delete().eq("id",id);
   if(error){toast("Error: "+error.message,true);return;} toast("Producto borrado"); if($("p_id").value===id)resetProd(); loadProducts();
 };
-$("p_reset").addEventListener("click",resetProd);
 function resetProd(){ ["p_id","p_nombre","p_precio","p_talles","p_desc","p_montos","p_imagen"].forEach(i=>$(i).value="");
+  $("p_marca").value="aguara"; if($("p_marca")._render)$("p_marca")._render(); fillCatSelect();
   $("p_destacado").checked=false; $("p_activo").checked=true; $("p_imgprev").style.display="none";
-  $("p_gallery").innerHTML=""; $("p_galfile").disabled=true; $("p_imgfile").value=""; $("prodFormTitle").textContent="Nuevo producto"; }
+  $("p_gallery").innerHTML=""; $("p_imgfile").value=""; $("p_galfile").value=""; $("prodFormTitle").textContent="Nuevo producto"; }
 $("p_save").addEventListener("click", async ()=>{
   const nombre=$("p_nombre").value.trim(); if(!nombre){toast("Poné un nombre",true);return;}
   const montosRaw=$("p_montos").value.trim();
@@ -398,7 +494,7 @@ $("p_save").addEventListener("click", async ()=>{
   else { rec.orden=PRODS.length; ({data:saved,error}=await sb.from("productos").insert(rec).select().single());
     if(!error && saved && rec.imagen){ await sb.from("producto_imagenes").insert({producto_id:saved.id,url:rec.imagen,orden:0}); } }
   if(error){toast("Error: "+error.message,true);return;}
-  toast("Producto guardado ✓"); resetProd(); loadProducts();
+  toast("Producto guardado ✓"); resetProd(); showForm("prodForm",false); loadProducts();
 });
 
 // ================= PORTADAS =================
@@ -409,26 +505,27 @@ async function loadPortadas(){
   PORTS = data||[]; renderPortList();
 }
 function renderPortList(){
-  $("portList").innerHTML = PORTS.map(h=>`
+  const f=$("portFilter").value;
+  const list = PORTS.filter(h=>!f||h.marca===f);
+  $("portList").innerHTML = list.map(h=>`
     <div class="item">
       <img src="${esc(h.imagen||"")}" style="width:96px;height:60px" onerror="this.style.visibility='hidden'">
-      <div class="meta"><div class="n"><span class="pill ${h.marca==='aguara'?'ag':'vk'}">${h.marca==='aguara'?'AGUARÁ':'VULKA'}</span>${esc((h.titulo||"").replace(/\n/g," "))}</div><div class="s">${esc(h.etiqueta||"")} · encuadre ${esc(h.pos||"")} · orden ${h.orden}</div></div>
+      <div class="meta"><div class="n"><span class="pill ${h.marca==='aguara'?'ag':'vk'}">${h.marca==='aguara'?'AGUARÁ':'VULKA'}</span>${esc((h.titulo||"").replace(/\\n|\n/g," "))}</div><div class="s">${esc(h.etiqueta||"")} · encuadre ${esc(h.pos||"")} · orden ${h.orden}</div></div>
       <button class="btn btn-ghost btn-sm" onclick="editPort('${h.id}')">Editar</button>
       <button class="btn btn-danger btn-sm" onclick="delPort('${h.id}')">Borrar</button>
     </div>`).join("") || `<div class="muted">Sin portadas.</div>`;
 }
 window.editPort=(id)=>{ const h=PORTS.find(x=>x.id===id); if(!h)return;
-  $("h_id").value=h.id; $("h_marca").value=h.marca; $("h_etiqueta").value=h.etiqueta||"";
-  $("h_titulo").value=h.titulo||""; $("h_pos").value=h.pos||"50% 25%"; $("h_orden").value=h.orden||0;
+  $("h_id").value=h.id; $("h_marca").value=h.marca; if($("h_marca")._render)$("h_marca")._render(); $("h_etiqueta").value=h.etiqueta||"";
+  $("h_titulo").value=(h.titulo||"").replace(/\\n/g,"\n"); $("h_pos").value=h.pos||"50% 25%"; $("h_orden").value=h.orden||0;
   $("h_imagen").value=h.imagen||""; const p=$("h_imgprev"); if(h.imagen){p.src=h.imagen;p.style.display="block";}else p.style.display="none";
-  $("portFormTitle").textContent="Editar portada"; window.scrollTo(0,0);
+  $("portFormTitle").textContent="Editar portada"; showForm("portForm",true);
 };
 window.delPort=async(id)=>{ if(!confirm("¿Borrar esta portada?"))return;
   const {error}=await sb.from("portada_slides").delete().eq("id",id);
   if(error){toast("Error: "+error.message,true);return;} toast("Portada borrada"); loadPortadas();
 };
-$("h_reset").addEventListener("click",resetPort);
-function resetPort(){ ["h_id","h_etiqueta","h_titulo","h_imagen"].forEach(i=>$(i).value=""); $("h_pos").value="50% 25%"; $("h_orden").value=0; $("h_imgprev").style.display="none"; $("h_imgfile").value=""; $("portFormTitle").textContent="Nueva imagen de portada"; }
+function resetPort(){ ["h_id","h_etiqueta","h_titulo","h_imagen"].forEach(i=>$(i).value=""); $("h_marca").value="aguara"; if($("h_marca")._render)$("h_marca")._render(); $("h_pos").value="50% 25%"; $("h_orden").value=0; $("h_imgprev").style.display="none"; $("h_imgfile").value=""; $("portFormTitle").textContent="Nueva imagen de portada"; }
 $("h_save").addEventListener("click", async ()=>{
   const rec={ marca:$("h_marca").value, etiqueta:$("h_etiqueta").value||null, titulo:$("h_titulo").value||null,
     pos:$("h_pos").value||"50% 25%", orden:parseInt($("h_orden").value||"0",10), imagen:$("h_imagen").value||null };
@@ -437,7 +534,22 @@ $("h_save").addEventListener("click", async ()=>{
   if($("h_id").value){ ({error}=await sb.from("portada_slides").update(rec).eq("id",$("h_id").value)); }
   else { ({error}=await sb.from("portada_slides").insert(rec)); }
   if(error){toast("Error: "+error.message,true);return;}
-  toast("Portada guardada ✓"); resetPort(); loadPortadas();
+  toast("Portada guardada ✓"); resetPort(); showForm("portForm",false); loadPortadas();
+});
+
+// ================= CONFIGURACIÓN =================
+const CFG_FIELDS = { whatsapp:"cfg_whatsapp", email:"cfg_email", ig_aguara:"cfg_ig_aguara", ig_vulka:"cfg_ig_vulka", facebook:"cfg_facebook", direccion:"cfg_direccion", horario:"cfg_horario" };
+async function loadConfig(){
+  const { data, error } = await sb.from("config").select("*");
+  if (error){ return; } // tabla config puede no existir todavía
+  const map={}; (data||[]).forEach(r=>map[r.clave]=r.valor);
+  Object.keys(CFG_FIELDS).forEach(k=>{ if($(CFG_FIELDS[k])) $(CFG_FIELDS[k]).value = map[k]||""; });
+}
+$("cfg_save").addEventListener("click", async ()=>{
+  const rows = Object.keys(CFG_FIELDS).map(k=>({ clave:k, valor:$(CFG_FIELDS[k]).value.trim()||null }));
+  const { error } = await sb.from("config").upsert(rows, { onConflict:"clave" });
+  if(error){toast("Error: "+error.message+" (¿corriste 03-config.sql?)",true);return;}
+  toast("Configuración guardada ✓");
 });
 </script>
 </body>

@@ -600,10 +600,10 @@
           <a href="https://aguarafitwear.com.py/tabla-tallas/" target="_blank" rel="noopener" style="color:rgba(255,255,255,.6);text-decoration:none" style-hover="color:#fff">Tabla de tallas</a>
           <a href="https://aguarafitwear.com.py/reembolso_devoluciones/" target="_blank" rel="noopener" style="color:rgba(255,255,255,.6);text-decoration:none" style-hover="color:#fff">Políticas de envío, cambios y devoluciones</a>
           <a href="privacidad.html" style="color:rgba(255,255,255,.6);text-decoration:none" style-hover="color:#fff">Políticas de privacidad</a>
-          <a href="https://wa.me/595975517443" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:7px;color:rgba(255,255,255,.6);text-decoration:none" style-hover="color:#fff"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm5.52 11.99c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.16.25-.64.81-.79.98-.14.16-.29.18-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.16.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.4-.42-.56-.43h-.48c-.16 0-.43.06-.66.31-.22.25-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.56.12.16 1.75 2.67 4.25 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.14-1.18-.06-.11-.22-.17-.47-.29z"/></svg> WhatsApp: +595 975 517443</a>
+          <a href="{{ footWaUrl }}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:7px;color:rgba(255,255,255,.6);text-decoration:none" style-hover="color:#fff"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm5.52 11.99c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.16.25-.64.81-.79.98-.14.16-.29.18-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.16.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.4-.42-.56-.43h-.48c-.16 0-.43.06-.66.31-.22.25-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.56.12.16 1.75 2.67 4.25 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.14-1.18-.06-.11-.22-.17-.47-.29z"/></svg> {{ footWaLabel }}</a>
           <div style="display:flex;gap:14px;margin-top:2px">
-            <a href="https://www.instagram.com/aguarafitwear" target="_blank" rel="noopener" style="color:rgba(255,255,255,.6);text-decoration:none" style-hover="color:#fff">Instagram</a>
-            <a href="https://www.facebook.com/aguarafitwear" target="_blank" rel="noopener" style="color:rgba(255,255,255,.6);text-decoration:none" style-hover="color:#fff">Facebook</a>
+            <a href="{{ footIg }}" target="_blank" rel="noopener" style="color:rgba(255,255,255,.6);text-decoration:none" style-hover="color:#fff">Instagram</a>
+            <a href="{{ footFb }}" target="_blank" rel="noopener" style="color:rgba(255,255,255,.6);text-decoration:none" style-hover="color:#fff">Facebook</a>
           </div>
         </div>
       </div>
@@ -736,7 +736,7 @@ const px = (u, w) => u ? "https://wsrv.nl/?url=" + encodeURIComponent(u.replace(
 
 
 class Component extends DCLogic {
-  state = { view: "home", cat: null, query: "", cart: [], cartOpen: false, vulka: [], sel: {}, hero: 2, heroTop: "A", aIdx: 2, bIdx: 2, pd: null, pdSize: null, pdQty: 1, vkHover: 0, catalog: false, sort: "relevancia", priceMin: null, priceMax: null, onlyFeatured: false, onlyPhoto: false, pdImg: null, dbProducts: null, dbCatOrder: null, dbCatImg: null, dbHero: null, dbVulkaHero: null, dbFeat: null };
+  state = { view: "home", cat: null, query: "", cart: [], cartOpen: false, vulka: [], sel: {}, hero: 2, heroTop: "A", aIdx: 2, bIdx: 2, pd: null, pdSize: null, pdQty: 1, vkHover: 0, catalog: false, sort: "relevancia", priceMin: null, priceMax: null, onlyFeatured: false, onlyPhoto: false, pdImg: null, dbProducts: null, dbCatOrder: null, dbCatImg: null, dbHero: null, dbVulkaHero: null, dbFeat: null, dbConfig: null };
 
   componentDidMount() {
     import("./vulka-catalog.js?v=2").then((m) => this.setState({ vulka: m.VULKA }));
@@ -753,9 +753,11 @@ class Component extends DCLogic {
     Promise.all([
       sb.from("categorias").select("*").order("marca").order("orden"),
       sb.from("productos").select("*, producto_imagenes(*)").eq("activo", true).order("orden"),
-      sb.from("portada_slides").select("*").order("marca").order("orden")
-    ]).then(([c, p, h]) => {
+      sb.from("portada_slides").select("*").order("marca").order("orden"),
+      sb.from("config").select("*")
+    ]).then(([c, p, h, cf]) => {
       if (c.error || p.error || h.error) return;
+      if (cf && !cf.error && cf.data) { const m = {}; cf.data.forEach((r) => (m[r.clave] = r.valor)); this.setState({ dbConfig: m }); }
       const cats = c.data || [], prods = p.data || [], slides = h.data || [];
       if (!prods.length) return;
       const byId = {}; cats.forEach((x) => (byId[x.id] = x));
@@ -861,7 +863,8 @@ class Component extends DCLogic {
       msg += "• " + i.name + " (" + brand + ")" + variant + " × " + i.qty + " — " + gs(line) + "\n";
     });
     msg += "\nSubtotal: " + gs(total) + "\n\n¿Me pasás las opciones de envío y pago? ¡Gracias!";
-    const url = "https://wa.me/595975517443?text=" + encodeURIComponent(msg);
+    const wa = (this.state.dbConfig && this.state.dbConfig.whatsapp) ? this.state.dbConfig.whatsapp.replace(/\D/g, "") : "595975517443";
+    const url = "https://wa.me/" + wa + "?text=" + encodeURIComponent(msg);
     try { window.open(url, "_blank"); } catch (e) { location.href = url; }
   }
 
@@ -877,6 +880,8 @@ class Component extends DCLogic {
     // Fuentes dinámicas: Supabase si está cargado, si no los datos locales (fallback)
     const ALL = (this.state.dbProducts && this.state.dbProducts.length) ? this.state.dbProducts : PRODUCTS.concat(this.state.vulka);
     const CATX = this.state.dbCatOrder || { aguara: CAT.aguara.concat(EXTRA_AGUARA), vulka: CAT.vulka };
+    const cfgv = (k, d) => (this.state.dbConfig && this.state.dbConfig[k]) ? this.state.dbConfig[k] : d;
+    const waNum = cfgv("whatsapp", "595975517443").replace(/\D/g, "");
     const list = ALL.filter((p) => p.b === v)
       .filter((p) => (this.state.cat ? p.cat === this.state.cat : true))
       .filter((p) => (q ? (p.name + " " + p.cat).toLowerCase().includes(q) : true));
@@ -1132,6 +1137,10 @@ class Component extends DCLogic {
       footAguaraCats: catsWith("aguara", CATX.aguara).map((c) => ({
         name: c, onClick: () => { this.setState({ view: "aguara", cat: c, query: "" }); try { window.scrollTo(0, 0); } catch (e) {} }
       })),
+      footWaUrl: "https://wa.me/" + waNum,
+      footWaLabel: "WhatsApp: +" + waNum,
+      footIg: cfgv("ig_aguara", "https://www.instagram.com/aguarafitwear"),
+      footFb: cfgv("facebook", "https://www.facebook.com/aguarafitwear"),
       footVulkaCats: catsWith("vulka", CATX.vulka).map((c) => ({
         name: c, onClick: () => { this.setState({ view: "vulka", cat: c, query: "" }); try { window.scrollTo(0, 0); } catch (e) {} }
       })),
@@ -1170,7 +1179,7 @@ class Component extends DCLogic {
       heroHeadWrap: "position:absolute;left:0;right:0;top:0;height:52%;display:flex;flex-direction:column;justify-content:flex-start;padding:clamp(54px,9vh,96px) clamp(18px,3vw,40px) 16px;z-index:2",
       heroKickerStyle: "font-size:12px;letter-spacing:.24em;color:#E38A5E;font-weight:600;margin-bottom:10px",
       heroTitleBig: "margin:0;font-weight:800;letter-spacing:-.03em;line-height:.92;color:#fff;font-size:clamp(28px,4.6vw,56px);text-transform:uppercase;text-shadow:0 2px 24px rgba(0,0,0,.35)",
-      heroLines: hs.t.split("\n"),
+      heroLines: (hs.t || "").split(/\\n|\n/),
       heroSubStyle: "color:rgba(255,255,255,.82);font-size:15px;line-height:1.5;max-width:430px;margin:12px 0 0;text-wrap:pretty",
       heroThumbsWrap: "position:absolute;left:0;right:0;bottom:22px;z-index:3;display:flex;justify-content:center;align-items:center;gap:10px;padding:0 16px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none",
       heroThumbs: HEROX.map((s, i) => ({
