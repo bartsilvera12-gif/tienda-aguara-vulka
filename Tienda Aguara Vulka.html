@@ -145,21 +145,8 @@
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:34px;margin-top:14px;align-items:start">
           <div style="{{ pdImgStyle }}">
             <sc-if value="{{ pdIsGift }}" hint-placeholder-val="{{ false }}">
-              <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:26px">
-                <div style="position:relative;width:100%;max-width:360px;aspect-ratio:1.586/1;border-radius:18px;overflow:hidden;background:linear-gradient(135deg,#C2522A 0%,#8a3417 52%,#331409 100%);box-shadow:0 24px 54px -20px rgba(0,0,0,.7);padding:22px;display:flex;flex-direction:column;justify-content:space-between;color:#fff">
-                  <div style="position:absolute;inset:0;background:radial-gradient(circle at 82% 16%,rgba(255,255,255,.22),transparent 52%);pointer-events:none"></div>
-                  <div style="position:absolute;right:-40px;bottom:-40px;width:160px;height:160px;border-radius:50%;border:28px solid rgba(255,255,255,.06)"></div>
-                  <div style="position:relative;display:flex;align-items:center;justify-content:space-between">
-                    <img src="uploads/opt/aguara-logo.png" alt="Aguará" style="width:44px;height:44px;object-fit:contain;filter:brightness(0) invert(1)" />
-                    <span style="font-size:12px;letter-spacing:.3em;font-weight:800;opacity:.9">GIFT CARD</span>
-                  </div>
-                  <div style="position:relative;width:50px;height:36px;border-radius:6px;background:linear-gradient(135deg,#f7d68a,#c9922f);box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)"></div>
-                  <div style="position:relative">
-                    <div style="font-size:12px;letter-spacing:.14em;opacity:.8">MONTO</div>
-                    <div style="font-size:29px;font-weight:800">{{ pdGiftAmount }}</div>
-                    <div style="font-size:12px;letter-spacing:.16em;opacity:.7;margin-top:4px">AGUARÁ FITWEAR</div>
-                  </div>
-                </div>
+              <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px">
+                <img src="{{ giftImg }}" alt="Gift Card Aguará" style="width:100%;max-width:400px;border-radius:14px;box-shadow:0 24px 54px -20px rgba(0,0,0,.6)" />
               </div>
             </sc-if>
             <span style="position:absolute;top:12px;left:12px;font-size:10px;font-weight:700;letter-spacing:.1em;padding:4px 8px;border-radius:2px;background:#11181C;color:#fff;z-index:2">{{ pdBrandLabel }}</span>
@@ -380,20 +367,7 @@
               </div>
               <div style="position:relative;flex:none">
                 <div style="position:absolute;inset:-24px;border-radius:50%;background:radial-gradient(circle,rgba(227,138,94,.35),transparent 70%);filter:blur(6px)"></div>
-                <div class="gift-float" style="position:relative;width:330px;max-width:82vw;aspect-ratio:1.586/1;border-radius:18px;overflow:hidden;background:linear-gradient(135deg,#C2522A 0%,#8a3417 52%,#331409 100%);box-shadow:0 26px 60px -20px rgba(0,0,0,.85);padding:20px 22px;display:flex;flex-direction:column;justify-content:space-between;color:#fff">
-                  <div style="position:absolute;inset:0;background:radial-gradient(circle at 82% 16%,rgba(255,255,255,.22),transparent 52%);pointer-events:none"></div>
-                  <div style="position:absolute;right:-40px;bottom:-40px;width:150px;height:150px;border-radius:50%;border:26px solid rgba(255,255,255,.06);pointer-events:none"></div>
-                  <div style="position:relative;display:flex;align-items:center;justify-content:space-between">
-                    <img src="uploads/opt/aguara-logo.png" alt="Aguará" style="width:40px;height:40px;object-fit:contain;filter:brightness(0) invert(1)" />
-                    <span style="font-size:11px;letter-spacing:.3em;font-weight:800;opacity:.9">GIFT CARD</span>
-                  </div>
-                  <div style="position:relative;width:46px;height:33px;border-radius:6px;background:linear-gradient(135deg,#f7d68a,#c9922f);box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)"></div>
-                  <div style="position:relative">
-                    <div style="font-size:11px;letter-spacing:.14em;opacity:.8">DESDE</div>
-                    <div style="font-size:27px;font-weight:800;letter-spacing:.01em">{{ giftFrom }}</div>
-                    <div style="font-size:11px;letter-spacing:.16em;opacity:.7;margin-top:4px">AGUARÁ FITWEAR</div>
-                  </div>
-                </div>
+                <img src="{{ giftImg }}" alt="Gift Card Aguará" class="gift-float" style="position:relative;display:block;width:340px;max-width:82vw;border-radius:14px;box-shadow:0 26px 60px -20px rgba(0,0,0,.85)" />
               </div>
             </div>
           </div>
@@ -588,11 +562,7 @@
         <div style="flex:1;overflow:auto;padding:8px 20px">
           <sc-for list="{{ cartItems }}" as="it" hint-placeholder-count="2">
             <div style="display:flex;gap:12px;padding:14px 0;border-bottom:1px solid #F0F1F2">
-              <div style="{{ it.thumbStyle }}">
-                <sc-if value="{{ it.isGift }}" hint-placeholder-val="{{ false }}">
-                  <span style="font-size:8px;font-weight:800;letter-spacing:.14em;color:#fff;opacity:.9;text-align:center">GIFT<br />CARD</span>
-                </sc-if>
-              </div>
+              <div style="{{ it.thumbStyle }}"></div>
               <div style="flex:1;min-width:0">
                 <div style="font-size:10px;font-weight:700;letter-spacing:.1em;color:#8B9297">{{ it.brandLabel }}</div>
                 <div style="font-size:13px;font-weight:600;line-height:1.35;margin:3px 0">{{ it.name }}</div>
@@ -661,7 +631,7 @@ const PRODUCTS = [
   { id: "ag-21", b: "aguara", cat: "Training", name: "ENTERIZO AGUARA LUMEN OVAL", price: 190000, sizes: "XS · S · M · G · XG", img: "uploads/opt/46.webp" },
   { id: "ag-22", b: "aguara", cat: "Training", name: "ENTERIZO AGUARA LUMEN TIRA", price: 190000, sizes: "XS · S · M · G · XG", img: "uploads/opt/27.webp" },
   { id: "ag-23", b: "aguara", cat: "Training", name: "Enterizo Aguara Pata Ancha", price: 390000, sizes: "XS · S · M · G · XG", img: "uploads/opt/PAT06616.webp" },
-  { id: "ag-24", b: "aguara", cat: "Casual deportiva", name: "Gift Card", price: 100000, sizes: "Monto a elegir", amounts: [100000, 200000, 300000, 350000, 400000, 500000, 600000, 700000, 800000, 900000, 1000000], img: "uploads/opt/gIFT-CARD.webp" },
+  { id: "ag-24", b: "aguara", cat: "Casual deportiva", name: "Gift Card", price: 100000, sizes: "Monto a elegir", amounts: [100000, 200000, 300000, 350000, 400000, 500000, 600000, 700000, 800000, 900000, 1000000], img: "uploads/opt/giftcard-real.webp" },
   { id: "ag-25", b: "aguara", cat: "Casual deportiva", name: "Pantalón Strai AGUARÁ", price: 160000, sizes: "XS · S · M · G · XG", img: "uploads/opt/40.webp" },
   { id: "ag-26", b: "aguara", cat: "Training", name: "Legging Aguara Oxford", price: 280000, sizes: "XS · S · M · G · XG", img: "uploads/opt/PAT03661-scaled.webp" },
   { id: "ag-27", b: "aguara", cat: "Training", name: "Legging Clásico", price: 260000, sizes: "XS · S · M · G · XG", img: "uploads/opt/54.webp" },
@@ -690,12 +660,12 @@ const PRODUCTS = [
 // Hero filmstrip: fotos Aguará, título en 2 líneas y color al que se tiñe el fondo.
 const AU = "https://aguarafitwear.com.py/wp-content/uploads/";
 const HERO = [
-  { t: "SI ELEGÍS\nMOVERTE", tag: "TRAINING", acc: "#C2522A", pos: "50% 38%", img: "uploads/opt/PAT06737.webp" },
-  { t: "JUGÁ TU\nJUEGO", tag: "COURT SPORTS", acc: "#3E6B57", pos: "50% 42%", img: "uploads/opt/SJD_3072.webp" },
-  { t: "ENTRENÁ\nSIN LÍMITES", tag: "TRAINING", acc: "#33475A", pos: "50% 36%", img: "uploads/opt/PAT06786.webp" },
-  { t: "TU RITMO,\nTU REGLA", tag: "AIRE LIBRE", acc: "#1E7A74", pos: "50% 45%", img: "uploads/opt/SJD_2997.webp" },
-  { t: "HECHO EN\nPARAGUAY", tag: "CASUAL", acc: "#9A5A2C", pos: "50% 38%", img: "uploads/opt/SJD_2896.webp" },
-  { t: "COLECCIÓN\nEN MOVIMIENTO", tag: "COLECCIÓN", acc: "#45406B", pos: "50% 42%", img: "uploads/opt/SJD_3728.webp?v=2" },
+  { t: "SI ELEGÍS\nMOVERTE", tag: "TRAINING", acc: "#C2522A", pos: "50% 22%", img: "uploads/opt/PAT06737.webp" },
+  { t: "JUGÁ TU\nJUEGO", tag: "COURT SPORTS", acc: "#3E6B57", pos: "50% 25%", img: "uploads/opt/SJD_3072.webp" },
+  { t: "ENTRENÁ\nSIN LÍMITES", tag: "TRAINING", acc: "#33475A", pos: "50% 20%", img: "uploads/opt/PAT06786.webp" },
+  { t: "TU RITMO,\nTU REGLA", tag: "AIRE LIBRE", acc: "#1E7A74", pos: "50% 26%", img: "uploads/opt/SJD_2997.webp" },
+  { t: "HECHO EN\nPARAGUAY", tag: "CASUAL", acc: "#9A5A2C", pos: "50% 22%", img: "uploads/opt/SJD_2896.webp" },
+  { t: "COLECCIÓN\nEN MOVIMIENTO", tag: "COLECCIÓN", acc: "#45406B", pos: "50% 25%", img: "uploads/opt/SJD_3728.webp?v=2" },
 ];
 const gs = (n) => "Gs. " + n.toLocaleString("es-PY");
 // Sirve imágenes redimensionadas + WebP (mucho más livianas) vía wsrv.nl.
@@ -1110,7 +1080,7 @@ class Component extends DCLogic {
         notGift: !i.isGift,
         thumbStyle: "width:56px;height:70px;flex:none;border-radius:6px;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;background:" +
           (i.isGift
-            ? "linear-gradient(135deg,#C2522A,#7d2d12 60%,#2a1109);"
+            ? "#2a1109 url(" + i.img + "?v=hi) center/contain no-repeat;"
             : (i.img ? "#F1F2F3 url(" + i.img + "?v=hi) center/cover no-repeat;" : "repeating-linear-gradient(115deg,#F2F3F4 0 7px,#E9EAEB 7px 14px);")),
         inc: () => this.bump(i.key, 1),
         dec: () => this.bump(i.key, -1)
