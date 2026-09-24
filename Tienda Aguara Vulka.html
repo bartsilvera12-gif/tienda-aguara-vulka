@@ -8,6 +8,8 @@
 <link rel="icon" type="image/png" sizes="32x32" href="uploads/opt/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="uploads/opt/favicon-16.png">
 <link rel="apple-touch-icon" href="uploads/opt/apple-touch-icon.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase-config.js"></script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -163,13 +165,22 @@
       <section style="max-width:1100px;margin:0 auto;padding:22px 20px 44px">
         <button onClick="{{ closeProduct }}" style="border:0;background:transparent;padding:8px 0;cursor:pointer;font-size:14px;color:#5A6268;display:flex;align-items:center;gap:6px" style-hover="color:#11181C"><span>←</span> Volver a la tienda</button>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:34px;margin-top:14px;align-items:start">
-          <div style="{{ pdImgStyle }}">
-            <sc-if value="{{ pdIsGift }}" hint-placeholder-val="{{ false }}">
-              <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px">
-                <img src="{{ giftImg }}" alt="Gift Card Aguará" style="width:100%;max-width:400px;border-radius:14px;box-shadow:0 24px 54px -20px rgba(0,0,0,.6)" />
+          <div>
+            <div style="{{ pdImgStyle }}">
+              <sc-if value="{{ pdIsGift }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px">
+                  <img src="{{ giftImg }}" alt="Gift Card Aguará" style="width:100%;max-width:400px;border-radius:14px;box-shadow:0 24px 54px -20px rgba(0,0,0,.6)" />
+                </div>
+              </sc-if>
+              <span style="position:absolute;top:12px;left:12px;font-size:10px;font-weight:700;letter-spacing:.1em;padding:4px 8px;border-radius:2px;background:#11181C;color:#fff;z-index:2">{{ pdBrandLabel }}</span>
+            </div>
+            <sc-if value="{{ pdHasGallery }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+                <sc-for list="{{ pdGallery }}" as="g" hint-placeholder-count="3">
+                  <button onClick="{{ g.onClick }}" style="{{ g.style }}"></button>
+                </sc-for>
               </div>
             </sc-if>
-            <span style="position:absolute;top:12px;left:12px;font-size:10px;font-weight:700;letter-spacing:.1em;padding:4px 8px;border-radius:2px;background:#11181C;color:#fff;z-index:2">{{ pdBrandLabel }}</span>
           </div>
           <div style="display:flex;flex-direction:column;gap:16px;padding-top:6px">
             <div style="font-size:12px;color:#8B9297;letter-spacing:.1em;text-transform:uppercase">{{ pdCat }}</div>
@@ -725,10 +736,48 @@ const px = (u, w) => u ? "https://wsrv.nl/?url=" + encodeURIComponent(u.replace(
 
 
 class Component extends DCLogic {
-  state = { view: "home", cat: null, query: "", cart: [], cartOpen: false, vulka: [], sel: {}, hero: 2, heroTop: "A", aIdx: 2, bIdx: 2, pd: null, pdSize: null, pdQty: 1, vkHover: 0, catalog: false, sort: "relevancia", priceMin: null, priceMax: null, onlyFeatured: false, onlyPhoto: false };
+  state = { view: "home", cat: null, query: "", cart: [], cartOpen: false, vulka: [], sel: {}, hero: 2, heroTop: "A", aIdx: 2, bIdx: 2, pd: null, pdSize: null, pdQty: 1, vkHover: 0, catalog: false, sort: "relevancia", priceMin: null, priceMax: null, onlyFeatured: false, onlyPhoto: false, pdImg: null, dbProducts: null, dbCatOrder: null, dbCatImg: null, dbHero: null, dbVulkaHero: null, dbFeat: null };
 
   componentDidMount() {
     import("./vulka-catalog.js?v=2").then((m) => this.setState({ vulka: m.VULKA }));
+    this.loadFromSupabase();
+  }
+
+  // Carga catálogo/categorías/portadas en vivo desde Supabase (si está configurado).
+  loadFromSupabase() {
+    const cfg = window.SUPABASE_CONFIG;
+    if (!cfg || !cfg.url || cfg.url.indexOf("TU-PROYECTO") >= 0 || !window.supabase) return;
+    let sb;
+    try { sb = window.supabase.createClient(cfg.url, cfg.anonKey, { db: { schema: cfg.schema || "aguaravulka" } }); }
+    catch (e) { return; }
+    Promise.all([
+      sb.from("categorias").select("*").order("marca").order("orden"),
+      sb.from("productos").select("*, producto_imagenes(*)").eq("activo", true).order("orden"),
+      sb.from("portada_slides").select("*").order("marca").order("orden")
+    ]).then(([c, p, h]) => {
+      if (c.error || p.error || h.error) return;
+      const cats = c.data || [], prods = p.data || [], slides = h.data || [];
+      if (!prods.length) return;
+      const byId = {}; cats.forEach((x) => (byId[x.id] = x));
+      const dbProducts = prods.map((pr) => ({
+        id: pr.id, b: pr.marca,
+        cat: pr.categoria_id && byId[pr.categoria_id] ? byId[pr.categoria_id].nombre : "",
+        name: pr.nombre,
+        price: pr.precio != null ? Number(pr.precio) : undefined,
+        sizes: pr.talles || "", img: pr.imagen || "",
+        amounts: pr.montos && pr.montos.length ? pr.montos : undefined,
+        destacado: !!pr.destacado,
+        gallery: (pr.producto_imagenes || []).slice().sort((a, b) => a.orden - b.orden).map((g) => g.url)
+      }));
+      const dbCatOrder = { aguara: [], vulka: [] };
+      const dbCatImg = {};
+      cats.forEach((x) => { (dbCatOrder[x.marca] = dbCatOrder[x.marca] || []).push(x.nombre); dbCatImg[x.marca + "|" + x.nombre] = x.imagen; });
+      const dbHero = slides.filter((s) => s.marca === "aguara").map((s) => ({ t: s.titulo || "", tag: s.etiqueta || "", pos: s.pos || "50% 30%", img: s.imagen, acc: "#C2522A" }));
+      const vk = slides.find((s) => s.marca === "vulka");
+      const dbVulkaHero = vk ? { img: vk.imagen, titulo: vk.titulo, etiqueta: vk.etiqueta } : null;
+      const dbFeat = dbProducts.filter((x) => x.destacado).map((x) => x.id);
+      this.setState({ dbProducts, dbCatOrder, dbCatImg, dbHero: dbHero.length ? dbHero : null, dbVulkaHero, dbFeat });
+    }).catch(() => {});
   }
 
   resetFilters() { return { cat: null, query: "", priceMin: null, priceMax: null, onlyFeatured: false, onlyPhoto: false, sort: "relevancia" }; }
@@ -741,7 +790,7 @@ class Component extends DCLogic {
 
   goHero(i) {
     this.setState((s) => {
-      const n = HERO.length;
+      const n = (s.dbHero && s.dbHero.length) ? s.dbHero.length : HERO.length;
       const c = ((i % n) + n) % n;
       if (c === s.hero) return null;
       const top = s.heroTop === "A" ? "B" : "A";
@@ -755,7 +804,8 @@ class Component extends DCLogic {
   openProduct(p) {
     const opts = (p.sizes || "").split(" · ");
     const isSize = opts.length > 1 && opts.every((o) => o.length <= 3);
-    this.setState({ pd: p, pdSize: isSize ? opts[0] : null, pdQty: 1, cartOpen: false });
+    const first = (p.gallery && p.gallery.length) ? p.gallery[0] : p.img;
+    this.setState({ pd: p, pdSize: isSize ? opts[0] : null, pdQty: 1, cartOpen: false, pdImg: first || null });
     try { window.scrollTo(0, 0); } catch (e) {}
   }
 
@@ -824,15 +874,16 @@ class Component extends DCLogic {
     const jost = isVulka ? "font-family:Jost,sans-serif;" : "";
     const q = this.state.query.trim().toLowerCase();
 
-    const ALL = PRODUCTS.concat(this.state.vulka);
-    const hasSin = this.state.vulka.some((p) => p.cat === "Sin clasificar");
+    // Fuentes dinámicas: Supabase si está cargado, si no los datos locales (fallback)
+    const ALL = (this.state.dbProducts && this.state.dbProducts.length) ? this.state.dbProducts : PRODUCTS.concat(this.state.vulka);
+    const CATX = this.state.dbCatOrder || { aguara: CAT.aguara.concat(EXTRA_AGUARA), vulka: CAT.vulka };
     const list = ALL.filter((p) => p.b === v)
       .filter((p) => (this.state.cat ? p.cat === this.state.cat : true))
       .filter((p) => (q ? (p.name + " " + p.cat).toLowerCase().includes(q) : true));
 
     // Solo categorías que realmente tienen productos cargados
-    const catsWith = (brand, ordered) => ordered.filter((c) => ALL.some((p) => p.b === brand && p.cat === c));
-    const catsFull = CAT[v] ? CAT[v].concat(v === "aguara" ? EXTRA_AGUARA : []) : [];
+    const catsWith = (brand, ordered) => (ordered || []).filter((c) => ALL.some((p) => p.b === brand && p.cat === c));
+    const catsFull = CATX[v] ? CATX[v].slice() : [];
     const catsAvail = catsWith(v, catsFull);
 
     const chipBase = "border:1px solid #E0E2E4;background:#fff;color:#454D52;border-radius:999px;padding:9px 16px;font-size:13px;cursor:pointer;" + jost;
@@ -851,14 +902,15 @@ class Component extends DCLogic {
     const brands = new Set(cart.map((i) => i.b));
 
     // --- Hero filmstrip (solo Aguara) ---
-    const H = Math.min(Math.max(this.state.hero, 0), HERO.length - 1);
-    const hs = HERO[H];
+    const HEROX = (this.state.dbHero && this.state.dbHero.length) ? this.state.dbHero : HERO;
+    const H = Math.min(Math.max(this.state.hero, 0), HEROX.length - 1);
+    const hs = HEROX[H];
     const CW = 118, CG = 8, FULL = 158, HALF = 104;
     const ease = "cubic-bezier(.22,1,.36,1)";
-    const aI = Math.min(Math.max(this.state.aIdx, 0), HERO.length - 1);
-    const bI = Math.min(Math.max(this.state.bIdx, 0), HERO.length - 1);
+    const aI = Math.min(Math.max(this.state.aIdx, 0), HEROX.length - 1);
+    const bI = Math.min(Math.max(this.state.bIdx, 0), HEROX.length - 1);
     const heroTop = this.state.heroTop;
-    const bgLayer = (idx) => "position:absolute;inset:0;background:#000 url(" + HERO[idx].img + ") " + HERO[idx].pos + "/cover no-repeat;transition:opacity 1.1s ease,transform 1.7s ease";
+    const bgLayer = (idx) => "position:absolute;inset:0;background:#000 url(" + HEROX[idx].img + ") " + HEROX[idx].pos + "/cover no-repeat;transition:opacity 1.1s ease,transform 1.7s ease";
 
     // --- Página de producto ---
     const pd = this.state.pd;
@@ -913,7 +965,7 @@ class Component extends DCLogic {
     const cnt = (n) => n + (n === 1 ? " producto" : " productos");
     const allCats = isHome ? [] : catsAvail;
     const PREVIEW = 4;
-    const FEAT_AG = ["ag-42", "ag-26", "ag-12", "ag-15", "ag-23", "ag-44"];
+    const FEAT_AG = (this.state.dbFeat && this.state.dbFeat.length) ? this.state.dbFeat : ["ag-42", "ag-26", "ag-12", "ag-15", "ag-23", "ag-44"];
     const mkSection = (key, title, items, sliced) => {
       const shown = sliced ? items.slice(0, PREVIEW) : items;
       const more = items.length - shown.length;
@@ -926,7 +978,7 @@ class Component extends DCLogic {
         showGiftBanner: false
       };
     };
-    const giftCard = PRODUCTS.find((p) => p.amounts);
+    const giftCard = ALL.find((p) => p.b === "aguara" && p.amounts) || ALL.find((p) => p.amounts);
     const giftShow = isAguara && !this.state.cat && !q && !!giftCard;
     let sections;
     if (q) {
@@ -934,9 +986,9 @@ class Component extends DCLogic {
     } else if (this.state.cat) {
       sections = [mkSection(this.state.cat, this.state.cat, list, false)];
     } else {
-      const feat = isAguara
-        ? FEAT_AG.map((id) => list.find((p) => p.id === id)).filter(Boolean)
-        : list.slice(0, 6);
+      const featSet0 = new Set(FEAT_AG);
+      const marked = list.filter((p) => featSet0.has(p.id));
+      const feat = (marked.length ? marked : list).slice(0, 6);
       const featSection = { key: "dest", title: "Destacados", countLabel: "", products: feat.map(mapProduct), showMore: false, notMore: true, moreLabel: "", onMore: () => {}, showGiftBanner: false };
       const catSections = allCats.map((c) => mkSection(c, c, list.filter((p) => p.cat === c), true)).filter((s) => s.products.length > 0);
       sections = (feat.length ? [featSection] : []).concat(catSections);
@@ -957,7 +1009,9 @@ class Component extends DCLogic {
     const PMAX = brandPrices.length ? Math.ceil(Math.max(...brandPrices) / roundTo) * roundTo : 0;
     const pmin = this.state.priceMin == null ? PMIN : this.state.priceMin;
     const pmax = this.state.priceMax == null ? PMAX : this.state.priceMax;
-    const featIds = isAguara ? FEAT_AG : brandProducts.slice(0, 6).map((p) => p.id);
+    const featSet1 = new Set(FEAT_AG);
+    const markedBrand = brandProducts.filter((p) => featSet1.has(p.id));
+    const featIds = (markedBrand.length ? markedBrand : brandProducts.slice(0, 6)).map((p) => p.id);
     const featSet = new Set(featIds);
     let catalogList = list.filter((p) => { const pr = priceOf(p); return pr >= pmin && pr <= pmax; });
     if (this.state.onlyFeatured) catalogList = catalogList.filter((p) => featSet.has(p.id));
@@ -971,11 +1025,14 @@ class Component extends DCLogic {
     const pct = (val) => (PMAX > PMIN ? ((val - PMIN) / (PMAX - PMIN)) * 100 : 0);
 
     const brandAll = isHome ? [] : ALL.filter((p) => p.b === v);
+    const catImgMap = this.state.dbCatImg || {};
     const catData = allCats.map((c) => {
       const items = brandAll.filter((p) => p.cat === c);
       if (!items.length) return null;
+      const admImg = catImgMap[v + "|" + c];
       const wi = items.find((p) => p.img) || items[0];
-      return { name: c, count: cnt(items.length), img: wi.img ? wi.img + "?v=hi" : "" };
+      const img = admImg ? admImg : (wi.img ? wi.img + "?v=hi" : "");
+      return { name: c, count: cnt(items.length), img: img };
     }).filter(Boolean);
     const catTiles = catData.map((t) => ({ name: t.name, count: t.count, img: t.img, onClick: () => { this.setState({ cat: t.name }); try { window.scrollTo(0, 0); } catch (e) {} } }));
     const catTilesShow = isAguara && !this.state.cat && !q;
@@ -1038,7 +1095,12 @@ class Component extends DCLogic {
       pdGiftAmount: pd && pd.amounts ? gs(pdAmt) : "",
       pdImgStyle: pd && pd.amounts
         ? "position:relative;aspect-ratio:3/4;border-radius:16px;overflow:hidden;background:linear-gradient(160deg,#1b1512,#120d0b)"
-        : (pd && pd.img ? "position:relative;aspect-ratio:3/4;border-radius:16px;overflow:hidden;background:#F1F2F3 url(" + pd.img + "?v=hi) center/cover no-repeat;box-shadow:0 24px 50px -22px rgba(17,24,28,.4)" : "position:relative;aspect-ratio:3/4;border-radius:16px;background:repeating-linear-gradient(115deg,#F1F2F3 0 9px,#E8EAEB 9px 18px)"),
+        : (pd && (this.state.pdImg || pd.img) ? "position:relative;aspect-ratio:3/4;border-radius:16px;overflow:hidden;background:#F1F2F3 url(" + (this.state.pdImg || pd.img) + "?v=hi) center/cover no-repeat;box-shadow:0 24px 50px -22px rgba(17,24,28,.4)" : "position:relative;aspect-ratio:3/4;border-radius:16px;background:repeating-linear-gradient(115deg,#F1F2F3 0 9px,#E8EAEB 9px 18px)"),
+      pdHasGallery: !!(pd && !pd.amounts && pd.gallery && pd.gallery.length > 1),
+      pdGallery: (pd && pd.gallery && pd.gallery.length > 1 ? pd.gallery : []).map((u) => ({
+        onClick: () => this.setState({ pdImg: u }),
+        style: "width:60px;height:74px;flex:none;border-radius:8px;overflow:hidden;cursor:pointer;background:#F1F2F3 url(" + u + ") center/cover no-repeat;border:2px solid " + ((this.state.pdImg || (pd.gallery[0])) === u ? pdAccent : "transparent")
+      })),
       pdPriceLabel: pd ? (pd.amounts ? gs(pdAmt) : (pd.price ? gs(pd.price) : "Precio a consultar")) : "",
       pdPriceColor: pdAccent,
       pdBtnStyle: "margin-top:8px;background:" + pdAccent + ";color:#fff;border:0;border-radius:10px;padding:17px 24px;font-size:15px;font-weight:700;letter-spacing:.03em;cursor:pointer;max-width:360px;box-shadow:0 14px 30px -12px " + pdAccent + "aa;transition:transform .2s,box-shadow .2s",
@@ -1067,10 +1129,10 @@ class Component extends DCLogic {
       goHome: () => this.setState({ view: "home", cat: null, query: "" }),
       goAguara: () => this.setBrand("aguara"),
       goVulka: () => this.setBrand("vulka"),
-      footAguaraCats: catsWith("aguara", CAT.aguara.concat(EXTRA_AGUARA)).map((c) => ({
+      footAguaraCats: catsWith("aguara", CATX.aguara).map((c) => ({
         name: c, onClick: () => { this.setState({ view: "aguara", cat: c, query: "" }); try { window.scrollTo(0, 0); } catch (e) {} }
       })),
-      footVulkaCats: catsWith("vulka", CAT.vulka).map((c) => ({
+      footVulkaCats: catsWith("vulka", CATX.vulka).map((c) => ({
         name: c, onClick: () => { this.setState({ view: "vulka", cat: c, query: "" }); try { window.scrollTo(0, 0); } catch (e) {} }
       })),
       navCats: isHome ? [] : catsAvail.map((c) => ({
@@ -1085,12 +1147,12 @@ class Component extends DCLogic {
 
       heroStyle:
         "position:relative;min-height:420px;display:flex;align-items:flex-end;padding:36px;border-radius:14px;overflow:hidden;background:" +
-        "linear-gradient(90deg,rgba(17,24,28,.78) 0%,rgba(17,24,28,.4) 55%,rgba(17,24,28,.08) 100%), #1B2226 url(uploads/opt/vulka-hero.webp) center 26%/cover no-repeat",
+        "linear-gradient(90deg,rgba(17,24,28,.78) 0%,rgba(17,24,28,.4) 55%,rgba(17,24,28,.08) 100%), #1B2226 url(" + ((this.state.dbVulkaHero && this.state.dbVulkaHero.img) ? this.state.dbVulkaHero.img : "uploads/opt/vulka-hero.webp") + ") center 26%/cover no-repeat",
       heroNote: "rgba(255,255,255,0)",
       heroKicker: "rgba(255,255,255,.82)",
       heroPlaceholder: "",
-      heroEyebrow: isVulka ? "NUEVA TEMPORADA" : "COLECCIÓN EN MOVIMIENTO",
-      heroTitle: isVulka ? "Tu mejor versión sigue siendo vos" : "Si elegís moverte, ya sos parte",
+      heroEyebrow: isVulka ? ((this.state.dbVulkaHero && this.state.dbVulkaHero.etiqueta) || "NUEVA TEMPORADA") : "COLECCIÓN EN MOVIMIENTO",
+      heroTitle: isVulka ? ((this.state.dbVulkaHero && this.state.dbVulkaHero.titulo) || "Tu mejor versión sigue siendo vos") : "Si elegís moverte, ya sos parte",
       heroTitleStyle: "font-family:Jost,sans-serif;font-size:clamp(30px,4.4vw,44px);font-weight:500;letter-spacing:.02em;line-height:1.12;color:#fff;text-shadow:0 2px 20px rgba(0,0,0,.35)",
       heroTextStyle: "font-family:Jost,sans-serif;font-size:15px;line-height:1.6;color:rgba(255,255,255,.85);margin:12px 0 0;max-width:440px;text-wrap:pretty",
       heroText: isVulka
@@ -1111,7 +1173,7 @@ class Component extends DCLogic {
       heroLines: hs.t.split("\n"),
       heroSubStyle: "color:rgba(255,255,255,.82);font-size:15px;line-height:1.5;max-width:430px;margin:12px 0 0;text-wrap:pretty",
       heroThumbsWrap: "position:absolute;left:0;right:0;bottom:22px;z-index:3;display:flex;justify-content:center;align-items:center;gap:10px;padding:0 16px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none",
-      heroThumbs: HERO.map((s, i) => ({
+      heroThumbs: HEROX.map((s, i) => ({
         img: s.img,
         onClick: () => this.goHero(i),
         style: "flex:none;width:104px;height:66px;border-radius:5px;overflow:hidden;padding:0;cursor:pointer;background:#0b0f12;border:2px solid " + (i === H ? "#fff" : "rgba(255,255,255,.25)") + ";opacity:" + (i === H ? "1" : ".55") + ";transform:translateY(" + (i === H ? "-6px" : "0") + ");transition:opacity .35s,border-color .35s,transform .35s;box-shadow:" + (i === H ? "0 10px 26px rgba(0,0,0,.5)" : "none"),
