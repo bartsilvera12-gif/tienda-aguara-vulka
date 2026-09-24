@@ -79,34 +79,61 @@
   .rng input::-moz-range-thumb{pointer-events:auto;width:16px;height:16px;border-radius:50%;background:var(--acc);border:3px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.28);cursor:pointer}
   .chk{display:flex;align-items:center;gap:9px;font-size:14px;color:#454D52;cursor:pointer;padding:5px 0}
   .chk input{width:16px;height:16px;accent-color:var(--acc);cursor:pointer}
-  /* Header responsive */
+  /* Header con logo centrado */
+  .hdr-left{flex:1;display:flex;gap:16px;align-items:center;min-width:0}
+  .hdr-center{flex:none;display:flex;justify-content:center}
+  .hdr-right{flex:1;display:flex;gap:10px;align-items:center;justify-content:flex-end;min-width:0}
   @media(max-width:760px){
-    .hdr-nav{display:none !important}
-    .hdr-tools{margin-left:0 !important;flex:1;min-width:100%;justify-content:flex-end}
-    .hdr-search{flex:1}
+    .hdr-center{order:-1;flex-basis:100%;justify-content:center;margin-bottom:2px}
+    .hdr-left{flex:0 0 auto;order:1}
+    .hdr-right{order:2;flex:1 1 auto;min-width:0}
+    .hdr-search{flex:1 1 0;min-width:0;width:auto !important}
   }
   /* Grilla de productos */
   .prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
   @media(max-width:560px){.prod-grid{grid-template-columns:repeat(2,1fr);gap:10px}}
+  /* Franja de beneficios */
+  .feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+  .feat-item{display:flex;gap:14px;align-items:center;background:#FAFAFA;border:1px solid #EDEFF0;border-radius:16px;padding:18px 18px;transition:transform .3s ease,box-shadow .3s ease,border-color .3s ease}
+  .feat-item:hover{transform:translateY(-3px);box-shadow:0 14px 30px -18px rgba(17,24,28,.35);border-color:#E0E3E5}
+  .feat-ic{flex:none;width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.04)}
+  .feat-ic svg{width:22px;height:22px}
+  .feat-item strong{display:block;color:#11181C;font-size:14px;margin-bottom:3px}
+  .feat-item span{font-size:12.5px;color:#5A6268;line-height:1.4}
+  /* Patrón oscuro animado del footer */
+  .site-footer{position:relative;overflow:hidden;background:#0c1013}
+  .site-footer::before{content:"";position:absolute;inset:-45% -15%;pointer-events:none;
+    background:radial-gradient(38% 48% at 20% 30%,rgba(194,82,42,.20),transparent 62%),
+      radial-gradient(40% 50% at 82% 18%,rgba(70,92,124,.20),transparent 62%),
+      radial-gradient(48% 60% at 60% 95%,rgba(140,140,160,.12),transparent 62%);
+    filter:blur(22px);animation:footAurora 20s ease-in-out infinite alternate}
+  @keyframes footAurora{0%{transform:translate3d(-3%,-2%,0) rotate(0deg)}100%{transform:translate3d(3%,2%,0) rotate(7deg)}}
+  .site-footer::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);
+    background-size:46px 46px;
+    -webkit-mask-image:radial-gradient(circle at 50% -10%,#000,transparent 78%);mask-image:radial-gradient(circle at 50% -10%,#000,transparent 78%);
+    animation:footGrid 22s linear infinite}
+  @keyframes footGrid{0%{background-position:0 0}100%{background-position:46px 46px}}
+  .site-footer > *{position:relative;z-index:1}
+  @media(prefers-reduced-motion:reduce){.site-footer::before,.site-footer::after,.gift-float,.gift-shine{animation:none}}
 </style>
 </helmet>
 <div style="font-family:Archivo,Helvetica,sans-serif;color:#11181C;background:#fff;min-height:100vh;display:flex;flex-direction:column">
 
   <header style="position:sticky;top:0;z-index:40;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-bottom:1px solid #E6E8EA;padding:12px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
-    <button onClick="{{ goHome }}" style="border:0;background:transparent;padding:0 4px;cursor:pointer;font-size:13px;font-weight:600;letter-spacing:.04em;color:#5A6268" style-hover="color:#11181C">Inicio</button>
-    <button onClick="{{ openCatalog }}" style="border:0;background:transparent;padding:0 4px;cursor:pointer;font-size:13px;font-weight:600;letter-spacing:.04em;color:#5A6268" style-hover="color:#11181C">Catálogo</button>
-    <div style="display:flex;gap:2px;background:#F2F3F4;border-radius:999px;padding:3px">
-      <button onClick="{{ goAguara }}" style="{{ tabAguara }}"><img src="uploads/opt/aguara-word.png" alt="Aguara" style="height:15px;width:auto;display:block" /></button>
-      <button onClick="{{ goVulka }}" style="{{ tabVulka }}"><img src="uploads/opt/vulka-word.png" alt="Vulka" style="height:18px;width:auto;display:block" /></button>
+    <div class="hdr-left">
+      <button onClick="{{ goHome }}" style="border:0;background:transparent;padding:0 4px;cursor:pointer;font-size:13px;font-weight:600;letter-spacing:.04em;color:#5A6268" style-hover="color:#11181C">Inicio</button>
+      <button onClick="{{ openCatalog }}" style="border:0;background:transparent;padding:0 4px;cursor:pointer;font-size:13px;font-weight:600;letter-spacing:.04em;color:#5A6268" style-hover="color:#11181C">Catálogo</button>
     </div>
-    <nav class="hdr-nav" style="display:flex;gap:18px;flex-wrap:wrap;flex:1;min-width:0">
-      <sc-for list="{{ navCats }}" as="c" hint-placeholder-count="4">
-        <button onClick="{{ c.onClick }}" style="{{ c.style }}" style-hover="color:#11181C">{{ c.name }}</button>
-      </sc-for>
-    </nav>
-    <div class="hdr-tools" style="display:flex;align-items:center;gap:10px;margin-left:auto">
+    <div class="hdr-center">
+      <div style="display:flex;gap:4px;background:#F2F3F4;border-radius:999px;padding:4px">
+        <button onClick="{{ goAguara }}" style="{{ tabAguara }}"><img src="uploads/opt/aguara-word.png" alt="Aguara" style="height:22px;width:auto;display:block" /></button>
+        <button onClick="{{ goVulka }}" style="{{ tabVulka }}"><img src="uploads/opt/vulka-word.png" alt="Vulka" style="height:26px;width:auto;display:block" /></button>
+      </div>
+    </div>
+    <div class="hdr-right">
       <input class="hdr-search" value="{{ query }}" onInput="{{ onQuery }}" onChange="{{ onQuery }}" placeholder="Buscar producto" style="border:1px solid #E0E2E4;border-radius:999px;padding:8px 14px;font-size:13px;width:150px;outline:none;color:#11181C" />
-      <button onClick="{{ openCart }}" style="display:flex;align-items:center;gap:8px;border:1px solid #11181C;background:#11181C;color:#fff;border-radius:999px;padding:8px 15px;font-size:13px;font-weight:600;cursor:pointer" style-hover="opacity:.85">Carrito <span style="background:#fff;color:#11181C;border-radius:999px;min-width:19px;height:19px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">{{ cartCount }}</span></button>
+      <button onClick="{{ openCart }}" style="display:flex;align-items:center;gap:8px;border:1px solid #11181C;background:#11181C;color:#fff;border-radius:999px;padding:8px 15px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap" style-hover="opacity:.85">Carrito <span style="background:#fff;color:#11181C;border-radius:999px;min-width:19px;height:19px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">{{ cartCount }}</span></button>
     </div>
   </header>
 
@@ -117,7 +144,25 @@
         <button onClick="{{ closeProduct }}" style="border:0;background:transparent;padding:8px 0;cursor:pointer;font-size:14px;color:#5A6268;display:flex;align-items:center;gap:6px" style-hover="color:#11181C"><span>←</span> Volver a la tienda</button>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:34px;margin-top:14px;align-items:start">
           <div style="{{ pdImgStyle }}">
-            <span style="position:absolute;top:12px;left:12px;font-size:10px;font-weight:700;letter-spacing:.1em;padding:4px 8px;border-radius:2px;background:#11181C;color:#fff">{{ pdBrandLabel }}</span>
+            <sc-if value="{{ pdIsGift }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:26px">
+                <div style="position:relative;width:100%;max-width:360px;aspect-ratio:1.586/1;border-radius:18px;overflow:hidden;background:linear-gradient(135deg,#C2522A 0%,#8a3417 52%,#331409 100%);box-shadow:0 24px 54px -20px rgba(0,0,0,.7);padding:22px;display:flex;flex-direction:column;justify-content:space-between;color:#fff">
+                  <div style="position:absolute;inset:0;background:radial-gradient(circle at 82% 16%,rgba(255,255,255,.22),transparent 52%);pointer-events:none"></div>
+                  <div style="position:absolute;right:-40px;bottom:-40px;width:160px;height:160px;border-radius:50%;border:28px solid rgba(255,255,255,.06)"></div>
+                  <div style="position:relative;display:flex;align-items:center;justify-content:space-between">
+                    <img src="uploads/opt/aguara-logo.png" alt="Aguará" style="width:44px;height:44px;object-fit:contain;filter:brightness(0) invert(1)" />
+                    <span style="font-size:12px;letter-spacing:.3em;font-weight:800;opacity:.9">GIFT CARD</span>
+                  </div>
+                  <div style="position:relative;width:50px;height:36px;border-radius:6px;background:linear-gradient(135deg,#f7d68a,#c9922f);box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)"></div>
+                  <div style="position:relative">
+                    <div style="font-size:12px;letter-spacing:.14em;opacity:.8">MONTO</div>
+                    <div style="font-size:29px;font-weight:800">{{ pdGiftAmount }}</div>
+                    <div style="font-size:12px;letter-spacing:.16em;opacity:.7;margin-top:4px">AGUARÁ FITWEAR</div>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+            <span style="position:absolute;top:12px;left:12px;font-size:10px;font-weight:700;letter-spacing:.1em;padding:4px 8px;border-radius:2px;background:#11181C;color:#fff;z-index:2">{{ pdBrandLabel }}</span>
           </div>
           <div style="display:flex;flex-direction:column;gap:16px;padding-top:6px">
             <div style="font-size:12px;color:#8B9297;letter-spacing:.1em;text-transform:uppercase">{{ pdCat }}</div>
@@ -335,7 +380,20 @@
               </div>
               <div style="position:relative;flex:none">
                 <div style="position:absolute;inset:-24px;border-radius:50%;background:radial-gradient(circle,rgba(227,138,94,.35),transparent 70%);filter:blur(6px)"></div>
-                <img src="{{ giftImg }}" alt="Gift Card Aguará" class="gift-float" style="position:relative;width:300px;max-width:80vw;border-radius:16px;object-fit:cover;box-shadow:0 26px 60px -20px rgba(0,0,0,.85)" />
+                <div class="gift-float" style="position:relative;width:330px;max-width:82vw;aspect-ratio:1.586/1;border-radius:18px;overflow:hidden;background:linear-gradient(135deg,#C2522A 0%,#8a3417 52%,#331409 100%);box-shadow:0 26px 60px -20px rgba(0,0,0,.85);padding:20px 22px;display:flex;flex-direction:column;justify-content:space-between;color:#fff">
+                  <div style="position:absolute;inset:0;background:radial-gradient(circle at 82% 16%,rgba(255,255,255,.22),transparent 52%);pointer-events:none"></div>
+                  <div style="position:absolute;right:-40px;bottom:-40px;width:150px;height:150px;border-radius:50%;border:26px solid rgba(255,255,255,.06);pointer-events:none"></div>
+                  <div style="position:relative;display:flex;align-items:center;justify-content:space-between">
+                    <img src="uploads/opt/aguara-logo.png" alt="Aguará" style="width:40px;height:40px;object-fit:contain;filter:brightness(0) invert(1)" />
+                    <span style="font-size:11px;letter-spacing:.3em;font-weight:800;opacity:.9">GIFT CARD</span>
+                  </div>
+                  <div style="position:relative;width:46px;height:33px;border-radius:6px;background:linear-gradient(135deg,#f7d68a,#c9922f);box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)"></div>
+                  <div style="position:relative">
+                    <div style="font-size:11px;letter-spacing:.14em;opacity:.8">DESDE</div>
+                    <div style="font-size:27px;font-weight:800;letter-spacing:.01em">{{ giftFrom }}</div>
+                    <div style="font-size:11px;letter-spacing:.16em;opacity:.7;margin-top:4px">AGUARÁ FITWEAR</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -461,16 +519,28 @@
     </sc-if>
 
     <section style="max-width:1280px;margin:40px auto 0;padding:0 20px">
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:#E6E8EA;border:1px solid #E6E8EA">
-        <div style="background:#FAFAFA;padding:18px 20px;font-size:13px;color:#454D52"><strong style="display:block;color:#11181C;margin-bottom:4px">Delivery gratis</strong>En pedidos mayores a 2.500.000 Gs.</div>
-        <div style="background:#FAFAFA;padding:18px 20px;font-size:13px;color:#454D52"><strong style="display:block;color:#11181C;margin-bottom:4px">Pago seguro</strong>Procesado online por la pasarela contratada.</div>
-        <div style="background:#FAFAFA;padding:18px 20px;font-size:13px;color:#454D52"><strong style="display:block;color:#11181C;margin-bottom:4px">Cambios y devoluciones</strong>Según política vigente publicada.</div>
-        <div style="background:#FAFAFA;padding:18px 20px;font-size:13px;color:#454D52"><strong style="display:block;color:#11181C;margin-bottom:4px">Atención al cliente</strong>Lunes a viernes para tus consultas.</div>
+      <div class="feat-grid">
+        <div class="feat-item">
+          <span class="feat-ic" style="color:{{ sectionAccent }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1 3h13v13H1z"/><path d="M14 8h4l3 3v5h-7z"/><circle cx="6" cy="18.5" r="1.8"/><circle cx="17.5" cy="18.5" r="1.8"/></svg></span>
+          <div><strong>Delivery gratis</strong><span>En pedidos mayores a 2.500.000 Gs.</span></div>
+        </div>
+        <div class="feat-item">
+          <span class="feat-ic" style="color:{{ sectionAccent }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 3v6c0 5-3.5 8.5-8 11-4.5-2.5-8-6-8-11V5z"/><path d="M9 12l2 2 4-4"/></svg></span>
+          <div><strong>Pago seguro</strong><span>Procesado online por la pasarela contratada.</span></div>
+        </div>
+        <div class="feat-item">
+          <span class="feat-ic" style="color:{{ sectionAccent }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg></span>
+          <div><strong>Cambios y devoluciones</strong><span>Según política vigente publicada.</span></div>
+        </div>
+        <div class="feat-item">
+          <span class="feat-ic" style="color:{{ sectionAccent }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><path d="M4 13h2.5a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M20 13h-2.5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1H19a1 1 0 0 0 1-1z"/><path d="M20 18v1a3 3 0 0 1-3 3h-3"/></svg></span>
+          <div><strong>Atención al cliente</strong><span>Lunes a viernes para tus consultas.</span></div>
+        </div>
       </div>
     </section>
   </main>
 
-  <footer style="margin-top:48px;background:#11181C;color:#fff;padding:44px 20px 26px">
+  <footer class="site-footer" style="margin-top:48px;color:#fff;padding:44px 20px 26px">
     <div style="max-width:1280px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:28px">
       <div>
         <div style="font-weight:800;font-size:18px;margin-bottom:12px">AGUARA FITWEAR</div>
@@ -518,7 +588,11 @@
         <div style="flex:1;overflow:auto;padding:8px 20px">
           <sc-for list="{{ cartItems }}" as="it" hint-placeholder-count="2">
             <div style="display:flex;gap:12px;padding:14px 0;border-bottom:1px solid #F0F1F2">
-              <div style="width:56px;height:70px;flex:none;background:repeating-linear-gradient(115deg,#F2F3F4 0 7px,#E9EAEB 7px 14px)"></div>
+              <div style="{{ it.thumbStyle }}">
+                <sc-if value="{{ it.isGift }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-size:8px;font-weight:800;letter-spacing:.14em;color:#fff;opacity:.9;text-align:center">GIFT<br />CARD</span>
+                </sc-if>
+              </div>
               <div style="flex:1;min-width:0">
                 <div style="font-size:10px;font-weight:700;letter-spacing:.1em;color:#8B9297">{{ it.brandLabel }}</div>
                 <div style="font-size:13px;font-weight:600;line-height:1.35;margin:3px 0">{{ it.name }}</div>
@@ -677,7 +751,7 @@ class Component extends DCLogic {
       const found = s.cart.find((i) => i.key === key);
       const cart = found
         ? s.cart.map((i) => (i.key === key ? { ...i, qty: i.qty + qty } : i))
-        : [...s.cart, { key, id: p.id, name: p.name, b: p.b, price, size: variant, qty }];
+        : [...s.cart, { key, id: p.id, name: p.name, b: p.b, price, size: variant, qty, img: p.img, isGift: !!p.amounts }];
       return { cart, cartOpen: true };
     });
   }
@@ -691,7 +765,7 @@ class Component extends DCLogic {
       const found = s.cart.find((i) => i.key === key);
       const cart = found
         ? s.cart.map((i) => (i.key === key ? { ...i, qty: i.qty + 1 } : i))
-        : [...s.cart, { key, id: p.id, name: p.name, b: p.b, price: p.price, size, qty: 1 }];
+        : [...s.cart, { key, id: p.id, name: p.name, b: p.b, price: p.price, size, qty: 1, img: p.img, isGift: !!p.amounts }];
       return { cart, cartOpen: true };
     });
   }
@@ -770,7 +844,7 @@ class Component extends DCLogic {
         imgNote: p.img ? "" : "FOTO PRODUCTO",
         hasImg: !!p.img,
         noImg: !p.img,
-        cardClass: p.b === "aguara" ? "pcard" : "",
+        cardClass: "pcard",
         cardWrap: "display:flex;flex-direction:column;border:1px solid #EAECED;overflow:hidden;background:#fff;border-radius:" + (p.b === "aguara" ? "12px" : "3px"),
         imgSrc: p.img ? p.img + "?v=hi" : p.img,
         imgWrap:
@@ -907,7 +981,11 @@ class Component extends DCLogic {
       pdCat: pd ? pd.cat : "",
       pdName: pd ? pd.name : "",
       pdBrandLabel: pd ? (pd.b === "vulka" ? "VULKA" : "AGUARA") : "",
-      pdImgStyle: pd && pd.img ? "position:relative;aspect-ratio:3/4;border-radius:16px;overflow:hidden;background:#F1F2F3 url(" + pd.img + "?v=hi) center/cover no-repeat;box-shadow:0 24px 50px -22px rgba(17,24,28,.4)" : "position:relative;aspect-ratio:3/4;border-radius:16px;background:repeating-linear-gradient(115deg,#F1F2F3 0 9px,#E8EAEB 9px 18px)",
+      pdIsGift: !!(pd && pd.amounts),
+      pdGiftAmount: pd && pd.amounts ? gs(pdAmt) : "",
+      pdImgStyle: pd && pd.amounts
+        ? "position:relative;aspect-ratio:3/4;border-radius:16px;overflow:hidden;background:linear-gradient(160deg,#1b1512,#120d0b)"
+        : (pd && pd.img ? "position:relative;aspect-ratio:3/4;border-radius:16px;overflow:hidden;background:#F1F2F3 url(" + pd.img + "?v=hi) center/cover no-repeat;box-shadow:0 24px 50px -22px rgba(17,24,28,.4)" : "position:relative;aspect-ratio:3/4;border-radius:16px;background:repeating-linear-gradient(115deg,#F1F2F3 0 9px,#E8EAEB 9px 18px)"),
       pdPriceLabel: pd ? (pd.amounts ? gs(pdAmt) : (pd.price ? gs(pd.price) : "Precio a consultar")) : "",
       pdPriceColor: pdAccent,
       pdBtnStyle: "margin-top:8px;background:" + pdAccent + ";color:#fff;border:0;border-radius:10px;padding:17px 24px;font-size:15px;font-weight:700;letter-spacing:.03em;cursor:pointer;max-width:360px;box-shadow:0 14px 30px -12px " + pdAccent + "aa;transition:transform .2s,box-shadow .2s",
@@ -979,7 +1057,7 @@ class Component extends DCLogic {
       heroTitleBig: "margin:0;font-weight:800;letter-spacing:-.03em;line-height:.92;color:#fff;font-size:clamp(28px,4.6vw,56px);text-transform:uppercase;text-shadow:0 2px 24px rgba(0,0,0,.35)",
       heroLines: hs.t.split("\n"),
       heroSubStyle: "color:rgba(255,255,255,.82);font-size:15px;line-height:1.5;max-width:430px;margin:12px 0 0;text-wrap:pretty",
-      heroThumbsWrap: "position:absolute;left:0;right:0;bottom:26px;z-index:3;display:flex;justify-content:center;align-items:center;gap:9px;padding:0 16px;flex-wrap:wrap",
+      heroThumbsWrap: "position:absolute;left:0;right:0;bottom:22px;z-index:3;display:flex;justify-content:center;align-items:center;gap:10px;padding:0 16px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none",
       heroThumbs: HERO.map((s, i) => ({
         img: s.img,
         onClick: () => this.goHero(i),
@@ -1028,6 +1106,12 @@ class Component extends DCLogic {
         size: i.size ? (i.size.indexOf("Gs.") === 0 ? "Monto " + i.size : "Talle " + i.size) : "Variante a confirmar",
         brandLabel: i.b === "vulka" ? "VULKA" : "AGUARA",
         lineLabel: gs(i.price * i.qty),
+        isGift: !!i.isGift,
+        notGift: !i.isGift,
+        thumbStyle: "width:56px;height:70px;flex:none;border-radius:6px;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;background:" +
+          (i.isGift
+            ? "linear-gradient(135deg,#C2522A,#7d2d12 60%,#2a1109);"
+            : (i.img ? "#F1F2F3 url(" + i.img + "?v=hi) center/cover no-repeat;" : "repeating-linear-gradient(115deg,#F2F3F4 0 7px,#E9EAEB 7px 14px);")),
         inc: () => this.bump(i.key, 1),
         dec: () => this.bump(i.key, -1)
       })),
