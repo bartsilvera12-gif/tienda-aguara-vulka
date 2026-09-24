@@ -162,6 +162,17 @@
           <input id="prodSearch" placeholder="Buscar por nombre…" style="max-width:260px;flex:1">
         </div>
         <div class="list" id="prodList"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="muted">Filas</span>
+            <div style="width:100px"><select id="prodRows"><option value="25">25</option><option value="50">50</option><option value="100">100</option><option value="0">Todo</option></select></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <button class="btn btn-ghost btn-sm" id="prodPrev">‹ Anterior</button>
+            <span class="muted" id="prodPageInfo">1 de 1</span>
+            <button class="btn btn-ghost btn-sm" id="prodNext">Siguiente ›</button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -436,10 +447,22 @@ async function loadProducts(){
   PRODS = data||[]; renderProdList();
 }
 function catName(id){ const c=CATS.find(x=>x.id===id); return c?c.nombre:"—"; }
+let prodPage=1;
 function renderProdList(){
   const f=$("prodFilter").value, q=$("prodSearch").value.trim().toLowerCase();
-  const list = PRODS.filter(p=>(!f||p.marca===f) && (!q||p.nombre.toLowerCase().includes(q)));
-  $("prodCount").textContent = list.length;
+  const all = PRODS.filter(p=>(!f||p.marca===f) && (!q||p.nombre.toLowerCase().includes(q)));
+  $("prodCount").textContent = all.length;
+  const rows = parseInt($("prodRows").value||"25",10);
+  const size = rows>0 ? rows : (all.length||1);
+  const pages = Math.max(1, Math.ceil(all.length/size));
+  if(prodPage>pages) prodPage=pages; if(prodPage<1) prodPage=1;
+  const start=(prodPage-1)*size;
+  const list = all.slice(start, start+size);
+  $("prodPageInfo").textContent = prodPage+" de "+pages;
+  $("prodPrev").disabled = prodPage<=1;
+  $("prodNext").disabled = prodPage>=pages;
+  $("prodPrev").style.opacity = prodPage<=1?".45":"1";
+  $("prodNext").style.opacity = prodPage>=pages?".45":"1";
   $("prodList").innerHTML = list.map(p=>`
     <div class="item">
       <img src="${esc(p.imagen||"")}" onerror="this.style.visibility='hidden'">
@@ -451,8 +474,11 @@ function renderProdList(){
       <button class="btn btn-danger btn-sm" onclick="delProd('${p.id}')">Borrar</button>
     </div>`).join("") || `<div class="muted">Sin productos.</div>`;
 }
-$("prodFilter").addEventListener("change",renderProdList);
-$("prodSearch").addEventListener("input",renderProdList);
+$("prodFilter").addEventListener("change",()=>{prodPage=1;renderProdList();});
+$("prodSearch").addEventListener("input",()=>{prodPage=1;renderProdList();});
+$("prodRows").addEventListener("change",()=>{prodPage=1;renderProdList();});
+$("prodPrev").addEventListener("click",()=>{ if(prodPage>1){prodPage--;renderProdList();window.scrollTo({top:0,behavior:'smooth'});} });
+$("prodNext").addEventListener("click",()=>{ prodPage++; renderProdList(); window.scrollTo({top:0,behavior:'smooth'}); });
 
 window.editProd = (id)=>{ const p=PRODS.find(x=>x.id===id); if(!p)return;
   $("p_id").value=p.id; $("p_marca").value=p.marca; if($("p_marca")._render)$("p_marca")._render(); fillCatSelect();
