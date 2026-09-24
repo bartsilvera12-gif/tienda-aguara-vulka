@@ -68,6 +68,7 @@
 
   <header style="position:sticky;top:0;z-index:40;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-bottom:1px solid #E6E8EA;padding:12px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
     <button onClick="{{ goHome }}" style="border:0;background:transparent;padding:0 4px;cursor:pointer;font-size:13px;font-weight:600;letter-spacing:.04em;color:#5A6268" style-hover="color:#11181C">Inicio</button>
+    <button onClick="{{ openCatalog }}" style="border:0;background:transparent;padding:0 4px;cursor:pointer;font-size:13px;font-weight:600;letter-spacing:.04em;color:#5A6268" style-hover="color:#11181C">Catálogo</button>
     <div style="display:flex;gap:2px;background:#F2F3F4;border-radius:999px;padding:3px">
       <button onClick="{{ goAguara }}" style="{{ tabAguara }}"><img src="uploads/opt/aguara-word.png" alt="Aguara" style="height:15px;width:auto;display:block" /></button>
       <button onClick="{{ goVulka }}" style="{{ tabVulka }}"><img src="uploads/opt/vulka-word.png" alt="Vulka" style="height:18px;width:auto;display:block" /></button>
@@ -78,7 +79,7 @@
       </sc-for>
     </nav>
     <div style="display:flex;align-items:center;gap:10px;margin-left:auto">
-      <input value="{{ query }}" onChange="{{ onQuery }}" placeholder="Buscar producto" style="border:1px solid #E0E2E4;border-radius:999px;padding:8px 14px;font-size:13px;width:150px;outline:none;color:#11181C" />
+      <input value="{{ query }}" onInput="{{ onQuery }}" onChange="{{ onQuery }}" placeholder="Buscar producto" style="border:1px solid #E0E2E4;border-radius:999px;padding:8px 14px;font-size:13px;width:150px;outline:none;color:#11181C" />
       <button onClick="{{ openCart }}" style="display:flex;align-items:center;gap:8px;border:1px solid #11181C;background:#11181C;color:#fff;border-radius:999px;padding:8px 15px;font-size:13px;font-weight:600;cursor:pointer" style-hover="opacity:.85">Carrito <span style="background:#fff;color:#11181C;border-radius:999px;min-width:19px;height:19px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">{{ cartCount }}</span></button>
     </div>
   </header>
@@ -317,6 +318,9 @@
         <sc-if value="{{ noProducts }}" hint-placeholder-val="{{ false }}">
           <div style="border:1px dashed #D8DBDD;padding:46px 20px;text-align:center;color:#8B9297;font-size:14px;line-height:1.6">Sin productos cargados en esta categoría.<br /><span style="font-size:13px">Se completa con la migración del catálogo vigente.</span></div>
         </sc-if>
+        <div style="display:flex;justify-content:center;margin:38px 0 4px">
+          <button onClick="{{ openCatalog }}" style="display:inline-flex;align-items:center;gap:10px;border:1px solid {{ sectionAccent }};background:#fff;color:{{ sectionAccent }};border-radius:999px;padding:14px 30px;font-size:14px;font-weight:700;letter-spacing:.02em;cursor:pointer" style-hover="background:{{ sectionAccent }};color:#fff">Ver catálogo completo <span>→</span></button>
+        </div>
       </section>
 
       <section style="max-width:1280px;margin:36px auto 0;padding:0 20px">
@@ -328,6 +332,71 @@
             <p style="{{ storyTextStyle }}">{{ storyText }}</p>
           </div>
         </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ isCatalog }}" hint-placeholder-val="{{ false }}">
+      <section style="max-width:1280px;margin:0 auto;padding:22px 20px 0">
+        <button onClick="{{ backToBrand }}" style="border:0;background:transparent;padding:6px 0;cursor:pointer;font-size:13px;color:#5A6268" style-hover="color:#11181C">{{ backToBrandLabel }}</button>
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:6px">
+          <div>
+            <div style="font-size:12px;letter-spacing:.2em;color:{{ sectionAccent }};font-weight:700">CATÁLOGO COMPLETO</div>
+            <h1 style="{{ catTitleStyle }}">{{ catTitle }}</h1>
+          </div>
+          <span style="font-size:13px;color:#8B9297">{{ catCountLabel }}</span>
+        </div>
+
+        <div style="position:relative;margin:16px 0 14px">
+          <span style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#9AA1A6;font-size:16px">⌕</span>
+          <input value="{{ query }}" onInput="{{ onQuery }}" onChange="{{ onQuery }}" placeholder="Buscar en el catálogo…" style="width:100%;box-sizing:border-box;border:1px solid #E0E2E4;border-radius:12px;padding:14px 16px 14px 44px;font-size:15px;outline:none;color:#11181C" />
+        </div>
+
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+          <sc-for list="{{ chips }}" as="ch" hint-placeholder-count="5">
+            <button onClick="{{ ch.onClick }}" style="{{ ch.style }}">{{ ch.name }}</button>
+          </sc-for>
+          <span style="flex:1;min-width:12px"></span>
+          <select onChange="{{ onSort }}" value="{{ sortValue }}" style="border:1px solid #E0E2E4;border-radius:999px;padding:9px 14px;font-size:13px;color:#454D52;background:#fff;outline:none;cursor:pointer">
+            <sc-for list="{{ sortOpts }}" as="o" hint-placeholder-count="4">
+              <option value="{{ o.value }}">{{ o.label }}</option>
+            </sc-for>
+          </select>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:14px;margin-top:14px">
+          <sc-for list="{{ catalogProducts }}" as="p" hint-placeholder-count="8">
+            <div class="{{ p.cardClass }}" style="{{ p.cardWrap }}" style-hover="border-color:#C9CDD0">
+              <div onClick="{{ p.onOpen }}" style="{{ p.imgWrap }}">
+                <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ true }}">
+                  <img class="pcard-img" src="{{ p.imgSrc }}" alt="" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" />
+                </sc-if>
+                <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-family:ui-monospace,Menlo,monospace;font-size:9px;letter-spacing:.1em;color:#8B9297">{{ p.imgNote }}</span>
+                </sc-if>
+                <span style="position:absolute;top:10px;left:10px;font-size:10px;font-weight:700;letter-spacing:.1em;padding:4px 8px;border-radius:2px;background:#11181C;color:#fff;z-index:2">{{ p.brandLabel }}</span>
+              </div>
+              <div style="padding:13px 14px 15px;display:flex;flex-direction:column;gap:7px;flex:1">
+                <div style="font-size:11px;color:#8B9297;letter-spacing:.08em">{{ p.cat }}</div>
+                <div onClick="{{ p.onOpen }}" style="font-size:14px;font-weight:600;line-height:1.3;cursor:pointer">{{ p.name }}</div>
+                <div style="font-size:12px;color:#5A6268">{{ p.sizes }}</div>
+                <sc-if value="{{ p.hasAmounts }}" hint-placeholder-val="{{ false }}">
+                  <select onChange="{{ p.onAmount }}" style="border:1px solid #E0E2E4;border-radius:3px;padding:7px 9px;font-size:12px;color:#11181C;background:#fff;outline:none;cursor:pointer">
+                    <sc-for list="{{ p.amountOpts }}" as="o" hint-placeholder-count="3">
+                      <option value="{{ o.value }}">{{ o.label }}</option>
+                    </sc-for>
+                  </select>
+                </sc-if>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:8px">
+                  <span style="font-size:15px;font-weight:700">{{ p.priceLabel }}</span>
+                  <button onClick="{{ p.onAdd }}" style="{{ p.btnStyle }}">{{ p.btnLabel }}</button>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ catalogEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="border:1px dashed #D8DBDD;padding:46px 20px;text-align:center;color:#8B9297;font-size:14px;line-height:1.6">No encontramos productos con esos filtros.<br /><span style="font-size:13px">Probá con otra búsqueda o quitá los filtros.</span></div>
+        </sc-if>
       </section>
     </sc-if>
 
@@ -500,13 +569,18 @@ const px = (u, w) => u ? "https://wsrv.nl/?url=" + encodeURIComponent(u.replace(
 
 
 class Component extends DCLogic {
-  state = { view: "home", cat: null, query: "", cart: [], cartOpen: false, vulka: [], sel: {}, hero: 2, heroTop: "A", aIdx: 2, bIdx: 2, pd: null, pdSize: null, pdQty: 1, vkHover: 0 };
+  state = { view: "home", cat: null, query: "", cart: [], cartOpen: false, vulka: [], sel: {}, hero: 2, heroTop: "A", aIdx: 2, bIdx: 2, pd: null, pdSize: null, pdQty: 1, vkHover: 0, catalog: false, sort: "relevancia" };
 
   componentDidMount() {
     import("./vulka-catalog.js?v=2").then((m) => this.setState({ vulka: m.VULKA }));
   }
 
-  setBrand(b) { this.setState({ view: b, cat: null, query: "" }); }
+  setBrand(b) { this.setState({ view: b, cat: null, query: "", catalog: false }); }
+  openCatalog(brand, cat) {
+    const b = brand || (this.state.view === "vulka" ? "vulka" : "aguara");
+    this.setState({ view: b, catalog: true, cat: cat || null, query: "", pd: null });
+    try { window.scrollTo(0, 0); } catch (e) {}
+  }
 
   goHero(i) {
     this.setState((s) => {
@@ -660,7 +734,7 @@ class Component extends DCLogic {
         products: shown.map(mapProduct),
         showMore: more > 0, notMore: !(more > 0),
         moreLabel: "Ver todos (" + items.length + ")",
-        onMore: () => { this.setState({ cat: key }); try { window.scrollTo(0, 0); } catch (e) {} },
+        onMore: () => this.openCatalog(v, key),
         showGiftBanner: false
       };
     };
@@ -683,6 +757,18 @@ class Component extends DCLogic {
         sections[mid] = { ...sections[mid], showGiftBanner: true };
       }
     }
+    // --- Catálogo completo (grilla + buscador + orden) ---
+    const isBrandView = !isHome && !pd;
+    const inCatalog = isBrandView && this.state.catalog;
+    const sortMode = this.state.sort || "relevancia";
+    const priceOf = (p) => p.price || (p.amounts ? p.amounts[0] : 0);
+    const catalogList = list.slice().sort((a, b) => {
+      if (sortMode === "precio-asc") return priceOf(a) - priceOf(b);
+      if (sortMode === "precio-desc") return priceOf(b) - priceOf(a);
+      if (sortMode === "nombre") return a.name.localeCompare(b.name, "es");
+      return 0;
+    });
+
     const brandAll = isHome ? [] : ALL.filter((p) => p.b === v);
     const catData = allCats.map((c) => {
       const items = brandAll.filter((p) => p.cat === c);
@@ -703,7 +789,23 @@ class Component extends DCLogic {
     const vkDefaultStyle = catData.length ? "background-image:url(" + catData[0].img + ")" : "";
 
     return {
-      isHome: isHome && !pd, isBrand: !isHome && !pd, isProduct: !!pd, cartOpen: this.state.cartOpen,
+      isHome: isHome && !pd, isBrand: isBrandView && !this.state.catalog, isCatalog: inCatalog, isProduct: !!pd, cartOpen: this.state.cartOpen,
+      catTitle: isVulka ? "Vulka" : "Aguará Fitwear",
+      catTitleStyle: (isVulka ? "font-family:Jost,sans-serif;font-weight:500;letter-spacing:.06em;" : "font-weight:800;letter-spacing:-.02em;") + "margin:2px 0 0;font-size:30px;line-height:1.05;color:#11181C",
+      catCountLabel: cnt(catalogList.length),
+      catalogProducts: catalogList.map(mapProduct),
+      catalogEmpty: catalogList.length === 0,
+      sortValue: sortMode,
+      sortOpts: [
+        { value: "relevancia", label: "Ordenar por: Relevancia" },
+        { value: "precio-asc", label: "Precio: menor a mayor" },
+        { value: "precio-desc", label: "Precio: mayor a menor" },
+        { value: "nombre", label: "Nombre: A–Z" }
+      ],
+      onSort: (e) => this.setState({ sort: e.target.value }),
+      openCatalog: () => this.openCatalog(),
+      backToBrand: () => this.setState({ catalog: false, cat: null, query: "" }),
+      backToBrandLabel: "← Volver a " + (isVulka ? "Vulka" : "Aguará"),
       pdCat: pd ? pd.cat : "",
       pdName: pd ? pd.name : "",
       pdBrandLabel: pd ? (pd.b === "vulka" ? "VULKA" : "AGUARA") : "",
