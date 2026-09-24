@@ -581,6 +581,11 @@ class Component extends DCLogic {
       .filter((p) => (this.state.cat ? p.cat === this.state.cat : true))
       .filter((p) => (q ? (p.name + " " + p.cat).toLowerCase().includes(q) : true));
 
+    // Solo categorías que realmente tienen productos cargados
+    const catsWith = (brand, ordered) => ordered.filter((c) => ALL.some((p) => p.b === brand && p.cat === c));
+    const catsFull = CAT[v] ? CAT[v].concat(v === "aguara" ? EXTRA_AGUARA : []) : [];
+    const catsAvail = catsWith(v, catsFull);
+
     const chipBase = "border:1px solid #E0E2E4;background:#fff;color:#454D52;border-radius:999px;padding:9px 16px;font-size:13px;cursor:pointer;" + jost;
     const chipOn = "border:1px solid " + accent + ";background:" + accent + ";color:#fff;border-radius:999px;padding:9px 16px;font-size:13px;cursor:pointer;font-weight:600;" + jost;
 
@@ -644,7 +649,7 @@ class Component extends DCLogic {
       };
     };
     const cnt = (n) => n + (n === 1 ? " producto" : " productos");
-    const allCats = isHome ? [] : CAT[v].concat(isAguara ? EXTRA_AGUARA : []);
+    const allCats = isHome ? [] : catsAvail;
     const PREVIEW = 4;
     const FEAT_AG = ["ag-42", "ag-26", "ag-12", "ag-15", "ag-23", "ag-44"];
     const mkSection = (key, title, items, sliced) => {
@@ -731,17 +736,17 @@ class Component extends DCLogic {
       goHome: () => this.setState({ view: "home", cat: null, query: "" }),
       goAguara: () => this.setBrand("aguara"),
       goVulka: () => this.setBrand("vulka"),
-      footAguaraCats: ["Training", "Running", "Ciclismo", "Aire libre", "Casual deportiva", "Court Sports", "Swimming"].map((c) => ({
+      footAguaraCats: catsWith("aguara", CAT.aguara.concat(EXTRA_AGUARA)).map((c) => ({
         name: c, onClick: () => { this.setState({ view: "aguara", cat: c, query: "" }); try { window.scrollTo(0, 0); } catch (e) {} }
       })),
-      footVulkaCats: ["Casual", "Oficina", "Tendencias"].map((c) => ({
+      footVulkaCats: catsWith("vulka", CAT.vulka).map((c) => ({
         name: c, onClick: () => { this.setState({ view: "vulka", cat: c, query: "" }); try { window.scrollTo(0, 0); } catch (e) {} }
       })),
-      navCats: isHome ? [] : CAT[v].map((c) => ({
+      navCats: isHome ? [] : catsAvail.map((c) => ({
         name: c, style: navStyle(this.state.cat === c),
         onClick: () => this.setState({ cat: this.state.cat === c ? null : c })
       })),
-      chips: isHome ? [] : [{ name: "Todo", on: !this.state.cat, c: null }].concat(CAT[v].concat(isAguara ? EXTRA_AGUARA : []).map((c) => ({ name: c, on: this.state.cat === c, c })))
+      chips: isHome ? [] : [{ name: "Todo", on: !this.state.cat, c: null }].concat(catsAvail.map((c) => ({ name: c, on: this.state.cat === c, c })))
         .map((o) => ({ name: o.name, style: o.on ? chipOn : chipBase, onClick: () => this.setState({ cat: o.c }) })),
 
       query: this.state.query,
