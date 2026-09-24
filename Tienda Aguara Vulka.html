@@ -79,6 +79,15 @@
   .rng input::-moz-range-thumb{pointer-events:auto;width:16px;height:16px;border-radius:50%;background:var(--acc);border:3px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.28);cursor:pointer}
   .chk{display:flex;align-items:center;gap:9px;font-size:14px;color:#454D52;cursor:pointer;padding:5px 0}
   .chk input{width:16px;height:16px;accent-color:var(--acc);cursor:pointer}
+  /* Header responsive */
+  @media(max-width:760px){
+    .hdr-nav{display:none !important}
+    .hdr-tools{margin-left:0 !important;flex:1;min-width:100%;justify-content:flex-end}
+    .hdr-search{flex:1}
+  }
+  /* Grilla de productos */
+  .prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+  @media(max-width:560px){.prod-grid{grid-template-columns:repeat(2,1fr);gap:10px}}
 </style>
 </helmet>
 <div style="font-family:Archivo,Helvetica,sans-serif;color:#11181C;background:#fff;min-height:100vh;display:flex;flex-direction:column">
@@ -90,13 +99,13 @@
       <button onClick="{{ goAguara }}" style="{{ tabAguara }}"><img src="uploads/opt/aguara-word.png" alt="Aguara" style="height:15px;width:auto;display:block" /></button>
       <button onClick="{{ goVulka }}" style="{{ tabVulka }}"><img src="uploads/opt/vulka-word.png" alt="Vulka" style="height:18px;width:auto;display:block" /></button>
     </div>
-    <nav style="display:flex;gap:18px;flex-wrap:wrap;flex:1;min-width:0">
+    <nav class="hdr-nav" style="display:flex;gap:18px;flex-wrap:wrap;flex:1;min-width:0">
       <sc-for list="{{ navCats }}" as="c" hint-placeholder-count="4">
         <button onClick="{{ c.onClick }}" style="{{ c.style }}" style-hover="color:#11181C">{{ c.name }}</button>
       </sc-for>
     </nav>
-    <div style="display:flex;align-items:center;gap:10px;margin-left:auto">
-      <input value="{{ query }}" onInput="{{ onQuery }}" onChange="{{ onQuery }}" placeholder="Buscar producto" style="border:1px solid #E0E2E4;border-radius:999px;padding:8px 14px;font-size:13px;width:150px;outline:none;color:#11181C" />
+    <div class="hdr-tools" style="display:flex;align-items:center;gap:10px;margin-left:auto">
+      <input class="hdr-search" value="{{ query }}" onInput="{{ onQuery }}" onChange="{{ onQuery }}" placeholder="Buscar producto" style="border:1px solid #E0E2E4;border-radius:999px;padding:8px 14px;font-size:13px;width:150px;outline:none;color:#11181C" />
       <button onClick="{{ openCart }}" style="display:flex;align-items:center;gap:8px;border:1px solid #11181C;background:#11181C;color:#fff;border-radius:999px;padding:8px 15px;font-size:13px;font-weight:600;cursor:pointer" style-hover="opacity:.85">Carrito <span style="background:#fff;color:#11181C;border-radius:999px;min-width:19px;height:19px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">{{ cartCount }}</span></button>
     </div>
   </header>
@@ -275,7 +284,7 @@
             <span style="font-size:12px;color:#8B9297;white-space:nowrap">{{ sec.countLabel }}</span>
           </sc-if>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:14px">
+        <div class="prod-grid">
           <sc-for list="{{ sec.products }}" as="p" hint-placeholder-count="8">
             <div class="{{ p.cardClass }}" style="{{ p.cardWrap }}" style-hover="border-color:#C9CDD0">
               <div onClick="{{ p.onOpen }}" style="{{ p.imgWrap }}">
@@ -411,7 +420,7 @@
               </select>
             </div>
 
-            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px">
+            <div class="prod-grid">
               <sc-for list="{{ catalogProducts }}" as="p" hint-placeholder-count="8">
             <div class="{{ p.cardClass }}" style="{{ p.cardWrap }}" style-hover="border-color:#C9CDD0">
               <div onClick="{{ p.onOpen }}" style="{{ p.imgWrap }}">
