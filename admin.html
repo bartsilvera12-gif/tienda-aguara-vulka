@@ -651,8 +651,27 @@ async function generatePDF(brands){
     doc.text("Catálogo — "+blabel, M, 18);
     doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(140,146,151);
     doc.text("Generado el "+fecha+" · "+items.length+" productos", M, 24);
-    let col=0, y=30;
+    // Agrupar por categoría (conservando el orden de aparición)
+    const groups=[]; const gmap={};
     for(let i=0;i<items.length;i++){
+      const cid=items[i].categoria_id||"__sin__";
+      if(!gmap[cid]){ gmap[cid]={name:catName(items[i].categoria_id)||"Sin categoría", idx:[]}; groups.push(gmap[cid]); }
+      gmap[cid].idx.push(i);
+    }
+    groups.sort((a,b)=>a.name.localeCompare(b.name,"es"));
+    let y=30;
+    for(const g of groups){
+      // Título de categoría (barra de ancho completo)
+      if(y+9+cardH > PH-M){ doc.addPage(); y=M+4; }
+      else if(y>30) y+=4;
+      doc.setFillColor(244,240,238); doc.roundedRect(M,y,PW-2*M,8,1.5,1.5,"F");
+      doc.setFont("helvetica","bold"); doc.setFontSize(10); doc.setTextColor(194,82,42);
+      doc.text(g.name.toUpperCase(), M+3, y+5.5);
+      doc.setFont("helvetica","normal"); doc.setFontSize(8); doc.setTextColor(150,140,135);
+      doc.text(g.idx.length+(g.idx.length===1?" producto":" productos"), PW-M-3, y+5.5, {align:"right"});
+      y+=12;
+      let col=0;
+      for(const i of g.idx){
       const p=items[i], it=imgData[i];
       if(y+cardH > PH-M){ doc.addPage(); y=M+4; col=0; }
       const x=M+col*(cardW+GAP);
@@ -671,9 +690,7 @@ async function generatePDF(brands){
       doc.setFont("helvetica","bold"); doc.setFontSize(6); doc.setTextColor(255,255,255);
       doc.text(bkey==="aguara"?"AGUARÁ":"VULKA", x+2.5+7, y+6, {align:"center"});
       // texto
-      let ty=y+imgH+5;
-      doc.setFont("helvetica","normal"); doc.setFontSize(6.5); doc.setTextColor(139,146,151);
-      doc.text((catName(p.categoria_id)||"").toUpperCase().slice(0,26), x+3, ty); ty+=4.5;
+      let ty=y+imgH+6;
       doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.setTextColor(17,24,28);
       const nm=doc.splitTextToSize(p.nombre||"", cardW-6).slice(0,2);
       doc.text(nm, x+3, ty); ty+=nm.length*4+1.5;
@@ -684,6 +701,8 @@ async function generatePDF(brands){
       const price=p.montos? "Gift card" : (p.precio? "Gs. "+Number(p.precio).toLocaleString("es-PY") : "Consultar");
       doc.text(price, x+3, y+cardH-3.5);
       col++; if(col>=COLS){ col=0; y+=cardH+GAP; }
+      }
+      if(col>0){ y+=cardH+GAP; } // cerrar fila parcial de la categoría
     }
   }
   const suf = brands.length===1 ? "-"+brands[0] : "";
