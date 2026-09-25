@@ -701,7 +701,26 @@
           <sc-if value="{{ mixed }}" hint-placeholder-val="{{ false }}">
             <div style="background:#F6F7F7;border-left:3px solid #C2522A;padding:10px 12px;font-size:12px;color:#454D52;line-height:1.45">Carrito mixto Aguara + Vulka: un solo pago y una sola confirmación de pedido.</div>
           </sc-if>
-          <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700"><span>Subtotal</span><span>{{ cartTotalLabel }}</span></div>
+          <sc-if value="{{ noDiscount }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;gap:8px">
+              <input value="{{ coupon }}" onInput="{{ onCoupon }}" placeholder="Código de descuento" style="flex:1;min-width:0;border:1px solid #DDE0E2;border-radius:8px;padding:9px 12px;font-size:13px;outline:none;text-transform:uppercase;color:#11181C" />
+              <button onClick="{{ applyCoupon }}" style="border:1px solid #11181C;background:#fff;color:#11181C;border-radius:8px;padding:9px 15px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">Aplicar</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{ hasDiscount }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;justify-content:space-between;background:#EAF7EE;border:1px solid #BFE6CC;border-radius:8px;padding:9px 12px;font-size:13px">
+              <span style="color:#1E7A45;font-weight:700">✓ {{ discountCode }} · -{{ discountPct }}%</span>
+              <button onClick="{{ removeCoupon }}" style="border:0;background:transparent;color:#8B9297;cursor:pointer;font-size:12px;text-decoration:underline">Quitar</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{ couponMsgShow }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:12px;color:#B4451F">{{ couponMsg }}</div>
+          </sc-if>
+          <div style="display:flex;justify-content:space-between;font-size:14px;color:#5A6268"><span>Subtotal</span><span>{{ cartTotalLabel }}</span></div>
+          <sc-if value="{{ hasDiscount }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;justify-content:space-between;font-size:14px;color:#1E7A45;font-weight:600"><span>Descuento</span><span>-{{ discountAmountLabel }}</span></div>
+          </sc-if>
+          <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:800"><span>Total</span><span>{{ finalTotalLabel }}</span></div>
           <div style="font-size:12px;color:#8B9297">Coordinás envío y pago por WhatsApp.</div>
           <button onClick="{{ checkout }}" style="display:flex;align-items:center;justify-content:center;gap:9px;background:#11181C;color:#fff;border:0;border-radius:2px;padding:15px;font-size:14px;font-weight:700;letter-spacing:.04em;cursor:pointer" style-hover="background:#000"><svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 18.15h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.22 8.22 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24 2.2 0 4.27.86 5.83 2.42a8.19 8.19 0 0 1 2.41 5.83c0 4.54-3.7 8.24-8.24 8.24zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.16.25-.64.81-.79.98-.14.16-.29.18-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.16.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.4-.42-.56-.43h-.48c-.16 0-.43.06-.66.31-.22.25-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.56.12.16 1.75 2.67 4.25 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.14-1.18-.06-.11-.22-.17-.47-.29z"/></svg> FINALIZAR POR WHATSAPP</button>
         </div>
@@ -790,7 +809,7 @@ const px = (u, w) => u ? "https://wsrv.nl/?url=" + encodeURIComponent(u.replace(
 
 
 class Component extends DCLogic {
-  state = { view: "home", cat: null, query: "", cart: [], cartOpen: false, vulka: [], sel: {}, hero: 2, heroTop: "A", aIdx: 2, bIdx: 2, pd: null, pdSize: null, pdColor: null, pdQty: 1, vkHover: 0, catalog: false, sort: "relevancia", priceMin: null, priceMax: null, onlyFeatured: false, onlyPhoto: false, pdImg: null, dbProducts: null, dbCatOrder: null, dbCatImg: null, dbHero: null, dbVulkaHero: null, dbFeat: null, dbConfig: null, menuOpen: false, gen: null };
+  state = { view: "home", cat: null, query: "", cart: [], cartOpen: false, vulka: [], sel: {}, hero: 2, heroTop: "A", aIdx: 2, bIdx: 2, pd: null, pdSize: null, pdColor: null, pdQty: 1, vkHover: 0, catalog: false, sort: "relevancia", priceMin: null, priceMax: null, onlyFeatured: false, onlyPhoto: false, pdImg: null, dbProducts: null, dbCatOrder: null, dbCatImg: null, dbHero: null, dbVulkaHero: null, dbFeat: null, dbConfig: null, menuOpen: false, gen: null, coupon: "", discount: null, couponMsg: "" };
 
   componentDidMount() {
     import("./vulka-catalog.js?v=2").then((m) => this.setState({ vulka: m.VULKA }));
@@ -804,6 +823,7 @@ class Component extends DCLogic {
     let sb;
     try { sb = window.supabase.createClient(cfg.url, cfg.anonKey, { db: { schema: cfg.schema || "aguaravulka" } }); }
     catch (e) { return; }
+    this._sb = sb;
     Promise.all([
       sb.from("categorias").select("*").order("marca").order("orden"),
       sb.from("productos").select("*, producto_imagenes(*)").eq("activo", true).order("orden"),
@@ -910,6 +930,19 @@ class Component extends DCLogic {
     }));
   }
 
+  // Valida un código de descuento contra Supabase
+  applyCoupon() {
+    const code = (this.state.coupon || "").trim().toUpperCase();
+    if (!code) { this.setState({ couponMsg: "" }); return; }
+    if (!this._sb) { this.setState({ couponMsg: "No se pudo validar el código." }); return; }
+    this.setState({ couponMsg: "Validando…" });
+    this._sb.from("descuentos").select("codigo,porcentaje,activo").eq("codigo", code).maybeSingle().then(({ data, error }) => {
+      if (error || !data || !data.activo) { this.setState({ discount: null, couponMsg: "Código inválido o inactivo." }); return; }
+      this.setState({ discount: { codigo: data.codigo, porcentaje: Number(data.porcentaje) }, couponMsg: "" });
+    }).catch(() => this.setState({ discount: null, couponMsg: "No se pudo validar el código." }));
+  }
+  removeCoupon() { this.setState({ discount: null, coupon: "", couponMsg: "" }); }
+
   // Arma el pedido y lo envía por WhatsApp
   checkout() {
     const cart = this.state.cart;
@@ -924,7 +957,14 @@ class Component extends DCLogic {
       const brand = i.b === "vulka" ? "Vulka" : "Aguará";
       msg += "• " + i.name + " (" + brand + ")" + variant + col + " × " + i.qty + " — " + gs(line) + "\n";
     });
-    msg += "\nSubtotal: " + gs(total) + "\n\n¿Me pasás las opciones de envío y pago? ¡Gracias!";
+    msg += "\nSubtotal: " + gs(total);
+    const d = this.state.discount;
+    if (d && d.porcentaje > 0) {
+      const desc = Math.round(total * d.porcentaje / 100);
+      msg += "\nCódigo " + d.codigo + " (-" + d.porcentaje + "%): -" + gs(desc);
+      msg += "\nTotal: " + gs(total - desc);
+    }
+    msg += "\n\n¿Me pasás las opciones de envío y pago? ¡Gracias!";
     const wa = (this.state.dbConfig && this.state.dbConfig.whatsapp) ? this.state.dbConfig.whatsapp.replace(/\D/g, "") : "595975517443";
     const url = "https://wa.me/" + wa + "?text=" + encodeURIComponent(msg);
     try { window.open(url, "_blank"); } catch (e) { location.href = url; }
@@ -1354,6 +1394,18 @@ class Component extends DCLogic {
       mixed: brands.size > 1,
       cartCount: cart.reduce((a, i) => a + i.qty, 0),
       cartTotalLabel: gs(total),
+      coupon: this.state.coupon,
+      onCoupon: (e) => this.setState({ coupon: e.target.value }),
+      applyCoupon: () => this.applyCoupon(),
+      removeCoupon: () => this.removeCoupon(),
+      hasDiscount: !!(this.state.discount && this.state.discount.porcentaje > 0),
+      noDiscount: !(this.state.discount && this.state.discount.porcentaje > 0),
+      discountCode: this.state.discount ? this.state.discount.codigo : "",
+      discountPct: this.state.discount ? this.state.discount.porcentaje : "",
+      discountAmountLabel: gs(this.state.discount ? Math.round(total * this.state.discount.porcentaje / 100) : 0),
+      finalTotalLabel: gs(this.state.discount ? total - Math.round(total * this.state.discount.porcentaje / 100) : total),
+      couponMsg: this.state.couponMsg,
+      couponMsgShow: !!this.state.couponMsg,
       openCart: () => this.setState({ cartOpen: true }),
       closeCart: () => this.setState({ cartOpen: false }),
       checkout: () => this.checkout()

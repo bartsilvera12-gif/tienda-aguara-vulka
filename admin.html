@@ -113,6 +113,7 @@
     <button data-tab="productos" class="on">Productos</button>
     <button data-tab="categorias">Categorías</button>
     <button data-tab="portadas">Portadas</button>
+    <button data-tab="descuentos">Descuentos</button>
     <button data-tab="config">Configuración</button>
   </nav>
   <main>
@@ -160,7 +161,7 @@
         </div>
       </div>
       <div class="panel">
-        <div class="panel-head"><h2>Productos (<span id="prodCount">0</span>)</h2><button class="btn btn-accent" id="p_new">+ Nuevo producto</button></div>
+        <div class="panel-head"><h2>Productos (<span id="prodCount">0</span>)</h2><div style="display:flex;gap:8px"><button class="btn btn-ghost" id="p_pdf">⬇ Catálogo PDF</button><button class="btn btn-accent" id="p_new">+ Nuevo producto</button></div></div>
         <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
           <div style="width:200px"><select id="prodFilter"><option value="">Todas las empresas</option><option value="aguara">Aguará</option><option value="vulka">Vulka</option></select></div>
           <input id="prodSearch" placeholder="Buscar por nombre…" style="max-width:260px;flex:1">
@@ -241,6 +242,27 @@ MOVERTE"></textarea></div>
       </div>
     </section>
 
+    <!-- DESCUENTOS -->
+    <section id="tab-descuentos" class="hidden">
+      <div class="panel hidden" id="descForm">
+        <div class="panel-head"><h2 id="descFormTitle">Nuevo código</h2><button class="btn btn-ghost btn-sm" id="d_cancel">Cancelar</button></div>
+        <input type="hidden" id="d_id">
+        <div class="row">
+          <div class="field"><label>Código (ej: ANN26)</label><input id="d_codigo" placeholder="ANN26" style="text-transform:uppercase"></div>
+          <div class="field"><label>Descuento (%)</label><input id="d_pct" type="number" placeholder="15"></div>
+        </div>
+        <label class="chk"><input type="checkbox" id="d_activo" checked style="width:auto"> Activo</label>
+        <div style="display:flex;gap:10px;margin-top:10px">
+          <button class="btn btn-accent" id="d_save">Guardar código</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>Códigos de descuento</h2><button class="btn btn-accent" id="d_new">+ Nuevo código</button></div>
+        <p class="muted" style="margin-top:-8px">Los clientes los ingresan en el carrito antes de finalizar la compra.</p>
+        <div class="list" id="descList"></div>
+      </div>
+    </section>
+
     <!-- CONFIGURACION -->
     <section id="tab-config" class="hidden">
       <div class="panel">
@@ -270,6 +292,8 @@ MOVERTE"></textarea></div>
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
 <script src="./supabase-config.js"></script>
 <script>
 const cfg = window.SUPABASE_CONFIG || {};
@@ -317,7 +341,7 @@ async function boot(){
   $("login").style.display = "none";
   $("app").style.display = "block";
   $("whoEmail").textContent = session.user.email;
-  await Promise.all([loadCats(), loadProducts(), loadPortadas(), loadConfig()]);
+  await Promise.all([loadCats(), loadProducts(), loadPortadas(), loadConfig(), loadDesc()]);
   enhanceAllSelects(); enhanceAllFiles();
 }
 if (configured) sb.auth.getSession().then(({data:{session}})=>{ if(session) boot(); });
@@ -327,7 +351,7 @@ document.addEventListener("click", (e)=>{ if(e.target.id==="logout"){ e.preventD
 document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>{
   document.querySelectorAll("nav.tabs button").forEach(x=>x.classList.remove("on"));
   b.classList.add("on");
-  ["productos","categorias","portadas","config"].forEach(t=>$("tab-"+t).classList.toggle("hidden", t!==b.dataset.tab));
+  ["productos","categorias","portadas","descuentos","config"].forEach(t=>$("tab-"+t).classList.toggle("hidden", t!==b.dataset.tab));
 }));
 
 // ---------- Select personalizado (integrado al diseño) ----------
@@ -379,6 +403,43 @@ $("h_new").addEventListener("click",()=>{ resetPort(); showForm("portForm",true)
 $("h_cancel").addEventListener("click",()=>{ resetPort(); showForm("portForm",false); });
 $("catFilter").addEventListener("change",renderCatList);
 $("portFilter").addEventListener("change",renderPortList);
+$("d_new").addEventListener("click",()=>{ resetDesc(); showForm("descForm",true); });
+$("d_cancel").addEventListener("click",()=>{ resetDesc(); showForm("descForm",false); });
+
+// ================= DESCUENTOS =================
+let DESCS = [];
+async function loadDesc(){
+  const { data, error } = await sb.from("descuentos").select("*").order("codigo");
+  if (error){ return; } // tabla puede no existir todavia
+  DESCS = data||[]; renderDescList();
+}
+function renderDescList(){
+  if(!$("descList")) return;
+  $("descList").innerHTML = DESCS.map(d=>`
+    <div class="item">
+      <div class="meta"><div class="n">${esc(d.codigo)} ${d.activo?'':'<span class="pill">inactivo</span>'}</div><div class="s">${d.porcentaje}% de descuento</div></div>
+      <button class="btn btn-ghost btn-sm" onclick="editDesc('${d.id}')">Editar</button>
+      <button class="btn btn-danger btn-sm" onclick="delDesc('${d.id}')">Borrar</button>
+    </div>`).join("") || `<div class="muted">Sin códigos todavía.</div>`;
+}
+window.editDesc=(id)=>{ const d=DESCS.find(x=>x.id===id); if(!d)return;
+  $("d_id").value=d.id; $("d_codigo").value=d.codigo; $("d_pct").value=d.porcentaje; $("d_activo").checked=d.activo!==false;
+  $("descFormTitle").textContent="Editar código"; showForm("descForm",true);
+};
+window.delDesc=async(id)=>{ if(!confirm("¿Borrar este código?"))return;
+  const {error}=await sb.from("descuentos").delete().eq("id",id);
+  if(error){toast("Error: "+error.message,true);return;} toast("Código borrado"); loadDesc();
+};
+function resetDesc(){ ["d_id","d_codigo","d_pct"].forEach(i=>$(i).value=""); $("d_activo").checked=true; $("descFormTitle").textContent="Nuevo código"; }
+$("d_save").addEventListener("click", async ()=>{
+  const codigo=$("d_codigo").value.trim().toUpperCase(); if(!codigo){toast("Poné un código",true);return;}
+  const rec={ codigo, porcentaje: parseFloat($("d_pct").value||"0")||0, activo: $("d_activo").checked };
+  let error;
+  if($("d_id").value){ ({error}=await sb.from("descuentos").update(rec).eq("id",$("d_id").value)); }
+  else { ({error}=await sb.from("descuentos").insert(rec)); }
+  if(error){toast("Error: "+error.message+(/descuentos/.test(error.message)?" (¿corriste 06-descuentos.sql?)":""),true);return;}
+  toast("Código guardado ✓"); resetDesc(); showForm("descForm",false); loadDesc();
+});
 
 // ---------- Storage upload ----------
 async function uploadImage(file, folder){
@@ -488,6 +549,33 @@ $("prodSearch").addEventListener("input",()=>{prodPage=1;renderProdList();});
 $("prodRows").addEventListener("change",()=>{prodPage=1;renderProdList();});
 $("prodPrev").addEventListener("click",()=>{ if(prodPage>1){prodPage--;renderProdList();window.scrollTo({top:0,behavior:'smooth'});} });
 $("prodNext").addEventListener("click",()=>{ prodPage++; renderProdList(); window.scrollTo({top:0,behavior:'smooth'}); });
+$("p_pdf").addEventListener("click", ()=>{
+  if(!window.jspdf || !window.jspdf.jsPDF){ toast("No se pudo cargar el generador de PDF",true); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const fecha = new Date().toLocaleDateString("es-PY");
+  let first=true;
+  [["aguara","Aguará Fitwear"],["vulka","Vulka"]].forEach(([bkey,blabel])=>{
+    const items = PRODS.filter(p=>p.marca===bkey).slice().sort((a,b)=>(a.orden||0)-(b.orden||0));
+    if(!items.length) return;
+    if(!first) doc.addPage(); first=false;
+    doc.setFontSize(18); doc.text("Catálogo — "+blabel, 14, 18);
+    doc.setFontSize(9); doc.setTextColor(120); doc.text("Generado el "+fecha+" · "+items.length+" productos", 14, 24); doc.setTextColor(0);
+    const rows = items.map(p=>[
+      p.nombre||"",
+      catName(p.categoria_id),
+      p.genero||"unisex",
+      p.montos? "Gift card" : (p.precio? "Gs. "+Number(p.precio).toLocaleString("es-PY") : "—"),
+      (p.talles||"").replace(/\s*·\s*/g,", "),
+      (p.colores||"").replace(/\s*·\s*/g,", ")
+    ]);
+    doc.autoTable({ startY:30, head:[["Producto","Categoría","Género","Precio","Talles","Colores"]], body:rows,
+      styles:{fontSize:8,cellPadding:2.5,valign:"middle"}, headStyles:{fillColor:[17,24,28]},
+      alternateRowStyles:{fillColor:[248,246,245]}, columnStyles:{0:{cellWidth:46},4:{cellWidth:30},5:{cellWidth:26}} });
+  });
+  doc.save("catalogo-aguara-vulka.pdf");
+  toast("PDF generado ✓");
+});
 
 window.editProd = (id)=>{ const p=PRODS.find(x=>x.id===id); if(!p)return;
   $("p_id").value=p.id; $("p_marca").value=p.marca; if($("p_marca")._render)$("p_marca")._render(); fillCatSelect();
