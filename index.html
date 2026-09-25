@@ -307,6 +307,49 @@
       </section>
     </sc-if>
 
+    <sc-if value="{{ searchShow }}" hint-placeholder-val="{{ false }}">
+      <section style="max-width:1280px;margin:0 auto;padding:30px 20px 20px">
+        <h2 style="font-size:22px;font-weight:800;letter-spacing:-.01em;margin:0 0 4px">{{ searchTitle }}</h2>
+        <div style="font-size:13px;color:#8B9297;margin-bottom:20px">{{ searchCountLabel }}</div>
+        <div class="prod-grid">
+          <sc-for list="{{ searchResults }}" as="p" hint-placeholder-count="6">
+            <div class="{{ p.cardClass }}" style="{{ p.cardWrap }}" style-hover="border-color:#C9CDD0">
+              <div onClick="{{ p.onOpen }}" style="{{ p.imgWrap }}">
+                <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ true }}">
+                  <img class="pcard-img" src="{{ p.imgSrc }}" alt="" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" />
+                </sc-if>
+                <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-family:ui-monospace,Menlo,monospace;font-size:9px;letter-spacing:.1em;color:#8B9297">{{ p.imgNote }}</span>
+                </sc-if>
+                <span style="position:absolute;top:10px;left:10px;font-size:10px;font-weight:700;letter-spacing:.1em;padding:4px 8px;border-radius:2px;background:#11181C;color:#fff;z-index:2">{{ p.brandLabel }}</span>
+              </div>
+              <div style="padding:13px 14px 15px;display:flex;flex-direction:column;gap:7px;flex:1">
+                <div style="font-size:11px;color:#8B9297;letter-spacing:.08em">{{ p.cat }}</div>
+                <div onClick="{{ p.onOpen }}" style="font-size:14px;font-weight:600;line-height:1.3;cursor:pointer">{{ p.name }}</div>
+                <div style="font-size:12px;color:#5A6268">{{ p.sizes }}</div>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:8px">
+                  <span style="font-size:15px;font-weight:700">{{ p.priceLabel }}</span>
+                  <sc-if value="{{ p.notInCart }}" hint-placeholder-val="{{ true }}">
+                    <button onClick="{{ p.onAdd }}" style="{{ p.btnStyle }}">{{ p.btnLabel }}</button>
+                  </sc-if>
+                  <sc-if value="{{ p.inCart }}" hint-placeholder-val="{{ false }}">
+                    <div style="{{ p.stepWrap }}">
+                      <button onClick="{{ p.onDec }}" style="{{ p.stepBtn }}">−</button>
+                      <span style="min-width:20px;text-align:center;font-size:13px;font-weight:700">{{ p.inQty }}</span>
+                      <button onClick="{{ p.onInc }}" style="{{ p.stepBtn }}">+</button>
+                    </div>
+                  </sc-if>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ searchEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="border:1px dashed #D8DBDD;padding:46px 20px;text-align:center;color:#8B9297;font-size:14px">No encontramos productos para tu búsqueda.</div>
+        </sc-if>
+      </section>
+    </sc-if>
+
     <sc-if value="{{ isBrand }}" hint-placeholder-val="{{ true }}">
         <sc-if value="{{ heroCarousel }}" hint-placeholder-val="{{ true }}">
           <div style="{{ heroStageStyle }}">
@@ -1186,7 +1229,12 @@ class Component extends DCLogic {
       mAguara: "border:0;background:" + (menuBrand === "aguara" ? "rgba(255,255,255,.14)" : "transparent") + ";padding:8px 12px;border-radius:8px;cursor:pointer;opacity:" + (menuBrand === "aguara" ? "1" : ".55"),
       mVulka: "border:0;background:" + (menuBrand === "vulka" ? "rgba(255,255,255,.14)" : "transparent") + ";padding:8px 12px;border-radius:8px;cursor:pointer;opacity:" + (menuBrand === "vulka" ? "1" : ".55"),
       cartHasItems: cart.reduce((a, i) => a + i.qty, 0) > 0,
-      isHome: isHome && !pd, isBrand: isBrandView && !this.state.catalog, isCatalog: inCatalog, isProduct: !!pd, cartOpen: this.state.cartOpen,
+      isHome: isHome && !pd && !q, isBrand: isBrandView && !this.state.catalog, isCatalog: inCatalog, isProduct: !!pd, cartOpen: this.state.cartOpen,
+      searchShow: isHome && !pd && !!q,
+      searchResults: (q ? ALL.filter((p) => (p.name + " " + p.cat).toLowerCase().includes(q)) : []).map(mapProduct),
+      searchTitle: "Resultados para “" + this.state.query.trim() + "”",
+      searchCountLabel: (q ? ALL.filter((p) => (p.name + " " + p.cat).toLowerCase().includes(q)).length : 0) + " producto(s)",
+      searchEmpty: !!q && ALL.filter((p) => (p.name + " " + p.cat).toLowerCase().includes(q)).length === 0,
       catTitle: (isVulka ? "Vulka" : "Aguará Fitwear") + (this.state.gen ? " · " + (this.state.gen === "hombre" ? "Hombre" : "Mujer") : ""),
       catTitleStyle: (isVulka ? "font-family:Jost,sans-serif;font-weight:500;letter-spacing:.06em;" : "font-weight:800;letter-spacing:-.02em;") + "margin:0;font-size:32px;line-height:1.05;color:#11181C",
       catCountLabel: cnt(catalogList.length),
