@@ -190,7 +190,7 @@
         </div>
         <sc-for list="{{ menuGroups }}" as="g" hint-placeholder-count="2">
           <div class="drawer-group">
-            <div class="drawer-gtitle">{{ g.label }}</div>
+            <button class="drawer-gtitle" onClick="{{ g.onClick }}" style="border:0;background:transparent;cursor:pointer;width:100%;text-align:left;display:flex;align-items:center;justify-content:space-between">{{ g.label }}<span style="font-size:9px;color:rgba(255,255,255,.4);font-weight:700;letter-spacing:.1em">{{ g.hint }}</span></button>
             <sc-for list="{{ g.cats }}" as="c" hint-placeholder-count="4">
               <button class="drawer-cat" onClick="{{ c.onClick }}"><span>{{ c.name }}</span><span class="n">{{ c.count }}</span></button>
             </sc-for>
@@ -1270,9 +1270,12 @@ class Component extends DCLogic {
     const hasGendered = ALL.some((p) => p.b === menuBrand && (p.genero === "hombre" || p.genero === "mujer"));
     let menuGroups;
     if (hasGendered) {
-      menuGroups = [{ label: "HOMBRE", cats: catsForGen("hombre") }, { label: "MUJER", cats: catsForGen("mujer") }].filter((grp) => grp.cats.length > 0);
+      menuGroups = [
+        { label: "MUJER", hint: "VER TODO →", onClick: () => this.openCatalog(menuBrand, null, "mujer"), cats: catsForGen("mujer") },
+        { label: "HOMBRE", hint: "VER TODO →", onClick: () => this.openCatalog(menuBrand, null, "hombre"), cats: catsForGen("hombre") }
+      ].filter((grp) => grp.cats.length > 0);
     } else {
-      menuGroups = [{ label: "CATEGORÍAS", cats: menuCatList.map((c) => ({
+      menuGroups = [{ label: "CATEGORÍAS", hint: "", onClick: null, cats: menuCatList.map((c) => ({
         name: c, count: ALL.filter((p) => p.b === menuBrand && p.cat === c).length,
         onClick: () => this.openCatalog(menuBrand, c, null) })) }];
     }
