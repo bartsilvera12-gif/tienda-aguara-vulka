@@ -87,6 +87,29 @@
   .filebtn svg{width:15px;height:15px}
   .filename{font-size:13px;color:#8B9297}
   @media(max-width:620px){.row{grid-template-columns:1fr}}
+  /* Modal de confirmación */
+  .cfm-ov{position:fixed;inset:0;z-index:200;background:rgba(10,14,17,.55);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s}
+  .cfm-ov.open{opacity:1;pointer-events:auto}
+  .cfm{width:100%;max-width:380px;background:#fff;border-radius:18px;padding:26px 24px 22px;text-align:center;box-shadow:0 30px 70px -20px rgba(10,14,17,.5);transform:translateY(12px) scale(.97);transition:transform .22s cubic-bezier(.34,1.4,.5,1)}
+  .cfm-ov.open .cfm{transform:translateY(0) scale(1)}
+  .cfm-icon{width:56px;height:56px;border-radius:50%;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;background:#FDE7E2;color:#D8422A}
+  .cfm-title{margin:0 0 6px;font-size:19px;font-weight:800;color:#11181C}
+  .cfm-msg{margin:0 0 22px;font-size:14px;line-height:1.5;color:#6B7378}
+  .cfm-actions{display:flex;gap:10px}
+  .cfm-btn{flex:1;border:0;border-radius:11px;padding:12px 14px;font-size:14.5px;font-weight:700;cursor:pointer;transition:transform .12s,filter .15s,background .15s}
+  .cfm-btn:active{transform:scale(.97)}
+  .cfm-cancel{background:#EEF0F1;color:#40474C}
+  .cfm-cancel:hover{background:#E4E7E9}
+  .cfm-ok{background:#D8422A;color:#fff}
+  .cfm-ok:hover{filter:brightness(1.06)}
+</style>
+<style id="scrollFix">
+  /* Scrollbar sutil (menú lateral tienda y áreas con scroll) */
+  *{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.22) transparent}
+  ::-webkit-scrollbar{width:8px;height:8px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:rgba(120,130,138,.35);border-radius:8px;border:2px solid transparent;background-clip:padding-box}
+  ::-webkit-scrollbar-thumb:hover{background:rgba(120,130,138,.6);background-clip:padding-box}
 </style>
 </head>
 <body>
@@ -303,6 +326,20 @@ MOVERTE"></textarea></div>
 
 <div class="toast" id="toast"></div>
 
+<div class="cfm-ov" id="cfmOv" aria-hidden="true">
+  <div class="cfm" role="alertdialog" aria-modal="true">
+    <div class="cfm-icon" id="cfmIcon">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/></svg>
+    </div>
+    <h3 class="cfm-title" id="cfmTitle">¿Confirmar?</h3>
+    <p class="cfm-msg" id="cfmMsg"></p>
+    <div class="cfm-actions">
+      <button class="cfm-btn cfm-cancel" id="cfmCancel">Cancelar</button>
+      <button class="cfm-btn cfm-ok" id="cfmOk">Eliminar</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
@@ -315,6 +352,25 @@ if (configured) sb = supabase.createClient(cfg.url, cfg.anonKey, { db: { schema:
 
 const $ = (id) => document.getElementById(id);
 function toast(msg, err){ const t=$("toast"); t.textContent=msg; t.className="toast show"+(err?" err":""); setTimeout(()=>t.className="toast",2600); }
+function askConfirm(opts){
+  opts = (typeof opts==="string") ? {msg:opts} : (opts||{});
+  const ov=$("cfmOv");
+  $("cfmTitle").textContent = opts.title || "¿Eliminar?";
+  $("cfmMsg").textContent = opts.msg || "";
+  $("cfmOk").textContent = opts.okText || "Eliminar";
+  return new Promise((resolve)=>{
+    let done=false;
+    const close=(val)=>{ if(done)return; done=true; ov.classList.remove("open"); ov.setAttribute("aria-hidden","true");
+      $("cfmOk").onclick=null; $("cfmCancel").onclick=null; ov.onclick=null; document.removeEventListener("keydown",onKey); resolve(val); };
+    const onKey=(e)=>{ if(e.key==="Escape")close(false); if(e.key==="Enter")close(true); };
+    $("cfmOk").onclick=()=>close(true);
+    $("cfmCancel").onclick=()=>close(false);
+    ov.onclick=(e)=>{ if(e.target===ov)close(false); };
+    document.addEventListener("keydown",onKey);
+    ov.setAttribute("aria-hidden","false"); ov.classList.add("open");
+    setTimeout(()=>{ try{$("cfmOk").focus();}catch(_){} },40);
+  });
+}
 function esc(s){ return (s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 const gs = (n) => n==null?"—":"Gs. "+Number(n).toLocaleString("es-PY");
 const fmtMiles = (s) => String(s||"").replace(/\D/g,"").replace(/\B(?=(\d{3})+(?!\d))/g,".");
@@ -438,7 +494,7 @@ window.editDesc=(id)=>{ const d=DESCS.find(x=>x.id===id); if(!d)return;
   $("d_id").value=d.id; $("d_codigo").value=d.codigo; $("d_pct").value=d.porcentaje; $("d_activo").checked=d.activo!==false;
   $("descFormTitle").textContent="Editar código"; showForm("descForm",true);
 };
-window.delDesc=async(id)=>{ if(!confirm("¿Borrar este código?"))return;
+window.delDesc=async(id)=>{ if(!await askConfirm({title:"¿Borrar código?",msg:"Este código de descuento se eliminará."}))return;
   const {error}=await sb.from("descuentos").delete().eq("id",id);
   if(error){toast("Error: "+error.message,true);return;} toast("Código borrado"); loadDesc();
 };
@@ -506,7 +562,7 @@ window.editCat = (id)=>{ const c=CATS.find(x=>x.id===id); if(!c)return;
   $("c_imagen").value=c.imagen||""; const p=$("c_imgprev"); if(c.imagen){p.src=c.imagen;p.style.display="block";}else p.style.display="none";
   $("catFormTitle").textContent="Editar categoría"; showForm("catForm",true);
 };
-window.delCat = async (id)=>{ if(!confirm("¿Borrar esta categoría? Los productos quedarán sin categoría."))return;
+window.delCat = async (id)=>{ if(!await askConfirm({title:"¿Borrar categoría?",msg:"Los productos de esta categoría quedarán sin categoría."}))return;
   const { error } = await sb.from("categorias").delete().eq("id",id);
   if(error){toast("Error: "+error.message,true);return;} toast("Categoría borrada"); loadCats();
 };
@@ -670,7 +726,7 @@ $("p_galfile").addEventListener("change", async (e)=>{
   }catch(err){toast("Error: "+err.message,true);}
   e.target.value="";
 });
-window.delProd = async (id)=>{ if(!confirm("¿Borrar este producto?"))return;
+window.delProd = async (id)=>{ if(!await askConfirm({title:"¿Borrar producto?",msg:"Se eliminará este producto de la tienda. Esta acción no se puede deshacer."}))return;
   const { error } = await sb.from("productos").delete().eq("id",id);
   if(error){toast("Error: "+error.message,true);return;} toast("Producto borrado"); if($("p_id").value===id)resetProd(); loadProducts();
 };
@@ -741,7 +797,7 @@ window.editPort=(id)=>{ const h=PORTS.find(x=>x.id===id); if(!h)return;
   $("h_imagen").value=h.imagen||""; const p=$("h_imgprev"); if(h.imagen){p.src=h.imagen;p.style.display="block";}else p.style.display="none";
   $("portFormTitle").textContent="Editar portada"; showForm("portForm",true);
 };
-window.delPort=async(id)=>{ if(!confirm("¿Borrar esta portada?"))return;
+window.delPort=async(id)=>{ if(!await askConfirm({title:"¿Borrar portada?",msg:"Esta imagen de portada se eliminará."}))return;
   const {error}=await sb.from("portada_slides").delete().eq("id",id);
   if(error){toast("Error: "+error.message,true);return;} toast("Portada borrada"); loadPortadas();
 };
