@@ -23,7 +23,7 @@ Editá **`supabase-config.js`** (en la raíz del proyecto) y poné:
 
 ## 5. Listo
 - Panel: abrí **`admin.html`** → ingresá con el email/contraseña.
-- La tienda (`Tienda Aguara Vulka.html`) ya lee todo en vivo desde Supabase.
+- La tienda (`index.html`) ya lee todo en vivo desde Supabase.
 - Si Supabase no está configurado o falla, la tienda usa los datos locales de respaldo (no se rompe).
 
 ## Qué se puede hacer en el panel

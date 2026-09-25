@@ -19,7 +19,7 @@ Luego abrir <http://localhost:8777/>.
 
 | Archivo | Descripción |
 |---|---|
-| `Tienda Aguara Vulka.html` | Página principal de la tienda |
+| `index.html` | Página principal de la tienda |
 | `index.html` | Redirección a la tienda (evita 404 en la raíz) |
 | `support.js` | Framework de componentes ("DC") |
 | `vulka-catalog.js` | Catálogo de productos Vulka |
