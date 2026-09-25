@@ -204,7 +204,15 @@
 
     <sc-if value="{{ isProduct }}" hint-placeholder-val="{{ false }}">
       <section style="max-width:1100px;margin:0 auto;padding:22px 20px 44px">
-        <button onClick="{{ closeProduct }}" style="border:0;background:transparent;padding:8px 0;cursor:pointer;font-size:14px;color:#5A6268;display:flex;align-items:center;gap:6px" style-hover="color:#11181C"><span>←</span> Volver a la tienda</button>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+          <button onClick="{{ closeProduct }}" style="border:0;background:transparent;padding:8px 0;cursor:pointer;font-size:14px;color:#5A6268;display:flex;align-items:center;gap:6px" style-hover="color:#11181C"><span>←</span> Volver a la tienda</button>
+          <sc-if value="{{ pdHasSiblings }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;gap:8px">
+              <button onClick="{{ pdPrev }}" style="{{ pdNavStyle }}" style-hover="border-color:#11181C;color:#11181C" title="Producto anterior">‹</button>
+              <button onClick="{{ pdNext }}" style="{{ pdNavStyle }}" style-hover="border-color:#11181C;color:#11181C" title="Producto siguiente">›</button>
+            </div>
+          </sc-if>
+        </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:34px;margin-top:14px;align-items:start">
           <div>
             <div style="{{ pdImgStyle }}">
@@ -272,6 +280,47 @@
             <div style="font-size:13px;color:#8B9297;line-height:1.6;margin-top:4px">Envíos a todo el país · Cambios dentro de los 15 días · Pago seguro online.</div>
           </div>
         </div>
+        <sc-if value="{{ pdHasSimilar }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:52px">
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
+              <span style="width:6px;height:22px;border-radius:3px;background:{{ pdBarColor }};display:inline-block"></span>
+              <h2 style="margin:0;font-size:22px;font-weight:800;letter-spacing:-.01em">Productos similares</h2>
+            </div>
+            <div class="prod-grid">
+              <sc-for list="{{ similarProducts }}" as="p" hint-placeholder-count="4">
+                <div class="{{ p.cardClass }}" style="{{ p.cardWrap }}" style-hover="border-color:#C9CDD0">
+                  <div onClick="{{ p.onOpen }}" style="{{ p.imgWrap }}">
+                    <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ true }}">
+                      <img class="pcard-img" src="{{ p.imgSrc }}" alt="" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" />
+                    </sc-if>
+                    <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ false }}">
+                      <span style="font-family:ui-monospace,Menlo,monospace;font-size:9px;letter-spacing:.1em;color:#8B9297">{{ p.imgNote }}</span>
+                    </sc-if>
+                    <span style="position:absolute;top:10px;left:10px;font-size:10px;font-weight:700;letter-spacing:.1em;padding:4px 8px;border-radius:2px;background:#11181C;color:#fff;z-index:2">{{ p.brandLabel }}</span>
+                  </div>
+                  <div style="padding:13px 14px 15px;display:flex;flex-direction:column;gap:7px;flex:1">
+                    <div style="font-size:11px;color:#8B9297;letter-spacing:.08em">{{ p.cat }}</div>
+                    <div onClick="{{ p.onOpen }}" style="font-size:14px;font-weight:600;line-height:1.3;cursor:pointer">{{ p.name }}</div>
+                    <div style="font-size:12px;color:#5A6268">{{ p.sizes }}</div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:8px">
+                      <span style="font-size:15px;font-weight:700">{{ p.priceLabel }}</span>
+                      <sc-if value="{{ p.notInCart }}" hint-placeholder-val="{{ true }}">
+                        <button onClick="{{ p.onAdd }}" style="{{ p.btnStyle }}">{{ p.btnLabel }}</button>
+                      </sc-if>
+                      <sc-if value="{{ p.inCart }}" hint-placeholder-val="{{ false }}">
+                        <div style="{{ p.stepWrap }}">
+                          <button onClick="{{ p.onDec }}" style="{{ p.stepBtn }}">−</button>
+                          <span style="min-width:20px;text-align:center;font-size:13px;font-weight:700">{{ p.inQty }}</span>
+                          <button onClick="{{ p.onInc }}" style="{{ p.stepBtn }}">+</button>
+                        </div>
+                      </sc-if>
+                    </div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
       </section>
     </sc-if>
 
@@ -1134,6 +1183,16 @@ class Component extends DCLogic {
     };
     const giftCard = ALL.find((p) => p.b === "aguara" && p.amounts) || ALL.find((p) => p.amounts);
     const giftShow = isAguara && !this.state.cat && !q && !!giftCard;
+    // --- Navegación entre productos (flechas) + similares ---
+    let pdSibs = [], pdIdx = -1, similar = [];
+    if (pd) {
+      pdSibs = ALL.filter((x) => x.b === pd.b && x.cat === pd.cat);
+      if (pdSibs.length <= 1) pdSibs = ALL.filter((x) => x.b === pd.b);
+      pdIdx = pdSibs.findIndex((x) => x.id === pd.id);
+      similar = ALL.filter((x) => x.b === pd.b && x.cat === pd.cat && x.id !== pd.id).slice(0, 4);
+      if (similar.length < 4) similar = similar.concat(ALL.filter((x) => x.b === pd.b && x.cat !== pd.cat && x.id !== pd.id).slice(0, 4 - similar.length));
+    }
+    const pdGo = (d) => { if (!pdSibs.length) return; const n = pdSibs.length; const np = pdSibs[((pdIdx + d) % n + n) % n]; if (np) this.openProduct(np); };
     let sections;
     if (q) {
       sections = [mkSection("q", "Resultados", list, false)];
@@ -1277,6 +1336,13 @@ class Component extends DCLogic {
       onClearFilters: () => this.setState(this.resetFilters()),
       pdCat: pd ? pd.cat : "",
       pdName: pd ? pd.name : "",
+      pdHasSiblings: pdSibs.length > 1,
+      pdPrev: () => pdGo(-1),
+      pdNext: () => pdGo(1),
+      pdNavStyle: "width:40px;height:40px;border:1px solid #D5D8DA;background:#fff;color:#5A6268;border-radius:999px;cursor:pointer;font-size:22px;line-height:1;display:flex;align-items:center;justify-content:center;transition:border-color .15s,color .15s",
+      pdHasSimilar: similar.length > 0,
+      similarProducts: similar.map(mapProduct),
+      pdBarColor: pdAccent,
       pdHasDesc: !!(pd && pd.desc),
       pdDesc: pd ? (pd.desc || "") : "",
       pdBrandLabel: pd ? (pd.b === "vulka" ? "VULKA" : "AGUARA") : "",
