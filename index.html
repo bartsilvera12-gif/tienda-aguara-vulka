@@ -240,6 +240,16 @@
                 </div>
               </div>
             </sc-if>
+            <sc-if value="{{ pdHasColors }}" hint-placeholder-val="{{ false }}">
+              <div>
+                <div style="font-size:12px;color:#5A6268;margin-bottom:8px;letter-spacing:.04em">Color: <span style="color:#11181C;font-weight:600">{{ pdColor }}</span></div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <sc-for list="{{ pdColorChips }}" as="co" hint-placeholder-count="4">
+                    <button onClick="{{ co.onClick }}" style="{{ co.style }}">{{ co.name }}</button>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
             <sc-if value="{{ pdHasAmounts }}" hint-placeholder-val="{{ false }}">
               <div>
                 <div style="font-size:12px;color:#5A6268;margin-bottom:8px;letter-spacing:.04em">Monto</div>
@@ -780,7 +790,7 @@ const px = (u, w) => u ? "https://wsrv.nl/?url=" + encodeURIComponent(u.replace(
 
 
 class Component extends DCLogic {
-  state = { view: "home", cat: null, query: "", cart: [], cartOpen: false, vulka: [], sel: {}, hero: 2, heroTop: "A", aIdx: 2, bIdx: 2, pd: null, pdSize: null, pdQty: 1, vkHover: 0, catalog: false, sort: "relevancia", priceMin: null, priceMax: null, onlyFeatured: false, onlyPhoto: false, pdImg: null, dbProducts: null, dbCatOrder: null, dbCatImg: null, dbHero: null, dbVulkaHero: null, dbFeat: null, dbConfig: null, menuOpen: false, gen: null };
+  state = { view: "home", cat: null, query: "", cart: [], cartOpen: false, vulka: [], sel: {}, hero: 2, heroTop: "A", aIdx: 2, bIdx: 2, pd: null, pdSize: null, pdColor: null, pdQty: 1, vkHover: 0, catalog: false, sort: "relevancia", priceMin: null, priceMax: null, onlyFeatured: false, onlyPhoto: false, pdImg: null, dbProducts: null, dbCatOrder: null, dbCatImg: null, dbHero: null, dbVulkaHero: null, dbFeat: null, dbConfig: null, menuOpen: false, gen: null };
 
   componentDidMount() {
     import("./vulka-catalog.js?v=2").then((m) => this.setState({ vulka: m.VULKA }));
@@ -811,6 +821,7 @@ class Component extends DCLogic {
         name: pr.nombre,
         desc: pr.descripcion || "",
         genero: pr.genero || "unisex",
+        colores: pr.colores || "",
         price: pr.precio != null ? Number(pr.precio) : undefined,
         sizes: pr.talles || "", img: pr.imagen || "",
         amounts: pr.montos && pr.montos.length ? pr.montos : undefined,
@@ -855,7 +866,8 @@ class Component extends DCLogic {
     const opts = (p.sizes || "").split(" · ");
     const isSize = opts.length > 1 && opts.every((o) => o.length <= 3);
     const first = (p.gallery && p.gallery.length) ? p.gallery[0] : p.img;
-    this.setState({ pd: p, pdSize: isSize ? opts[0] : null, pdQty: 1, cartOpen: false, pdImg: first || null });
+    const colors = (p.colores || "").split(/\s*·\s*/).map((c) => c.trim()).filter(Boolean);
+    this.setState({ pd: p, pdSize: isSize ? opts[0] : null, pdColor: colors.length ? colors[0] : null, pdQty: 1, cartOpen: false, pdImg: first || null });
     try { window.scrollTo(0, 0); } catch (e) {}
   }
 
@@ -867,13 +879,14 @@ class Component extends DCLogic {
     const price = p.amounts ? amt : p.price;
     if (!price) return;
     const variant = p.amounts ? gs(amt) : this.state.pdSize;
+    const color = p.amounts ? null : this.state.pdColor;
     const qty = Math.max(1, this.state.pdQty);
     this.setState((s) => {
-      const key = p.id + (variant || "std");
+      const key = p.id + (variant || "std") + (color ? "|" + color : "");
       const found = s.cart.find((i) => i.key === key);
       const cart = found
         ? s.cart.map((i) => (i.key === key ? { ...i, qty: i.qty + qty } : i))
-        : [...s.cart, { key, id: p.id, name: p.name, b: p.b, price, size: variant, qty, img: p.img, isGift: !!p.amounts }];
+        : [...s.cart, { key, id: p.id, name: p.name, b: p.b, price, size: variant, color, qty, img: p.img, isGift: !!p.amounts }];
       return { cart, cartOpen: true };
     });
   }
@@ -907,8 +920,9 @@ class Component extends DCLogic {
       const line = i.price * i.qty;
       total += line;
       const variant = i.size ? (i.size.indexOf("Gs.") === 0 ? " · " + i.size : " · Talle " + i.size) : "";
+      const col = i.color ? " · " + i.color : "";
       const brand = i.b === "vulka" ? "Vulka" : "Aguará";
-      msg += "• " + i.name + " (" + brand + ")" + variant + " × " + i.qty + " — " + gs(line) + "\n";
+      msg += "• " + i.name + " (" + brand + ")" + variant + col + " × " + i.qty + " — " + gs(line) + "\n";
     });
     msg += "\nSubtotal: " + gs(total) + "\n\n¿Me pasás las opciones de envío y pago? ¡Gracias!";
     const wa = (this.state.dbConfig && this.state.dbConfig.whatsapp) ? this.state.dbConfig.whatsapp.replace(/\D/g, "") : "595975517443";
@@ -971,6 +985,7 @@ class Component extends DCLogic {
     // --- Página de producto ---
     const pd = this.state.pd;
     const pdOpts = pd ? (pd.sizes || "").split(" · ") : [];
+    const pdColors = pd ? (pd.colores || "").split(/\s*·\s*/).map((c) => c.trim()).filter(Boolean) : [];
     const pdIsSize = pdOpts.length > 1 && pdOpts.every((o) => o.length <= 3);
     const pdAmt = pd && pd.amounts ? (this.state.sel[pd.id] || pd.amounts[0]) : null;
     const pdAccent = pd ? (pd.b === "vulka" ? "#11181C" : "#C2522A") : "#11181C";
@@ -1197,6 +1212,13 @@ class Component extends DCLogic {
         onClick: () => this.setState({ pdSize: sz }),
         style: sz === this.state.pdSize ? chipSOn : chipS
       })),
+      pdHasColors: !!(pd && pdColors.length),
+      pdColor: this.state.pdColor || "",
+      pdColorChips: pdColors.map((co) => ({
+        name: co,
+        onClick: () => this.setState({ pdColor: co }),
+        style: co === this.state.pdColor ? chipSOn : chipS
+      })),
       pdHasAmounts: !!(pd && pd.amounts),
       pdAmountOpts: (pd && pd.amounts ? pd.amounts : []).map((val) => ({ value: String(val), label: gs(val) })),
       pdOnAmount: (e) => { const v = Number(e.target.value); this.setState((s) => ({ sel: { ...s.sel, [pd.id]: v } })); },
@@ -1316,7 +1338,7 @@ class Component extends DCLogic {
 
       cartItems: cart.map((i) => ({
         name: i.name, qty: i.qty,
-        size: i.size ? (i.size.indexOf("Gs.") === 0 ? "Monto " + i.size : "Talle " + i.size) : "Variante a confirmar",
+        size: (i.size ? (i.size.indexOf("Gs.") === 0 ? "Monto " + i.size : "Talle " + i.size) : "Variante a confirmar") + (i.color ? " · " + i.color : ""),
         brandLabel: i.b === "vulka" ? "VULKA" : "AGUARA",
         lineLabel: gs(i.price * i.qty),
         isGift: !!i.isGift,
