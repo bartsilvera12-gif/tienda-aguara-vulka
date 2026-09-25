@@ -78,6 +78,8 @@
   .sel-opt{padding:9px 11px;border-radius:7px;font-size:14px;cursor:pointer;color:#11181C;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .sel-opt:hover{background:#F5F1EF}
   .sel-opt.on{background:#C2522A;color:#fff;font-weight:600}
+  .pdfopt{display:block;width:100%;text-align:left;border:0;background:transparent;padding:9px 11px;border-radius:7px;font-size:14px;color:#11181C;cursor:pointer}
+  .pdfopt:hover{background:#F5F1EF}
   /* Input de archivo integrado */
   .filebox{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
   .filebtn{border:1px solid #D5D8DA;background:#fff;border-radius:8px;padding:9px 14px;font-size:13px;font-weight:600;color:#11181C;display:inline-flex;align-items:center;gap:8px;transition:border-color .15s,color .15s}
@@ -161,7 +163,17 @@
         </div>
       </div>
       <div class="panel">
-        <div class="panel-head"><h2>Productos (<span id="prodCount">0</span>)</h2><div style="display:flex;gap:8px"><button class="btn btn-ghost" id="p_pdf">⬇ Catálogo PDF</button><button class="btn btn-accent" id="p_new">+ Nuevo producto</button></div></div>
+        <div class="panel-head"><h2>Productos (<span id="prodCount">0</span>)</h2><div style="display:flex;gap:8px">
+          <div style="position:relative">
+            <button class="btn btn-ghost" id="p_pdf">⬇ Catálogo PDF ▾</button>
+            <div id="pdfMenu" class="hidden" style="position:absolute;right:0;top:calc(100% + 5px);background:#fff;border:1px solid #E6E8EA;border-radius:10px;box-shadow:0 16px 40px -14px rgba(0,0,0,.28);padding:6px;z-index:25;min-width:150px">
+              <button class="pdfopt" data-b="aguara">Aguará</button>
+              <button class="pdfopt" data-b="vulka">Vulka</button>
+              <button class="pdfopt" data-b="both">Ambas marcas</button>
+            </div>
+          </div>
+          <button class="btn btn-accent" id="p_new">+ Nuevo producto</button>
+        </div></div>
         <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
           <div style="width:200px"><select id="prodFilter"><option value="">Todas las empresas</option><option value="aguara">Aguará</option><option value="vulka">Vulka</option></select></div>
           <input id="prodSearch" placeholder="Buscar por nombre…" style="max-width:260px;flex:1">
@@ -555,14 +567,14 @@ async function imgToData(url){
   if(url in _imgCache) return _imgCache[url];
   try{
     const img=await new Promise((res,rej)=>{ const i=new Image(); i.crossOrigin="anonymous"; i.onload=()=>res(i); i.onerror=rej; i.src=url; });
-    const w=140, h=Math.max(1,Math.round(140*img.height/img.width));
+    const W=560, w=Math.min(W,img.width), h=Math.max(1,Math.round(w*img.height/img.width));
     const c=document.createElement("canvas"); c.width=w; c.height=h;
-    c.getContext("2d").drawImage(img,0,0,w,h);
-    const d={ d:c.toDataURL("image/jpeg",0.72), ar: img.height/img.width };
+    const ctx=c.getContext("2d"); ctx.imageSmoothingEnabled=true; ctx.imageSmoothingQuality="high"; ctx.drawImage(img,0,0,w,h);
+    const d={ d:c.toDataURL("image/jpeg",0.82), ar: img.height/img.width };
     _imgCache[url]=d; return d;
   }catch(e){ _imgCache[url]=null; return null; }
 }
-$("p_pdf").addEventListener("click", async ()=>{
+async function generatePDF(brands){
   if(!window.jspdf || !window.jspdf.jsPDF){ toast("No se pudo cargar el generador de PDF",true); return; }
   toast("Generando PDF (cargando imágenes)…");
   const { jsPDF } = window.jspdf;
@@ -572,7 +584,8 @@ $("p_pdf").addEventListener("click", async ()=>{
   const cardW=(PW-2*M-(GAP*(COLS-1)))/COLS;
   const imgH=cardW*1.18, txtH=24, cardH=imgH+txtH;
   let firstBrand=true;
-  for(const [bkey,blabel] of [["aguara","Aguará Fitwear"],["vulka","Vulka"]]){
+  const brandDefs=[["aguara","Aguará Fitwear"],["vulka","Vulka"]].filter(b=>brands.includes(b[0]));
+  for(const [bkey,blabel] of brandDefs){
     const items = PRODS.filter(p=>p.marca===bkey).slice().sort((a,b)=>(a.orden||0)-(b.orden||0));
     if(!items.length) continue;
     const imgData = await Promise.all(items.map(p=>imgToData(p.imagen)));
@@ -617,9 +630,17 @@ $("p_pdf").addEventListener("click", async ()=>{
       col++; if(col>=COLS){ col=0; y+=cardH+GAP; }
     }
   }
-  doc.save("catalogo-aguara-vulka.pdf");
+  const suf = brands.length===1 ? "-"+brands[0] : "";
+  doc.save("catalogo"+suf+".pdf");
   toast("PDF generado ✓");
-});
+}
+$("p_pdf").addEventListener("click",(e)=>{ e.stopPropagation(); $("pdfMenu").classList.toggle("hidden"); });
+document.addEventListener("click",()=>{ const m=$("pdfMenu"); if(m) m.classList.add("hidden"); });
+document.querySelectorAll(".pdfopt").forEach(b=>b.addEventListener("click",()=>{
+  $("pdfMenu").classList.add("hidden");
+  const b2=b.dataset.b;
+  generatePDF(b2==="both"?["aguara","vulka"]:[b2]);
+}));
 
 window.editProd = (id)=>{ const p=PRODS.find(x=>x.id===id); if(!p)return;
   $("p_id").value=p.id; $("p_marca").value=p.marca; if($("p_marca")._render)$("p_marca")._render(); fillCatSelect();

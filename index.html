@@ -102,9 +102,18 @@
   .drawer-body{flex:1;overflow:auto;padding:10px 8px 30px}
   .drawer-link{display:block;width:100%;text-align:left;border:0;background:transparent;color:#fff;font-size:16px;font-weight:600;padding:13px 16px;cursor:pointer;border-radius:10px;transition:background .15s}
   .drawer-link:hover{background:rgba(255,255,255,.08)}
-  .drawer-group{margin-top:8px}
-  .drawer-gtitle{font-size:12px;letter-spacing:.18em;color:#E38A5E;font-weight:800;padding:16px 16px 6px}
-  .drawer-cat{display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;border:0;background:transparent;color:rgba(255,255,255,.82);font-size:15px;padding:10px 16px 10px 24px;cursor:pointer;border-radius:10px;transition:background .15s,color .15s}
+  .drawer-group{margin-top:4px;border-top:1px solid rgba(255,255,255,.06)}
+  .drawer-group:first-of-type{border-top:0}
+  .dg-head{display:flex;align-items:center;justify-content:space-between;width:100%;border:0;background:transparent;color:#fff;cursor:pointer;padding:15px 16px;border-radius:12px;transition:background .15s}
+  .dg-head:hover{background:rgba(255,255,255,.06)}
+  .dg-label{font-size:15.5px;font-weight:700;letter-spacing:.02em}
+  .dg-head svg{width:20px;height:20px;color:rgba(255,255,255,.5);transition:transform .28s cubic-bezier(.4,0,.2,1);flex:none}
+  .dg-head svg.open{transform:rotate(180deg);color:#E38A5E}
+  .dg-sub{padding:2px 0 10px;animation:dgIn .22s ease}
+  @keyframes dgIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+  .dg-all{color:#E38A5E !important;font-weight:600}
+  .dg-all .n{color:#E38A5E !important;font-size:14px}
+  .drawer-cat{display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;border:0;background:transparent;color:rgba(255,255,255,.82);font-size:14.5px;padding:10px 16px 10px 26px;cursor:pointer;border-radius:10px;transition:background .15s,color .15s}
   .drawer-cat:hover{background:rgba(255,255,255,.08);color:#fff}
   .drawer-cat .n{font-size:12px;color:rgba(255,255,255,.4)}
   .drawer-sep{height:1px;background:rgba(255,255,255,.1);margin:12px 16px}
@@ -190,10 +199,22 @@
         </div>
         <sc-for list="{{ menuGroups }}" as="g" hint-placeholder-count="2">
           <div class="drawer-group">
-            <button class="drawer-gtitle" onClick="{{ g.onClick }}" style="border:0;background:transparent;cursor:pointer;width:100%;text-align:left;display:flex;align-items:center;justify-content:space-between">{{ g.label }}<span style="font-size:9px;color:rgba(255,255,255,.4);font-weight:700;letter-spacing:.1em">{{ g.hint }}</span></button>
-            <sc-for list="{{ g.cats }}" as="c" hint-placeholder-count="4">
-              <button class="drawer-cat" onClick="{{ c.onClick }}"><span>{{ c.name }}</span><span class="n">{{ c.count }}</span></button>
-            </sc-for>
+            <button class="dg-head" onClick="{{ g.toggle }}">
+              <span class="dg-label">{{ g.label }}</span>
+              <sc-if value="{{ g.collapsible }}" hint-placeholder-val="{{ true }}">
+                <svg class="{{ g.chevCls }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </sc-if>
+            </button>
+            <sc-if value="{{ g.open }}" hint-placeholder-val="{{ true }}">
+              <div class="dg-sub">
+                <sc-if value="{{ g.collapsible }}" hint-placeholder-val="{{ false }}">
+                  <button class="drawer-cat dg-all" onClick="{{ g.verTodo }}"><span>{{ g.verTodoLabel }}</span><span class="n">→</span></button>
+                </sc-if>
+                <sc-for list="{{ g.cats }}" as="c" hint-placeholder-count="4">
+                  <button class="drawer-cat" onClick="{{ c.onClick }}"><span>{{ c.name }}</span><span class="n">{{ c.count }}</span></button>
+                </sc-for>
+              </div>
+            </sc-if>
           </div>
         </sc-for>
       </div>
@@ -901,7 +922,7 @@ const px = (u, w) => u ? "https://wsrv.nl/?url=" + encodeURIComponent(u.replace(
 
 
 class Component extends DCLogic {
-  state = { view: "home", cat: null, query: "", cart: [], cartOpen: false, vulka: [], sel: {}, hero: 2, heroTop: "A", aIdx: 2, bIdx: 2, pd: null, pdSize: null, pdColor: null, pdQty: 1, vkHover: 0, catalog: false, sort: "relevancia", priceMin: null, priceMax: null, onlyFeatured: false, onlyPhoto: false, pdImg: null, dbProducts: null, dbCatOrder: null, dbCatImg: null, dbHero: null, dbVulkaHero: null, dbFeat: null, dbConfig: null, menuOpen: false, gen: null, coupon: "", discount: null, couponMsg: "" };
+  state = { view: "home", cat: null, query: "", cart: [], cartOpen: false, vulka: [], sel: {}, hero: 2, heroTop: "A", aIdx: 2, bIdx: 2, pd: null, pdSize: null, pdColor: null, pdQty: 1, vkHover: 0, catalog: false, sort: "relevancia", priceMin: null, priceMax: null, onlyFeatured: false, onlyPhoto: false, pdImg: null, dbProducts: null, dbCatOrder: null, dbCatImg: null, dbHero: null, dbVulkaHero: null, dbFeat: null, dbConfig: null, menuOpen: false, gen: null, coupon: "", discount: null, couponMsg: "", menuGroupsOpen: {} };
 
   componentDidMount() {
     import("./vulka-catalog.js?v=2").then((m) => this.setState({ vulka: m.VULKA }));
@@ -1268,16 +1289,25 @@ class Component extends DCLogic {
       .map((c) => ({ name: c, count: ALL.filter((p) => p.b === menuBrand && p.cat === c && inGen(p, gk)).length,
         onClick: () => this.openCatalog(menuBrand, c, gk) }));
     const hasGendered = ALL.some((p) => p.b === menuBrand && (p.genero === "hombre" || p.genero === "mujer"));
+    const gOpen = this.state.menuGroupsOpen || {};
+    const toggleG = (k) => this.setState((s) => ({ menuGroupsOpen: { ...s.menuGroupsOpen, [k]: !(s.menuGroupsOpen || {})[k] } }));
     let menuGroups;
     if (hasGendered) {
       menuGroups = [
-        { label: "MUJER", hint: "VER TODO →", onClick: () => this.openCatalog(menuBrand, null, "mujer"), cats: catsForGen("mujer") },
-        { label: "HOMBRE", hint: "VER TODO →", onClick: () => this.openCatalog(menuBrand, null, "hombre"), cats: catsForGen("hombre") }
-      ].filter((grp) => grp.cats.length > 0);
+        { key: "mujer", label: "Mujer", gen: "mujer", cats: catsForGen("mujer") },
+        { key: "hombre", label: "Hombre", gen: "hombre", cats: catsForGen("hombre") }
+      ].filter((grp) => grp.cats.length > 0).map((grp) => ({
+        label: grp.label, collapsible: true, open: !!gOpen[grp.key],
+        chevCls: gOpen[grp.key] ? "dg-chev open" : "dg-chev",
+        toggle: () => toggleG(grp.key),
+        verTodo: () => this.openCatalog(menuBrand, null, grp.gen),
+        verTodoLabel: "Ver todo " + grp.label,
+        cats: grp.cats
+      }));
     } else {
-      menuGroups = [{ label: "CATEGORÍAS", hint: "", onClick: null, cats: menuCatList.map((c) => ({
-        name: c, count: ALL.filter((p) => p.b === menuBrand && p.cat === c).length,
-        onClick: () => this.openCatalog(menuBrand, c, null) })) }];
+      menuGroups = [{ label: "Categorías", collapsible: false, open: true, toggle: null, verTodo: null, verTodoLabel: "",
+        cats: menuCatList.map((c) => ({ name: c, count: ALL.filter((p) => p.b === menuBrand && p.cat === c).length,
+          onClick: () => this.openCatalog(menuBrand, c, null) })) }];
     }
 
     return {
