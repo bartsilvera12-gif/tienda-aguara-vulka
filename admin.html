@@ -558,7 +558,8 @@ async function imgToData(url){
     const w=140, h=Math.max(1,Math.round(140*img.height/img.width));
     const c=document.createElement("canvas"); c.width=w; c.height=h;
     c.getContext("2d").drawImage(img,0,0,w,h);
-    const d=c.toDataURL("image/jpeg",0.72); _imgCache[url]=d; return d;
+    const d={ d:c.toDataURL("image/jpeg",0.72), ar: img.height/img.width };
+    _imgCache[url]=d; return d;
   }catch(e){ _imgCache[url]=null; return null; }
 }
 $("p_pdf").addEventListener("click", async ()=>{
@@ -584,13 +585,20 @@ $("p_pdf").addEventListener("click", async ()=>{
       (p.colores||"").replace(/\s*·\s*/g,", ")
     ]);
     doc.autoTable({ startY:30, head:[["Foto","Producto","Categoría","Precio","Talles","Colores"]], body:rows,
-      styles:{fontSize:8,cellPadding:2.5,valign:"middle",minCellHeight:20}, headStyles:{fillColor:[17,24,28]},
+      styles:{fontSize:8,cellPadding:2.5,valign:"middle",minCellHeight:24}, headStyles:{fillColor:[17,24,28]},
       alternateRowStyles:{fillColor:[248,246,245]},
-      columnStyles:{0:{cellWidth:20,minCellWidth:20},1:{cellWidth:42},4:{cellWidth:28},5:{cellWidth:24}},
+      columnStyles:{0:{cellWidth:22,minCellWidth:22},1:{cellWidth:40},4:{cellWidth:28},5:{cellWidth:24}},
       didDrawCell:(data)=>{
         if(data.section==="body" && data.column.index===0){
-          const d=imgData[data.row.index];
-          if(d){ try{ doc.addImage(d,"JPEG",data.cell.x+1.5,data.cell.y+1.5,15,17); }catch(e){} }
+          const it=imgData[data.row.index];
+          if(it && it.d){ try{
+            const maxW=18, maxH=Math.max(6, data.cell.height-3);
+            let w=maxW, h=maxW*it.ar;
+            if(h>maxH){ h=maxH; w=maxH/it.ar; }
+            const x=data.cell.x + (data.cell.width - w)/2;
+            const y=data.cell.y + (data.cell.height - h)/2;
+            doc.addImage(it.d,"JPEG",x,y,w,h);
+          }catch(e){} }
         }
       }
     });
