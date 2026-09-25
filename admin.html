@@ -549,30 +549,52 @@ $("prodSearch").addEventListener("input",()=>{prodPage=1;renderProdList();});
 $("prodRows").addEventListener("change",()=>{prodPage=1;renderProdList();});
 $("prodPrev").addEventListener("click",()=>{ if(prodPage>1){prodPage--;renderProdList();window.scrollTo({top:0,behavior:'smooth'});} });
 $("prodNext").addEventListener("click",()=>{ prodPage++; renderProdList(); window.scrollTo({top:0,behavior:'smooth'}); });
-$("p_pdf").addEventListener("click", ()=>{
+const _imgCache={};
+async function imgToData(url){
+  if(!url) return null;
+  if(url in _imgCache) return _imgCache[url];
+  try{
+    const img=await new Promise((res,rej)=>{ const i=new Image(); i.crossOrigin="anonymous"; i.onload=()=>res(i); i.onerror=rej; i.src=url; });
+    const w=140, h=Math.max(1,Math.round(140*img.height/img.width));
+    const c=document.createElement("canvas"); c.width=w; c.height=h;
+    c.getContext("2d").drawImage(img,0,0,w,h);
+    const d=c.toDataURL("image/jpeg",0.72); _imgCache[url]=d; return d;
+  }catch(e){ _imgCache[url]=null; return null; }
+}
+$("p_pdf").addEventListener("click", async ()=>{
   if(!window.jspdf || !window.jspdf.jsPDF){ toast("No se pudo cargar el generador de PDF",true); return; }
+  toast("Generando PDF (cargando imágenes)…");
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   const fecha = new Date().toLocaleDateString("es-PY");
   let first=true;
-  [["aguara","Aguará Fitwear"],["vulka","Vulka"]].forEach(([bkey,blabel])=>{
+  for(const [bkey,blabel] of [["aguara","Aguará Fitwear"],["vulka","Vulka"]]){
     const items = PRODS.filter(p=>p.marca===bkey).slice().sort((a,b)=>(a.orden||0)-(b.orden||0));
-    if(!items.length) return;
+    if(!items.length) continue;
+    const imgData = await Promise.all(items.map(p=>imgToData(p.imagen)));
     if(!first) doc.addPage(); first=false;
     doc.setFontSize(18); doc.text("Catálogo — "+blabel, 14, 18);
     doc.setFontSize(9); doc.setTextColor(120); doc.text("Generado el "+fecha+" · "+items.length+" productos", 14, 24); doc.setTextColor(0);
     const rows = items.map(p=>[
+      "",
       p.nombre||"",
       catName(p.categoria_id),
-      p.genero||"unisex",
       p.montos? "Gift card" : (p.precio? "Gs. "+Number(p.precio).toLocaleString("es-PY") : "—"),
       (p.talles||"").replace(/\s*·\s*/g,", "),
       (p.colores||"").replace(/\s*·\s*/g,", ")
     ]);
-    doc.autoTable({ startY:30, head:[["Producto","Categoría","Género","Precio","Talles","Colores"]], body:rows,
-      styles:{fontSize:8,cellPadding:2.5,valign:"middle"}, headStyles:{fillColor:[17,24,28]},
-      alternateRowStyles:{fillColor:[248,246,245]}, columnStyles:{0:{cellWidth:46},4:{cellWidth:30},5:{cellWidth:26}} });
-  });
+    doc.autoTable({ startY:30, head:[["Foto","Producto","Categoría","Precio","Talles","Colores"]], body:rows,
+      styles:{fontSize:8,cellPadding:2.5,valign:"middle",minCellHeight:20}, headStyles:{fillColor:[17,24,28]},
+      alternateRowStyles:{fillColor:[248,246,245]},
+      columnStyles:{0:{cellWidth:20,minCellWidth:20},1:{cellWidth:42},4:{cellWidth:28},5:{cellWidth:24}},
+      didDrawCell:(data)=>{
+        if(data.section==="body" && data.column.index===0){
+          const d=imgData[data.row.index];
+          if(d){ try{ doc.addImage(d,"JPEG",data.cell.x+1.5,data.cell.y+1.5,15,17); }catch(e){} }
+        }
+      }
+    });
+  }
   doc.save("catalogo-aguara-vulka.pdf");
   toast("PDF generado ✓");
 });
