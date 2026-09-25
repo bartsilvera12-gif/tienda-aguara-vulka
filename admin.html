@@ -646,10 +646,8 @@ $("p_save").addEventListener("click", async ()=>{
   let error=res.error;
   if(!error && stripped.length){ toast("Guardado (falta correr en Supabase: "+stripped.map(s=>s==="genero"?"04-genero.sql":"05-colores.sql").join(", ")+")"); }
   if(error){
-    const sess = await sb.auth.getSession();
-    const email = sess && sess.data && sess.data.session ? sess.data.session.user.email : "(sin sesión)";
-    alert("NO SE GUARDÓ\n\nMotivo: "+(error.message||JSON.stringify(error))+"\ncode: "+(error.code||"-")+"\nsesión: "+email+"\n\nCopiá este texto y mandáselo al soporte.");
-    toast("Error: "+error.message,true); return;
+    const hint = /schema cache/i.test(error.message||"") ? " — Corré en Supabase: NOTIFY pgrst, 'reload schema';" : "";
+    toast("Error: "+error.message+hint, true); return;
   }
   toast("Producto guardado ✓"); resetProd(); showForm("prodForm",false); loadProducts();
 });
