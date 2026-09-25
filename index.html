@@ -81,20 +81,33 @@
   .rng input::-moz-range-thumb{pointer-events:auto;width:16px;height:16px;border-radius:50%;background:var(--acc);border:3px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.28);cursor:pointer}
   .chk{display:flex;align-items:center;gap:9px;font-size:14px;color:#454D52;cursor:pointer;padding:5px 0}
   .chk input{width:16px;height:16px;accent-color:var(--acc);cursor:pointer}
-  /* Header con logo centrado y todo agrupado cerca del logo (desktop) */
-  .site-header{justify-content:center !important}
-  .hdr-left{flex:none;display:flex;gap:18px;align-items:center}
-  .hdr-center{flex:none;display:flex;justify-content:center}
-  .hdr-link{border:0;background:transparent;padding:2px 4px;cursor:pointer;font-size:15px;font-weight:600;letter-spacing:.02em;color:#4A5157;transition:color .15s}
-  .hdr-link:hover{color:#11181C}
-  @media(max-width:760px){
-    .site-header{justify-content:space-between !important;align-items:center;row-gap:10px;column-gap:10px}
-    .hdr-center{order:-1;flex-basis:100%;justify-content:center;margin-bottom:4px}
-    .hdr-left{order:1;flex:0 0 auto;gap:22px}
-    .hdr-link{font-size:16px}
-    .hdr-cart{order:2;margin-left:auto}
-    .hdr-search{order:3;flex-basis:100%;width:100% !important}
-  }
+  /* Header negro estilo No Rules */
+  .site-header{color:#fff}
+  .hdr-burger{border:0;background:transparent;color:#fff;cursor:pointer;padding:6px;display:flex;align-items:center;border-radius:8px;transition:background .15s}
+  .hdr-burger:hover{background:rgba(255,255,255,.1)}
+  .hdr-burger svg{width:24px;height:24px}
+  .brand-toggle{display:flex;gap:6px;align-items:center}
+  .hdr-search::placeholder{color:rgba(255,255,255,.5)}
+  .hdr-iconbtn{border:0;background:transparent;color:#fff;cursor:pointer;padding:7px;border-radius:8px;display:flex;align-items:center;position:relative;transition:background .15s}
+  .hdr-iconbtn:hover{background:rgba(255,255,255,.1)}
+  .hdr-iconbtn svg{width:22px;height:22px}
+  .cart-badge{position:absolute;top:0;right:0;background:#E38A5E;color:#11181C;border-radius:999px;min-width:16px;height:16px;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 3px}
+  @media(max-width:760px){ .hdr-search{display:none !important} }
+  /* Drawer (menú desplegable) */
+  .drawer-ov{position:fixed;inset:0;z-index:70;background:rgba(8,11,13,.55);opacity:0;pointer-events:none;transition:opacity .3s}
+  .drawer-ov.open{opacity:1;pointer-events:auto}
+  .drawer{position:fixed;top:0;left:0;bottom:0;width:min(360px,86vw);z-index:71;background:#11181C;color:#fff;transform:translateX(-100%);transition:transform .32s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:20px 0 60px rgba(0,0,0,.4)}
+  .drawer.open{transform:translateX(0)}
+  .drawer-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid rgba(255,255,255,.1)}
+  .drawer-body{flex:1;overflow:auto;padding:10px 8px 30px}
+  .drawer-link{display:block;width:100%;text-align:left;border:0;background:transparent;color:#fff;font-size:16px;font-weight:600;padding:13px 16px;cursor:pointer;border-radius:10px;transition:background .15s}
+  .drawer-link:hover{background:rgba(255,255,255,.08)}
+  .drawer-group{margin-top:8px}
+  .drawer-gtitle{font-size:12px;letter-spacing:.18em;color:#E38A5E;font-weight:800;padding:16px 16px 6px}
+  .drawer-cat{display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;border:0;background:transparent;color:rgba(255,255,255,.82);font-size:15px;padding:10px 16px 10px 24px;cursor:pointer;border-radius:10px;transition:background .15s,color .15s}
+  .drawer-cat:hover{background:rgba(255,255,255,.08);color:#fff}
+  .drawer-cat .n{font-size:12px;color:rgba(255,255,255,.4)}
+  .drawer-sep{height:1px;background:rgba(255,255,255,.1);margin:12px 16px}
   /* Boton CTA catalogo (usa var para el hover, evita texto invisible) */
   .cta-full{--acc:#C2522A;display:inline-flex;align-items:center;gap:10px;border:1px solid var(--acc);background:#fff;color:var(--acc);border-radius:999px;padding:14px 30px;font-size:14px;font-weight:700;letter-spacing:.02em;cursor:pointer;transition:background .25s ease,color .25s ease}
   .cta-full:hover{background:var(--acc);color:#fff}
@@ -144,20 +157,48 @@
 </helmet>
 <div style="font-family:Archivo,Helvetica,sans-serif;color:#11181C;background:#fff;min-height:100vh;display:flex;flex-direction:column">
 
-  <header class="site-header" style="position:sticky;top:0;z-index:40;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-bottom:1px solid #E6E8EA;padding:12px 20px;display:flex;align-items:center;gap:18px;flex-wrap:wrap">
-    <div class="hdr-left">
-      <button onClick="{{ goHome }}" class="hdr-link">Inicio</button>
-      <button onClick="{{ openCatalog }}" class="hdr-link">Catálogo</button>
+  <header class="site-header" style="position:sticky;top:0;z-index:40;background:#11181C;border-bottom:1px solid rgba(255,255,255,.1);padding:11px 16px;display:flex;align-items:center;gap:12px">
+    <button class="hdr-burger" onClick="{{ toggleMenu }}" aria-label="Menú">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="brand-toggle">
+      <button onClick="{{ goAguara }}" style="{{ tabAguara }}"><img src="uploads/opt/aguara-word-white.png" alt="Aguara" style="height:19px;width:auto;display:block" /></button>
+      <button onClick="{{ goVulka }}" style="{{ tabVulka }}"><img src="uploads/opt/vulka-word-white.png" alt="Vulka" style="height:23px;width:auto;display:block" /></button>
     </div>
-    <div class="hdr-center">
-      <div style="display:flex;gap:4px;background:#F2F3F4;border-radius:999px;padding:4px">
-        <button onClick="{{ goAguara }}" style="{{ tabAguara }}"><img src="uploads/opt/aguara-word.png" alt="Aguara" style="height:22px;width:auto;display:block" /></button>
-        <button onClick="{{ goVulka }}" style="{{ tabVulka }}"><img src="uploads/opt/vulka-word.png" alt="Vulka" style="height:26px;width:auto;display:block" /></button>
-      </div>
-    </div>
-    <input class="hdr-search" value="{{ query }}" onInput="{{ onQuery }}" onChange="{{ onQuery }}" placeholder="Buscar producto" style="border:1px solid #E0E2E4;border-radius:999px;padding:9px 14px;font-size:13px;width:150px;outline:none;color:#11181C" />
-    <button class="hdr-cart" onClick="{{ openCart }}" style="display:flex;align-items:center;gap:8px;border:1px solid #11181C;background:#11181C;color:#fff;border-radius:999px;padding:10px 18px;font-size:14.5px;font-weight:600;cursor:pointer;white-space:nowrap" style-hover="opacity:.85">Carrito <span style="background:#fff;color:#11181C;border-radius:999px;min-width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">{{ cartCount }}</span></button>
+    <div style="flex:1"></div>
+    <input class="hdr-search" value="{{ query }}" onInput="{{ onQuery }}" onChange="{{ onQuery }}" placeholder="Buscar" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:9px 16px;font-size:13px;width:170px;outline:none;color:#fff" />
+    <button class="hdr-iconbtn" onClick="{{ openCart }}" aria-label="Carrito">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      <sc-if value="{{ cartHasItems }}" hint-placeholder-val="{{ false }}"><span class="cart-badge">{{ cartCount }}</span></sc-if>
+    </button>
   </header>
+
+  <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+    <div class="drawer-ov open" onClick="{{ closeMenu }}"></div>
+    <aside class="drawer open">
+      <div class="drawer-head">
+        <img src="uploads/opt/{{ menuLogo }}" alt="" style="height:22px;width:auto" />
+        <button class="hdr-iconbtn" onClick="{{ closeMenu }}" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+      </div>
+      <div class="drawer-body">
+        <button class="drawer-link" onClick="{{ menuHome }}">Inicio</button>
+        <button class="drawer-link" onClick="{{ menuCatalog }}">Ver catálogo completo</button>
+        <div class="drawer-sep"></div>
+        <div style="display:flex;gap:8px;padding:0 12px 4px">
+          <button onClick="{{ goAguara }}" style="{{ mAguara }}"><img src="uploads/opt/aguara-word-white.png" alt="Aguará" style="height:18px" /></button>
+          <button onClick="{{ goVulka }}" style="{{ mVulka }}"><img src="uploads/opt/vulka-word-white.png" alt="Vulka" style="height:22px" /></button>
+        </div>
+        <sc-for list="{{ menuGroups }}" as="g" hint-placeholder-count="2">
+          <div class="drawer-group">
+            <div class="drawer-gtitle">{{ g.label }}</div>
+            <sc-for list="{{ g.cats }}" as="c" hint-placeholder-count="4">
+              <button class="drawer-cat" onClick="{{ c.onClick }}"><span>{{ c.name }}</span><span class="n">{{ c.count }}</span></button>
+            </sc-for>
+          </div>
+        </sc-for>
+      </div>
+    </aside>
+  </sc-if>
 
   <main style="flex:1">
 
@@ -739,7 +780,7 @@ const px = (u, w) => u ? "https://wsrv.nl/?url=" + encodeURIComponent(u.replace(
 
 
 class Component extends DCLogic {
-  state = { view: "home", cat: null, query: "", cart: [], cartOpen: false, vulka: [], sel: {}, hero: 2, heroTop: "A", aIdx: 2, bIdx: 2, pd: null, pdSize: null, pdQty: 1, vkHover: 0, catalog: false, sort: "relevancia", priceMin: null, priceMax: null, onlyFeatured: false, onlyPhoto: false, pdImg: null, dbProducts: null, dbCatOrder: null, dbCatImg: null, dbHero: null, dbVulkaHero: null, dbFeat: null, dbConfig: null };
+  state = { view: "home", cat: null, query: "", cart: [], cartOpen: false, vulka: [], sel: {}, hero: 2, heroTop: "A", aIdx: 2, bIdx: 2, pd: null, pdSize: null, pdQty: 1, vkHover: 0, catalog: false, sort: "relevancia", priceMin: null, priceMax: null, onlyFeatured: false, onlyPhoto: false, pdImg: null, dbProducts: null, dbCatOrder: null, dbCatImg: null, dbHero: null, dbVulkaHero: null, dbFeat: null, dbConfig: null, menuOpen: false, gen: null };
 
   componentDidMount() {
     import("./vulka-catalog.js?v=2").then((m) => this.setState({ vulka: m.VULKA }));
@@ -769,6 +810,7 @@ class Component extends DCLogic {
         cat: pr.categoria_id && byId[pr.categoria_id] ? byId[pr.categoria_id].nombre : "",
         name: pr.nombre,
         desc: pr.descripcion || "",
+        genero: pr.genero || "unisex",
         price: pr.precio != null ? Number(pr.precio) : undefined,
         sizes: pr.talles || "", img: pr.imagen || "",
         amounts: pr.montos && pr.montos.length ? pr.montos : undefined,
@@ -786,13 +828,15 @@ class Component extends DCLogic {
     }).catch(() => {});
   }
 
-  resetFilters() { return { cat: null, query: "", priceMin: null, priceMax: null, onlyFeatured: false, onlyPhoto: false, sort: "relevancia" }; }
+  resetFilters() { return { cat: null, query: "", priceMin: null, priceMax: null, onlyFeatured: false, onlyPhoto: false, sort: "relevancia", gen: null }; }
   setBrand(b) { this.setState({ view: b, catalog: false, ...this.resetFilters() }); }
-  openCatalog(brand, cat) {
+  openCatalog(brand, cat, gen) {
     const b = brand || (this.state.view === "vulka" ? "vulka" : "aguara");
-    this.setState({ view: b, catalog: true, pd: null, ...this.resetFilters(), cat: cat || null });
+    this.setState({ view: b, catalog: true, pd: null, menuOpen: false, ...this.resetFilters(), cat: cat || null, gen: gen || null });
     try { window.scrollTo(0, 0); } catch (e) {}
   }
+  toggleMenu() { this.setState((s) => ({ menuOpen: !s.menuOpen })); }
+  closeMenu() { this.setState({ menuOpen: false }); }
 
   goHero(i) {
     this.setState((s) => {
@@ -886,8 +930,11 @@ class Component extends DCLogic {
     const CATX = this.state.dbCatOrder || { aguara: CAT.aguara.concat(EXTRA_AGUARA), vulka: CAT.vulka };
     const cfgv = (k, d) => (this.state.dbConfig && this.state.dbConfig[k]) ? this.state.dbConfig[k] : d;
     const waNum = cfgv("whatsapp", "595975517443").replace(/\D/g, "");
+    const g = this.state.gen;
+    const matchGen = (p) => !g || p.genero === g || p.genero === "unisex" || !p.genero;
     const list = ALL.filter((p) => p.b === v)
       .filter((p) => (this.state.cat ? p.cat === this.state.cat : true))
+      .filter(matchGen)
       .filter((p) => (q ? (p.name + " " + p.cat).toLowerCase().includes(q) : true));
 
     // Solo categorías que realmente tienen productos cargados
@@ -899,8 +946,8 @@ class Component extends DCLogic {
     const chipOn = "border:1px solid " + accent + ";background:" + accent + ";color:#fff;border-radius:999px;padding:9px 16px;font-size:13px;cursor:pointer;font-weight:600;" + jost;
 
     const tab = (on) =>
-      "border:0;border-radius:999px;padding:7px 14px;cursor:pointer;display:flex;align-items:center;transition:opacity .2s,background .2s;" +
-      (on ? "background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.15)" : "background:transparent;opacity:.5");
+      "border:0;background:transparent;padding:6px 6px 5px;cursor:pointer;display:flex;align-items:center;border-bottom:2px solid " +
+      (on ? "#E38A5E" : "transparent") + ";opacity:" + (on ? "1" : ".5") + ";transition:opacity .2s,border-color .2s;";
 
     const navStyle = (on) =>
       "border:0;background:transparent;padding:0;cursor:pointer;font-size:13.5px;letter-spacing:.02em;" +
@@ -1055,9 +1102,37 @@ class Component extends DCLogic {
     const vkListShow = isVulka && !this.state.cat && !q && catData.length > 0;
     const vkDefaultStyle = catData.length ? "background-image:url(" + catData[0].img + ")" : "";
 
+    // --- Menú desplegable (grupos por género) ---
+    const menuBrand = isHome ? "aguara" : v;
+    const menuCatList = (CATX[menuBrand] || []).filter((c) => ALL.some((p) => p.b === menuBrand && p.cat === c));
+    const inGen = (p, gk) => p.genero === gk || p.genero === "unisex" || !p.genero;
+    const catsForGen = (gk) => menuCatList
+      .filter((c) => ALL.some((p) => p.b === menuBrand && p.cat === c && inGen(p, gk)))
+      .map((c) => ({ name: c, count: ALL.filter((p) => p.b === menuBrand && p.cat === c && inGen(p, gk)).length,
+        onClick: () => this.openCatalog(menuBrand, c, gk) }));
+    const hasGendered = ALL.some((p) => p.b === menuBrand && (p.genero === "hombre" || p.genero === "mujer"));
+    let menuGroups;
+    if (hasGendered) {
+      menuGroups = [{ label: "HOMBRE", cats: catsForGen("hombre") }, { label: "MUJER", cats: catsForGen("mujer") }].filter((grp) => grp.cats.length > 0);
+    } else {
+      menuGroups = [{ label: "CATEGORÍAS", cats: menuCatList.map((c) => ({
+        name: c, count: ALL.filter((p) => p.b === menuBrand && p.cat === c).length,
+        onClick: () => this.openCatalog(menuBrand, c, null) })) }];
+    }
+
     return {
+      menuOpen: this.state.menuOpen,
+      toggleMenu: () => this.toggleMenu(),
+      closeMenu: () => this.closeMenu(),
+      menuHome: () => { this.setState({ menuOpen: false, view: "home", catalog: false, ...this.resetFilters() }); try { window.scrollTo(0, 0); } catch (e) {} },
+      menuCatalog: () => { this.setState({ menuOpen: false }); this.openCatalog(); },
+      menuLogo: (isHome || v === "aguara") ? "aguara-word-white.png" : "vulka-word-white.png",
+      menuGroups: menuGroups,
+      mAguara: "border:0;background:" + (menuBrand === "aguara" ? "rgba(255,255,255,.14)" : "transparent") + ";padding:8px 12px;border-radius:8px;cursor:pointer;opacity:" + (menuBrand === "aguara" ? "1" : ".55"),
+      mVulka: "border:0;background:" + (menuBrand === "vulka" ? "rgba(255,255,255,.14)" : "transparent") + ";padding:8px 12px;border-radius:8px;cursor:pointer;opacity:" + (menuBrand === "vulka" ? "1" : ".55"),
+      cartHasItems: cart.reduce((a, i) => a + i.qty, 0) > 0,
       isHome: isHome && !pd, isBrand: isBrandView && !this.state.catalog, isCatalog: inCatalog, isProduct: !!pd, cartOpen: this.state.cartOpen,
-      catTitle: isVulka ? "Vulka" : "Aguará Fitwear",
+      catTitle: (isVulka ? "Vulka" : "Aguará Fitwear") + (this.state.gen ? " · " + (this.state.gen === "hombre" ? "Hombre" : "Mujer") : ""),
       catTitleStyle: (isVulka ? "font-family:Jost,sans-serif;font-weight:500;letter-spacing:.06em;" : "font-weight:800;letter-spacing:-.02em;") + "margin:2px 0 0;font-size:30px;line-height:1.05;color:#11181C",
       catCountLabel: cnt(catalogList.length),
       catalogProducts: catalogList.map(mapProduct),

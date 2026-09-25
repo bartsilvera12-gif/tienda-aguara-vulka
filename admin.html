@@ -127,7 +127,10 @@
           </div>
           <div class="field"><label>Categoría</label><select id="p_categoria"></select></div>
         </div>
-        <div class="field"><label>Nombre</label><input id="p_nombre" placeholder="Ej: Top Aguará Aura"></div>
+        <div class="row">
+          <div class="field"><label>Género</label><select id="p_genero"><option value="unisex">Unisex</option><option value="mujer">Mujer</option><option value="hombre">Hombre</option></select></div>
+          <div class="field"><label>Nombre</label><input id="p_nombre" placeholder="Ej: Top Aguará Aura"></div>
+        </div>
         <div class="row">
           <div class="field"><label>Precio (Gs.)</label><input id="p_precio" type="text" inputmode="numeric" placeholder="150.000"></div>
           <div class="field"><label>Talles (separados por coma)</label><input id="p_talles" placeholder="XS, S, M, G, XG"></div>
@@ -488,6 +491,7 @@ $("prodNext").addEventListener("click",()=>{ prodPage++; renderProdList(); windo
 window.editProd = (id)=>{ const p=PRODS.find(x=>x.id===id); if(!p)return;
   $("p_id").value=p.id; $("p_marca").value=p.marca; if($("p_marca")._render)$("p_marca")._render(); fillCatSelect();
   if(p.categoria_id){ $("p_categoria").value=p.categoria_id; if($("p_categoria")._render)$("p_categoria")._render(); }
+  $("p_genero").value=p.genero||"unisex"; if($("p_genero")._render)$("p_genero")._render();
   $("p_nombre").value=p.nombre; $("p_precio").value=p.precio?fmtMiles(String(p.precio)):""; $("p_talles").value=(p.talles||"").replace(/\s*·\s*/g,", ");
   $("p_desc").value=p.descripcion||""; $("p_montos").value=p.montos?p.montos.map(m=>fmtMiles(String(m))).join(", "):"";
   $("p_destacado").checked=!!p.destacado; $("p_activo").checked=p.activo!==false;
@@ -517,7 +521,7 @@ window.delProd = async (id)=>{ if(!confirm("¿Borrar este producto?"))return;
   if(error){toast("Error: "+error.message,true);return;} toast("Producto borrado"); if($("p_id").value===id)resetProd(); loadProducts();
 };
 function resetProd(){ ["p_id","p_nombre","p_precio","p_talles","p_desc","p_montos","p_imagen"].forEach(i=>$(i).value="");
-  $("p_marca").value="aguara"; if($("p_marca")._render)$("p_marca")._render(); fillCatSelect();
+  $("p_marca").value="aguara"; if($("p_marca")._render)$("p_marca")._render(); $("p_genero").value="unisex"; if($("p_genero")._render)$("p_genero")._render(); fillCatSelect();
   $("p_destacado").checked=false; $("p_activo").checked=true; $("p_imgprev").style.display="none";
   $("p_gallery").innerHTML=""; $("p_imgfile").value=""; $("p_galfile").value=""; $("prodFormTitle").textContent="Nuevo producto"; }
 $("p_save").addEventListener("click", async ()=>{
@@ -527,14 +531,18 @@ $("p_save").addEventListener("click", async ()=>{
   const precioDigits = $("p_precio").value.replace(/\D/g,"");
   const precio = montos&&montos.length ? montos[0] : (precioDigits?parseInt(precioDigits,10):null);
   const tallesNorm = $("p_talles").value.split(/[,\-\/·|]+/).map(s=>s.trim()).filter(Boolean).join(" · ");
-  const rec={ marca:$("p_marca").value, categoria_id:$("p_categoria").value||null, nombre,
+  const rec={ marca:$("p_marca").value, categoria_id:$("p_categoria").value||null, nombre, genero:$("p_genero").value||"unisex",
     precio, talles:tallesNorm||null, descripcion:$("p_desc").value||null,
     destacado:$("p_destacado").checked, activo:$("p_activo").checked,
     montos:montos&&montos.length?montos:null, imagen:$("p_imagen").value||null };
-  let error, saved;
-  if($("p_id").value){ ({error}=await sb.from("productos").update(rec).eq("id",$("p_id").value)); }
-  else { rec.orden=PRODS.length; ({data:saved,error}=await sb.from("productos").insert(rec).select().single());
-    if(!error && saved && rec.imagen){ await sb.from("producto_imagenes").insert({producto_id:saved.id,url:rec.imagen,orden:0}); } }
+  const doSave = async (r)=>{
+    if($("p_id").value){ return await sb.from("productos").update(r).eq("id",$("p_id").value); }
+    r.orden=PRODS.length; const res=await sb.from("productos").insert(r).select().single();
+    if(!res.error && res.data && r.imagen){ await sb.from("producto_imagenes").insert({producto_id:res.data.id,url:r.imagen,orden:0}); }
+    return res;
+  };
+  let { error } = await doSave(rec);
+  if(error && /genero/i.test(error.message||"")){ const r2={...rec}; delete r2.genero; ({error}=await doSave(r2)); toast("Guardado (falta correr 04-genero.sql para el género)"); }
   if(error){toast("Error: "+error.message,true);return;}
   toast("Producto guardado ✓"); resetProd(); showForm("prodForm",false); loadProducts();
 });
