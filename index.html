@@ -65,7 +65,7 @@
   .gift-banner{transition:box-shadow .45s ease,transform .45s ease}
   .gift-banner:hover{box-shadow:0 26px 64px -22px rgba(194,82,42,.55);transform:translateY(-2px)}
   /* Catálogo con barra lateral de filtros */
-  .cat-layout{display:grid;grid-template-columns:238px 1fr;gap:32px;align-items:start;margin-top:18px}
+  .cat-layout{display:grid;grid-template-columns:238px 1fr;gap:32px;align-items:start;margin-top:32px}
   .cat-side{position:sticky;top:78px;display:flex;flex-direction:column;gap:26px}
   @media(max-width:860px){.cat-layout{grid-template-columns:1fr}.cat-side{position:static}}
   .side-h{font-size:12px;letter-spacing:.2em;color:#8B9297;font-weight:700;margin-bottom:12px}
@@ -502,11 +502,11 @@
 
     <sc-if value="{{ isCatalog }}" hint-placeholder-val="{{ false }}">
       <div style="{{ catBgStyle }}">
-      <section style="max-width:1280px;margin:0 auto;padding:24px 20px 52px">
+      <section style="max-width:1280px;margin:0 auto;padding:30px 20px 60px">
         <button onClick="{{ backToBrand }}" style="border:0;background:transparent;padding:6px 0;cursor:pointer;font-size:13px;color:#5A6268" style-hover="color:#11181C">{{ backToBrandLabel }}</button>
-        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:6px">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:20px">
           <div>
-            <div style="font-size:12px;letter-spacing:.2em;color:{{ sectionAccent }};font-weight:700">CATÁLOGO COMPLETO</div>
+            <div style="font-size:12px;letter-spacing:.2em;color:{{ sectionAccent }};font-weight:700;margin-bottom:10px">CATÁLOGO COMPLETO</div>
             <h1 style="{{ catTitleStyle }}">{{ catTitle }}</h1>
           </div>
           <span style="font-size:13px;color:#8B9297">{{ catCountLabel }}</span>
@@ -1188,7 +1188,7 @@ class Component extends DCLogic {
       cartHasItems: cart.reduce((a, i) => a + i.qty, 0) > 0,
       isHome: isHome && !pd, isBrand: isBrandView && !this.state.catalog, isCatalog: inCatalog, isProduct: !!pd, cartOpen: this.state.cartOpen,
       catTitle: (isVulka ? "Vulka" : "Aguará Fitwear") + (this.state.gen ? " · " + (this.state.gen === "hombre" ? "Hombre" : "Mujer") : ""),
-      catTitleStyle: (isVulka ? "font-family:Jost,sans-serif;font-weight:500;letter-spacing:.06em;" : "font-weight:800;letter-spacing:-.02em;") + "margin:2px 0 0;font-size:30px;line-height:1.05;color:#11181C",
+      catTitleStyle: (isVulka ? "font-family:Jost,sans-serif;font-weight:500;letter-spacing:.06em;" : "font-weight:800;letter-spacing:-.02em;") + "margin:0;font-size:32px;line-height:1.05;color:#11181C",
       catCountLabel: cnt(catalogList.length),
       catalogProducts: catalogList.map(mapProduct),
       catalogEmpty: catalogList.length === 0,
