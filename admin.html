@@ -566,42 +566,56 @@ $("p_pdf").addEventListener("click", async ()=>{
   if(!window.jspdf || !window.jspdf.jsPDF){ toast("No se pudo cargar el generador de PDF",true); return; }
   toast("Generando PDF (cargando imágenes)…");
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+  const doc = new jsPDF({ unit:"mm", format:"a4" });
   const fecha = new Date().toLocaleDateString("es-PY");
-  let first=true;
+  const PW=210, PH=297, M=12, GAP=6, COLS=3;
+  const cardW=(PW-2*M-(GAP*(COLS-1)))/COLS;
+  const imgH=cardW*1.18, txtH=24, cardH=imgH+txtH;
+  let firstBrand=true;
   for(const [bkey,blabel] of [["aguara","Aguará Fitwear"],["vulka","Vulka"]]){
     const items = PRODS.filter(p=>p.marca===bkey).slice().sort((a,b)=>(a.orden||0)-(b.orden||0));
     if(!items.length) continue;
     const imgData = await Promise.all(items.map(p=>imgToData(p.imagen)));
-    if(!first) doc.addPage(); first=false;
-    doc.setFontSize(18); doc.text("Catálogo — "+blabel, 14, 18);
-    doc.setFontSize(9); doc.setTextColor(120); doc.text("Generado el "+fecha+" · "+items.length+" productos", 14, 24); doc.setTextColor(0);
-    const rows = items.map(p=>[
-      "",
-      p.nombre||"",
-      catName(p.categoria_id),
-      p.montos? "Gift card" : (p.precio? "Gs. "+Number(p.precio).toLocaleString("es-PY") : "—"),
-      (p.talles||"").replace(/\s*·\s*/g,", "),
-      (p.colores||"").replace(/\s*·\s*/g,", ")
-    ]);
-    doc.autoTable({ startY:30, head:[["Foto","Producto","Categoría","Precio","Talles","Colores"]], body:rows,
-      styles:{fontSize:8,cellPadding:2.5,valign:"middle",minCellHeight:24}, headStyles:{fillColor:[17,24,28]},
-      alternateRowStyles:{fillColor:[248,246,245]},
-      columnStyles:{0:{cellWidth:22,minCellWidth:22},1:{cellWidth:40},4:{cellWidth:28},5:{cellWidth:24}},
-      didDrawCell:(data)=>{
-        if(data.section==="body" && data.column.index===0){
-          const it=imgData[data.row.index];
-          if(it && it.d){ try{
-            const maxW=18, maxH=Math.max(6, data.cell.height-3);
-            let w=maxW, h=maxW*it.ar;
-            if(h>maxH){ h=maxH; w=maxH/it.ar; }
-            const x=data.cell.x + (data.cell.width - w)/2;
-            const y=data.cell.y + (data.cell.height - h)/2;
-            doc.addImage(it.d,"JPEG",x,y,w,h);
-          }catch(e){} }
-        }
-      }
-    });
+    if(!firstBrand) doc.addPage(); firstBrand=false;
+    // Encabezado de marca
+    doc.setFont("helvetica","bold"); doc.setFontSize(20); doc.setTextColor(17,24,28);
+    doc.text("Catálogo — "+blabel, M, 18);
+    doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(140,146,151);
+    doc.text("Generado el "+fecha+" · "+items.length+" productos", M, 24);
+    let col=0, y=30;
+    for(let i=0;i<items.length;i++){
+      const p=items[i], it=imgData[i];
+      if(y+cardH > PH-M){ doc.addPage(); y=M+4; col=0; }
+      const x=M+col*(cardW+GAP);
+      // marco de la tarjeta
+      doc.setDrawColor(228,230,232); doc.setFillColor(255,255,255);
+      doc.roundedRect(x,y,cardW,cardH,2,2,"S");
+      // imagen
+      doc.setFillColor(244,245,246); doc.rect(x,y,cardW,imgH,"F");
+      if(it && it.d){ try{
+        let w=cardW, h=cardW*it.ar;
+        if(h>imgH){ h=imgH; w=imgH/it.ar; }
+        doc.addImage(it.d,"JPEG", x+(cardW-w)/2, y+(imgH-h)/2, w, h);
+      }catch(e){} }
+      // etiqueta de marca
+      doc.setFillColor(17,24,28); doc.roundedRect(x+2.5,y+2.5,14,5,1,1,"F");
+      doc.setFont("helvetica","bold"); doc.setFontSize(6); doc.setTextColor(255,255,255);
+      doc.text(bkey==="aguara"?"AGUARÁ":"VULKA", x+2.5+7, y+6, {align:"center"});
+      // texto
+      let ty=y+imgH+5;
+      doc.setFont("helvetica","normal"); doc.setFontSize(6.5); doc.setTextColor(139,146,151);
+      doc.text((catName(p.categoria_id)||"").toUpperCase().slice(0,26), x+3, ty); ty+=4.5;
+      doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.setTextColor(17,24,28);
+      const nm=doc.splitTextToSize(p.nombre||"", cardW-6).slice(0,2);
+      doc.text(nm, x+3, ty); ty+=nm.length*4+1.5;
+      doc.setFont("helvetica","normal"); doc.setFontSize(7); doc.setTextColor(120,126,131);
+      const meta=[(p.talles||"").replace(/\s*·\s*/g," · "), (p.colores||"").replace(/\s*·\s*/g," · ")].filter(Boolean).join("  |  ");
+      if(meta){ doc.text(doc.splitTextToSize(meta,cardW-6).slice(0,1), x+3, ty); }
+      doc.setFont("helvetica","bold"); doc.setFontSize(10); doc.setTextColor(17,24,28);
+      const price=p.montos? "Gift card" : (p.precio? "Gs. "+Number(p.precio).toLocaleString("es-PY") : "Consultar");
+      doc.text(price, x+3, y+cardH-3.5);
+      col++; if(col>=COLS){ col=0; y+=cardH+GAP; }
+    }
   }
   doc.save("catalogo-aguara-vulka.pdf");
   toast("PDF generado ✓");
