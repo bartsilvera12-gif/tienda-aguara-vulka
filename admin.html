@@ -631,8 +631,16 @@ $("p_save").addEventListener("click", async ()=>{
     if(!res.error && res.data && r.imagen){ await sb.from("producto_imagenes").insert({producto_id:res.data.id,url:r.imagen,orden:0}); }
     return res;
   };
-  let { error } = await doSave(rec);
-  if(error && /(genero|colores|column|schema cache)/i.test(error.message||"")){ const r2={...rec}; delete r2.genero; delete r2.colores; ({error}=await doSave(r2)); if(!error) toast("Guardado (corré 04-genero.sql y 05-colores.sql para género/colores)"); }
+  let r2={...rec};
+  let res=await doSave(r2); let tries=0; let stripped=[];
+  while(res.error && tries<3){
+    const m=(res.error.message||"").toLowerCase(); let removed=false;
+    for(const col of ["genero","colores"]){ if(r2[col]!==undefined && m.includes(col)){ delete r2[col]; stripped.push(col); removed=true; } }
+    if(!removed) break;
+    res=await doSave(r2); tries++;
+  }
+  let error=res.error;
+  if(!error && stripped.length){ toast("Guardado (falta correr en Supabase: "+stripped.map(s=>s==="genero"?"04-genero.sql":"05-colores.sql").join(", ")+")"); }
   if(error){toast("Error: "+error.message,true);return;}
   toast("Producto guardado ✓"); resetProd(); showForm("prodForm",false); loadProducts();
 });
