@@ -626,7 +626,11 @@ $("p_save").addEventListener("click", async ()=>{
     destacado:$("p_destacado").checked, activo:$("p_activo").checked,
     montos:montos&&montos.length?montos:null, imagen:$("p_imagen").value||null };
   const doSave = async (r)=>{
-    if($("p_id").value){ return await sb.from("productos").update(r).eq("id",$("p_id").value); }
+    if($("p_id").value){
+      const res = await sb.from("productos").update(r).eq("id",$("p_id").value).select();
+      if(!res.error && (!res.data || !res.data.length)){ res.error = { message:"No se guardó ninguna fila (sesión/permisos: ¿estás logueado como admin@aguaravulka.com.py?)" }; }
+      return res;
+    }
     r.orden=PRODS.length; const res=await sb.from("productos").insert(r).select().single();
     if(!res.error && res.data && r.imagen){ await sb.from("producto_imagenes").insert({producto_id:res.data.id,url:r.imagen,orden:0}); }
     return res;
