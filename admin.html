@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Panel · Aguará + Vulka</title>
+<title>Panel · Aguara + Vulka</title>
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="uploads/opt/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="uploads/opt/favicon-16.png">
@@ -118,7 +118,7 @@
 <div id="login">
   <form class="login-card" id="loginForm">
     <h1>Panel de administración</h1>
-    <p>Aguará Fitwear + Vulka</p>
+    <p>Aguara Fitwear + Vulka</p>
     <div class="field"><label>Email</label><input type="email" id="email" value="admin@aguaravulka.com.py" required></div>
     <div class="field"><label>Contraseña</label><input type="password" id="password" required></div>
     <button class="btn btn-primary" style="width:100%" type="submit">Ingresar</button>
@@ -130,7 +130,7 @@
 <!-- ===== APP ===== -->
 <div id="app">
   <header class="top">
-    <div class="brand">Aguará <span>·</span> Vulka — Admin</div>
+    <div class="brand">Aguara <span>·</span> Vulka — Admin</div>
     <a href="index.html" style="color:rgba(255,255,255,.8);font-size:13px;text-decoration:none">Ver tienda ↗</a>
     <div class="who"><span id="whoEmail"></span> · <a href="#" id="logout" style="color:#E38A5E">Salir</a></div>
   </header>
@@ -149,13 +149,13 @@
         <input type="hidden" id="p_id">
         <div class="row">
           <div class="field"><label>Empresa</label>
-            <select id="p_marca"><option value="aguara">Aguará Fitwear</option><option value="vulka">Vulka</option></select>
+            <select id="p_marca"><option value="aguara">Aguara Fitwear</option><option value="vulka">Vulka</option></select>
           </div>
           <div class="field"><label>Categoría</label><select id="p_categoria"></select></div>
         </div>
         <div class="row">
           <div class="field"><label>Género</label><select id="p_genero"><option value="unisex">Unisex</option><option value="mujer">Mujer</option><option value="hombre">Hombre</option></select></div>
-          <div class="field"><label>Nombre</label><input id="p_nombre" placeholder="Ej: Top Aguará Aura"></div>
+          <div class="field"><label>Nombre</label><input id="p_nombre" placeholder="Ej: Top Aguara Aura"></div>
         </div>
         <div class="row">
           <div class="field"><label>Precio (Gs.)</label><input id="p_precio" type="text" inputmode="numeric" placeholder="150.000"></div>
@@ -190,7 +190,7 @@
           <div style="position:relative">
             <button class="btn btn-ghost" id="p_pdf">⬇ Catálogo PDF ▾</button>
             <div id="pdfMenu" class="hidden" style="position:absolute;right:0;top:calc(100% + 5px);background:#fff;border:1px solid #E6E8EA;border-radius:10px;box-shadow:0 16px 40px -14px rgba(0,0,0,.28);padding:6px;z-index:25;min-width:150px">
-              <button class="pdfopt" data-b="aguara">Aguará</button>
+              <button class="pdfopt" data-b="aguara">Aguara</button>
               <button class="pdfopt" data-b="vulka">Vulka</button>
               <button class="pdfopt" data-b="both">Ambas marcas</button>
             </div>
@@ -198,7 +198,7 @@
           <button class="btn btn-accent" id="p_new">+ Nuevo producto</button>
         </div></div>
         <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
-          <div style="width:200px"><select id="prodFilter"><option value="">Todas las empresas</option><option value="aguara">Aguará</option><option value="vulka">Vulka</option></select></div>
+          <div style="width:200px"><select id="prodFilter"><option value="">Todas las empresas</option><option value="aguara">Aguara</option><option value="vulka">Vulka</option></select></div>
           <input id="prodSearch" placeholder="Buscar por nombre…" style="max-width:260px;flex:1">
         </div>
         <div class="list" id="prodList"></div>
@@ -223,7 +223,7 @@
         <input type="hidden" id="c_id">
         <div class="row">
           <div class="field"><label>Empresa</label>
-            <select id="c_marca"><option value="aguara">Aguará Fitwear</option><option value="vulka">Vulka</option></select>
+            <select id="c_marca"><option value="aguara">Aguara Fitwear</option><option value="vulka">Vulka</option></select>
           </div>
           <div class="field"><label>Nombre</label><input id="c_nombre" placeholder="Ej: Training"></div>
         </div>
@@ -238,7 +238,7 @@
       </div>
       <div class="panel">
         <div class="panel-head"><h2>Categorías</h2><button class="btn btn-accent" id="c_new">+ Nueva categoría</button></div>
-        <div style="width:200px;margin-bottom:14px"><select id="catFilter"><option value="">Todas las empresas</option><option value="aguara">Aguará</option><option value="vulka">Vulka</option></select></div>
+        <div style="width:200px;margin-bottom:14px"><select id="catFilter"><option value="">Todas las empresas</option><option value="aguara">Aguara</option><option value="vulka">Vulka</option></select></div>
         <div class="list" id="catList"></div>
       </div>
     </section>
@@ -247,11 +247,11 @@
     <section id="tab-portadas" class="hidden">
       <div class="panel hidden" id="portForm">
         <div class="panel-head"><h2 id="portFormTitle">Nueva imagen de portada</h2><button class="btn btn-ghost btn-sm" id="h_cancel">Cancelar</button></div>
-        <p class="muted" style="margin-top:-8px">Aguará usa varias (carrusel). Vulka usa la primera como portada.</p>
+        <p class="muted" style="margin-top:-8px">Aguara usa varias (carrusel). Vulka usa la primera como portada.</p>
         <input type="hidden" id="h_id">
         <div class="row">
           <div class="field"><label>Empresa</label>
-            <select id="h_marca"><option value="aguara">Aguará Fitwear</option><option value="vulka">Vulka</option></select>
+            <select id="h_marca"><option value="aguara">Aguara Fitwear</option><option value="vulka">Vulka</option></select>
           </div>
           <div class="field"><label>Etiqueta (ej: TRAINING)</label><input id="h_etiqueta" placeholder="TRAINING"></div>
         </div>
@@ -272,7 +272,7 @@ MOVERTE"></textarea></div>
       </div>
       <div class="panel">
         <div class="panel-head"><h2>Portadas</h2><button class="btn btn-accent" id="h_new">+ Nueva portada</button></div>
-        <div style="width:200px;margin-bottom:14px"><select id="portFilter"><option value="">Todas las empresas</option><option value="aguara">Aguará</option><option value="vulka">Vulka</option></select></div>
+        <div style="width:200px;margin-bottom:14px"><select id="portFilter"><option value="">Todas las empresas</option><option value="aguara">Aguara</option><option value="vulka">Vulka</option></select></div>
         <div class="list" id="portList"></div>
       </div>
     </section>
@@ -308,7 +308,7 @@ MOVERTE"></textarea></div>
           <div class="field"><label>Email de contacto</label><input id="cfg_email" placeholder="hola@aguaravulka.com.py"></div>
         </div>
         <div class="row">
-          <div class="field"><label>Instagram Aguará (URL)</label><input id="cfg_ig_aguara" placeholder="https://www.instagram.com/aguarafitwear"></div>
+          <div class="field"><label>Instagram Aguara (URL)</label><input id="cfg_ig_aguara" placeholder="https://www.instagram.com/aguarafitwear"></div>
           <div class="field"><label>Instagram Vulka (URL)</label><input id="cfg_ig_vulka" placeholder="https://www.instagram.com/vulka"></div>
         </div>
         <div class="row">
@@ -640,7 +640,7 @@ async function generatePDF(brands){
   const cardW=(PW-2*M-(GAP*(COLS-1)))/COLS;
   const imgH=cardW*1.18, txtH=24, cardH=imgH+txtH;
   let firstBrand=true;
-  const brandDefs=[["aguara","Aguará Fitwear"],["vulka","Vulka"]].filter(b=>brands.includes(b[0]));
+  const brandDefs=[["aguara","Aguara Fitwear"],["vulka","Vulka"]].filter(b=>brands.includes(b[0]));
   for(const [bkey,blabel] of brandDefs){
     const items = PRODS.filter(p=>p.marca===bkey).slice().sort((a,b)=>(a.orden||0)-(b.orden||0));
     if(!items.length) continue;
