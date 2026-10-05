@@ -96,6 +96,9 @@
     if (!hash) {
       try { hash = sessionStorage.getItem('av_pagopar_hash') || ''; } catch (_) {}
     }
+    // El hash de PagoPar es hexadecimal; limpiamos cualquier residuo del
+    // placeholder del panel (p. ej. paréntesis de "($hash)" o llaves) por las dudas.
+    hash = String(hash).replace(/[^A-Za-z0-9]/g, '');
 
     if (!hash) {
       renderState('rejected', {
