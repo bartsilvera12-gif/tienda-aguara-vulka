@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gracias por tu compra — Aguara Fitwear + Vulka</title>
+<meta name="description" content="Confirmación de tu pago en Aguara Fitwear + Vulka.">
+<link rel="icon" href="/uploads/opt/favicon.png" sizes="any">
+<style>
+  :root{ --ink:#11181C; --acc:#C2522A; --acc2:#E38A5E; --bg:#F5F6F6; --muted:#6B7378; }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:var(--ink);text-decoration:none;transition:color .2s}
+  a:hover{color:var(--acc)}
+  .gx-header{background:#11181C;color:#fff}
+  .gx-hd-inner{max-width:1180px;margin:0 auto;padding:16px 20px;display:flex;align-items:center;justify-content:center}
+  .gx-logo{color:#fff;font-weight:800;letter-spacing:.14em;font-size:15px;text-transform:uppercase}
+  .gx-logo b{color:var(--acc2)}
+  .gx-wrap{max-width:560px;margin:0 auto;padding:clamp(40px,8vw,90px) 20px;text-align:center}
+  .gx-icon{width:92px;height:92px;margin:0 auto 22px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+  .gx-icon svg{width:46px;height:46px}
+  .gx-state[data-state="approved"] .gx-icon{background:#E7F6EC;color:#1E9E54}
+  .gx-state[data-state="pending"]  .gx-icon{background:#FDEFE7;color:var(--acc)}
+  .gx-state[data-state="rejected"] .gx-icon{background:#FBE7E4;color:#C2402A}
+  h1{margin:0 0 12px;font-size:clamp(26px,5vw,38px);font-weight:800;letter-spacing:-.01em}
+  h1 em{font-style:normal;color:var(--acc)}
+  .gx-msg{font-size:15px;line-height:1.65;color:var(--muted);max-width:440px;margin:0 auto 22px}
+  .gx-ref{font-size:12.5px;color:#8B9297;margin-bottom:6px}
+  .gx-ref code{background:#fff;border:1px solid #E4E7E9;border-radius:6px;padding:4px 9px;font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--ink)}
+  .gx-actions{display:flex;gap:12px;justify-content:center;margin-top:30px;flex-wrap:wrap}
+  .gx-btn{display:inline-block;padding:14px 24px;font-size:13.5px;font-weight:700;letter-spacing:.03em;cursor:pointer;border-radius:10px;border:1px solid var(--ink);transition:background .2s,color .2s,border-color .2s}
+  .gx-btn--primary{background:var(--ink);color:#fff}
+  .gx-btn--primary:hover{background:var(--acc);border-color:var(--acc)}
+  .gx-btn--secondary{background:transparent;color:var(--ink)}
+  .gx-btn--secondary:hover{border-color:var(--acc);color:var(--acc)}
+  .gx-wa{margin-top:26px;font-size:13px;color:var(--muted)}
+  .gx-wa a{color:var(--acc);font-weight:700;text-decoration:underline}
+  @keyframes gx-spin{to{transform:rotate(360deg)}}
+  .gx-state[data-state="pending"] .gx-icon svg{animation:gx-spin 1.2s linear infinite}
+</style>
+</head>
+<body>
+
+  <header class="gx-header">
+    <div class="gx-hd-inner">
+      <a href="/" class="gx-logo">AGUARA <b>·</b> VULKA</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="gx-wrap gx-state" data-state="pending">
+      <div class="gx-icon">
+        <svg data-icon="pending" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9" stroke-opacity=".2"/>
+          <path d="M12 3a9 9 0 0 1 9 9"/>
+        </svg>
+      </div>
+      <h1 data-title>Confirmando <em>tu pago</em>…</h1>
+      <p class="gx-msg" data-msg>Estamos verificando la respuesta de PagoPar. Suele tardar unos segundos.</p>
+      <p class="gx-ref" data-ref hidden>Referencia: <code data-hash></code></p>
+      <div class="gx-actions">
+        <a class="gx-btn gx-btn--primary" href="/">Seguir comprando</a>
+        <a class="gx-btn gx-btn--secondary" href="/">Volver al inicio</a>
+      </div>
+      <p class="gx-wa" data-wa hidden>¿Dudas con tu pago? <a href="https://wa.me/595975517443?text=Hola%2C%20tengo%20una%20consulta%20sobre%20mi%20pago" target="_blank" rel="noopener">Escribinos por WhatsApp</a>.</p>
+    </section>
+  </main>
+
+  <script>
+  (function () {
+    'use strict';
+    // Backend de pagos (mismo que el .env del server): api.neura.com.py/pagopar
+    var API_BASE = (function () {
+      var h = location.hostname;
+      if (h === 'localhost' || h === '127.0.0.1' || h === '') return 'http://localhost:8788/pagopar';
+      return 'https://api.neura.com.py/pagopar';
+    })();
+
+    var section = document.querySelector('[data-state]');
+    var titleEl = document.querySelector('[data-title]');
+    var msgEl = document.querySelector('[data-msg]');
+    var refEl = document.querySelector('[data-ref]');
+    var hashEl = document.querySelector('[data-hash]');
+    var waEl = document.querySelector('[data-wa]');
+    var iconWrap = section.querySelector('.gx-icon');
+
+    var ICONS = {
+      approved: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-11"/></svg>',
+      rejected: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>',
+      pending:  section.querySelector('svg').outerHTML,
+    };
+
+    var params = new URLSearchParams(location.search);
+    var hash = params.get('hash') || params.get('hash_pedido') || '';
+    if (!hash) {
+      try { hash = sessionStorage.getItem('av_pagopar_hash') || ''; } catch (_) {}
+    }
+
+    if (!hash) {
+      renderState('rejected', {
+        titulo: 'No pudimos <em>confirmar</em>',
+        mensaje: 'No recibimos la referencia del pago. Si ya pagaste, escribinos por WhatsApp con tu comprobante y te confirmamos.',
+      });
+      waEl.hidden = false;
+      return;
+    }
+
+    hashEl.textContent = hash;
+    refEl.hidden = false;
+
+    var intentos = 0;
+    var espera = [2000, 4000, 8000];
+
+    function normalizeEstado(payload) {
+      var r = payload && payload.resultado && payload.resultado[0];
+      if (r) {
+        if (r.pagado === true) return 'approved';
+        if (r.cancelado === true) return 'rejected';
+      }
+      var texto = JSON.stringify(payload || {}).toLowerCase();
+      if (/"pagado":\s*true/.test(texto) || /aprobado|approved|paid|completado/.test(texto)) return 'approved';
+      if (/"cancelado":\s*true/.test(texto) || /rechazado|rejected|failed|anulado/.test(texto)) return 'rejected';
+      return 'pending';
+    }
+
+    function consultar() {
+      fetch(API_BASE + '/status?hash=' + encodeURIComponent(hash))
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          var estado = normalizeEstado(data);
+          if (estado === 'approved') {
+            try { sessionStorage.removeItem('av_pagopar_hash'); } catch (_) {}
+            renderState('approved', {
+              titulo: '¡Gracias por tu <em>compra</em>!',
+              mensaje: 'Recibimos tu pago. Te vamos a contactar en breve para coordinar la entrega o el retiro.',
+            });
+            return;
+          }
+          if (estado === 'rejected') {
+            renderState('rejected', {
+              titulo: 'El pago fue <em>rechazado</em>',
+              mensaje: 'PagoPar no autorizó la transacción. Podés intentar con otro medio de pago o escribirnos por WhatsApp.',
+            });
+            waEl.hidden = false;
+            return;
+          }
+          intentos++;
+          if (intentos < espera.length) {
+            setTimeout(consultar, espera[intentos]);
+          } else {
+            renderState('pending', {
+              titulo: 'Estamos <em>confirmando</em>',
+              mensaje: 'El pago puede tardar unos minutos en acreditarse. Volvé a esta página más tarde para ver el estado.',
+            });
+            waEl.hidden = false;
+          }
+        })
+        .catch(function () {
+          intentos++;
+          if (intentos < espera.length) {
+            setTimeout(consultar, espera[intentos]);
+          } else {
+            renderState('pending', {
+              titulo: 'Sin respuesta del <em>servidor</em>',
+              mensaje: 'Guardá esta referencia y escribinos por WhatsApp para que confirmemos tu pago.',
+            });
+            waEl.hidden = false;
+          }
+        });
+    }
+
+    function renderState(estado, cfg) {
+      section.setAttribute('data-state', estado);
+      titleEl.innerHTML = cfg.titulo;
+      msgEl.textContent = cfg.mensaje;
+      iconWrap.innerHTML = ICONS[estado] || ICONS.pending;
+    }
+
+    consultar();
+  })();
+  </script>
+
+</body>
+</html>
