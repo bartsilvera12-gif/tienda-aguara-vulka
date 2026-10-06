@@ -139,6 +139,7 @@
     <button data-tab="categorias">Categorías</button>
     <button data-tab="portadas">Portadas</button>
     <button data-tab="descuentos">Descuentos</button>
+    <button data-tab="promos">Promociones</button>
     <button data-tab="config">Configuración</button>
   </nav>
   <main>
@@ -298,8 +299,40 @@ MOVERTE"></textarea></div>
       </div>
     </section>
 
+    <!-- PROMOCIONES -->
+    <section id="tab-promos" class="hidden">
+      <div class="panel hidden" id="promoForm">
+        <div class="panel-head"><h2 id="promoFormTitle">Nueva promoción</h2><button class="btn btn-ghost btn-sm" id="pr_cancel">Cancelar</button></div>
+        <input type="hidden" id="pr_id">
+        <div class="field"><label>Título</label><input id="pr_titulo" placeholder="Ej: Envío gratis este fin de semana"></div>
+        <div class="field"><label>Descripción (opcional)</label><input id="pr_desc" placeholder="Ej: En pedidos seleccionados"></div>
+        <label class="chk"><input type="checkbox" id="pr_activo" checked style="width:auto"> Activa (se muestra en la web)</label>
+        <div style="display:flex;gap:10px;margin-top:10px">
+          <button class="btn btn-accent" id="pr_save">Guardar promoción</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>Promociones</h2><button class="btn btn-accent" id="pr_new">+ Nueva promoción</button></div>
+        <p class="muted" style="margin-top:-8px">Aparecen como una barra arriba en la tienda. Al desactivar una, deja de mostrarse.</p>
+        <div class="list" id="promoList"></div>
+      </div>
+    </section>
+
     <!-- CONFIGURACION -->
     <section id="tab-config" class="hidden">
+      <div class="panel">
+        <div class="panel-head"><h2>Delivery gratis</h2></div>
+        <p class="muted" style="margin-top:-8px">Es la primera tarjeta de beneficios en la tienda. Desactivala para ocultarla.</p>
+        <label class="chk"><input type="checkbox" id="cfg_delivery_activo" checked style="width:auto"> Mostrar "Delivery gratis" en la web</label>
+        <div class="row" style="margin-top:12px">
+          <div class="field"><label>Título</label><input id="cfg_delivery_titulo" placeholder="Delivery gratis"></div>
+          <div class="field"><label>Monto mínimo (Gs.)</label><input id="cfg_delivery_monto" placeholder="2.500.000"></div>
+        </div>
+        <div class="field"><label>Descripción (podés usar <b>{monto}</b> para insertar el monto)</label><input id="cfg_delivery_desc" placeholder="En pedidos mayores a {monto} Gs."></div>
+        <div style="display:flex;gap:10px;margin-top:6px">
+          <button class="btn btn-accent" id="cfg_delivery_save">Guardar delivery</button>
+        </div>
+      </div>
       <div class="panel">
         <div class="panel-head"><h2>Datos de contacto</h2></div>
         <p class="muted" style="margin-top:-8px">Se usan en el pie de página y en el botón de finalizar compra por WhatsApp.</p>
@@ -384,6 +417,11 @@ document.getElementById("p_montos").addEventListener("input",(e)=>{
   e.target.value=e.target.value.split(",").map(p=>fmtMiles(p)).join(", ");
   const np=Math.max(0,e.target.value.length-pos); try{e.target.setSelectionRange(np,np);}catch(_){}
 });
+document.getElementById("cfg_delivery_monto").addEventListener("input",(e)=>{
+  const pos=e.target.value.length-e.target.selectionStart;
+  e.target.value=fmtMiles(e.target.value);
+  const np=e.target.value.length-pos; try{e.target.setSelectionRange(np,np);}catch(_){}
+});
 
 // ---------- Auth ----------
 if (!configured) {
@@ -409,7 +447,7 @@ async function boot(){
   $("login").style.display = "none";
   $("app").style.display = "block";
   $("whoEmail").textContent = session.user.email;
-  await Promise.all([loadCats(), loadProducts(), loadPortadas(), loadConfig(), loadDesc()]);
+  await Promise.all([loadCats(), loadProducts(), loadPortadas(), loadConfig(), loadDesc(), loadPromos()]);
   enhanceAllSelects(); enhanceAllFiles();
 }
 if (configured) sb.auth.getSession().then(({data:{session}})=>{ if(session) boot(); });
@@ -419,7 +457,7 @@ document.addEventListener("click", (e)=>{ if(e.target.id==="logout"){ e.preventD
 document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>{
   document.querySelectorAll("nav.tabs button").forEach(x=>x.classList.remove("on"));
   b.classList.add("on");
-  ["productos","categorias","portadas","descuentos","config"].forEach(t=>$("tab-"+t).classList.toggle("hidden", t!==b.dataset.tab));
+  ["productos","categorias","portadas","descuentos","promos","config"].forEach(t=>$("tab-"+t).classList.toggle("hidden", t!==b.dataset.tab));
 }));
 
 // ---------- Select personalizado (integrado al diseño) ----------
@@ -839,12 +877,65 @@ async function loadConfig(){
   if (error){ return; } // tabla config puede no existir todavía
   const map={}; (data||[]).forEach(r=>map[r.clave]=r.valor);
   Object.keys(CFG_FIELDS).forEach(k=>{ if($(CFG_FIELDS[k])) $(CFG_FIELDS[k]).value = map[k]||""; });
+  // Delivery
+  $("cfg_delivery_titulo").value = map.delivery_titulo || "";
+  $("cfg_delivery_monto").value  = fmtMiles(map.delivery_monto || "");
+  $("cfg_delivery_desc").value   = map.delivery_desc || "";
+  $("cfg_delivery_activo").checked = (map.delivery_activo == null) ? true : (map.delivery_activo !== "0");
 }
 $("cfg_save").addEventListener("click", async ()=>{
   const rows = Object.keys(CFG_FIELDS).map(k=>({ clave:k, valor:$(CFG_FIELDS[k]).value.trim()||null }));
   const { error } = await sb.from("config").upsert(rows, { onConflict:"clave" });
   if(error){toast("Error: "+error.message+" (¿corriste 03-config.sql?)",true);return;}
   toast("Configuración guardada ✓");
+});
+$("cfg_delivery_save").addEventListener("click", async ()=>{
+  const rows = [
+    { clave:"delivery_activo",  valor: $("cfg_delivery_activo").checked ? "1" : "0" },
+    { clave:"delivery_titulo",  valor: $("cfg_delivery_titulo").value.trim() || null },
+    { clave:"delivery_monto",   valor: ($("cfg_delivery_monto").value.replace(/\D/g,"")) || null },
+    { clave:"delivery_desc",    valor: $("cfg_delivery_desc").value.trim() || null },
+  ];
+  const { error } = await sb.from("config").upsert(rows, { onConflict:"clave" });
+  if(error){toast("Error: "+error.message+" (¿corriste 03-config.sql?)",true);return;}
+  toast("Delivery guardado ✓");
+});
+
+// ================= PROMOCIONES =================
+let PROMOS = [];
+async function loadPromos(){
+  const { data, error } = await sb.from("promociones").select("*").order("orden").order("created_at");
+  if (error){ return; } // tabla puede no existir todavia
+  PROMOS = data||[]; renderPromoList();
+}
+function renderPromoList(){
+  if(!$("promoList")) return;
+  $("promoList").innerHTML = PROMOS.map(p=>`
+    <div class="item">
+      <div class="meta"><div class="n">${esc(p.titulo)} ${p.activo?'<span class="pill" style="background:#E7F6EC;color:#1E9E54">activa</span>':'<span class="pill">inactiva</span>'}</div><div class="s">${esc(p.descripcion||"—")}</div></div>
+      <button class="btn btn-ghost btn-sm" onclick="editPromo('${p.id}')">Editar</button>
+      <button class="btn btn-danger btn-sm" onclick="delPromo('${p.id}')">Borrar</button>
+    </div>`).join("") || `<div class="muted">Sin promociones todavía.</div>`;
+}
+window.editPromo=(id)=>{ const p=PROMOS.find(x=>x.id===id); if(!p)return;
+  $("pr_id").value=p.id; $("pr_titulo").value=p.titulo; $("pr_desc").value=p.descripcion||""; $("pr_activo").checked=p.activo!==false;
+  $("promoFormTitle").textContent="Editar promoción"; showForm("promoForm",true);
+};
+window.delPromo=async(id)=>{ if(!await askConfirm({title:"¿Borrar promoción?",msg:"Esta promoción se eliminará."}))return;
+  const {error}=await sb.from("promociones").delete().eq("id",id);
+  if(error){toast("Error: "+error.message,true);return;} toast("Promoción borrada"); loadPromos();
+};
+function resetPromo(){ ["pr_id","pr_titulo","pr_desc"].forEach(i=>$(i).value=""); $("pr_activo").checked=true; $("promoFormTitle").textContent="Nueva promoción"; }
+$("pr_new").addEventListener("click",()=>{ resetPromo(); showForm("promoForm",true); });
+$("pr_cancel").addEventListener("click",()=>{ resetPromo(); showForm("promoForm",false); });
+$("pr_save").addEventListener("click", async ()=>{
+  const titulo=$("pr_titulo").value.trim(); if(!titulo){toast("Poné un título",true);return;}
+  const rec={ titulo, descripcion: $("pr_desc").value.trim()||null, activo: $("pr_activo").checked };
+  let error;
+  if($("pr_id").value){ ({error}=await sb.from("promociones").update(rec).eq("id",$("pr_id").value)); }
+  else { rec.orden=PROMOS.length; ({error}=await sb.from("promociones").insert(rec)); }
+  if(error){toast("Error: "+error.message+(/promociones/.test(error.message)?" (¿corriste 12-promociones.sql?)":""),true);return;}
+  toast("Promoción guardada ✓"); resetPromo(); showForm("promoForm",false); loadPromos();
 });
 </script>
 </body>

@@ -93,6 +93,12 @@
   .hdr-iconbtn svg{width:22px;height:22px}
   .cart-badge{position:absolute;top:0;right:0;background:#E38A5E;color:#11181C;border-radius:999px;min-width:16px;height:16px;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 3px}
   @media(max-width:760px){ .hdr-search{display:none !important} }
+  /* Barra de promociones */
+  .promo-bar{display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(90deg,#C2522A,#E38A5E);color:#fff;padding:8px 16px;font-size:13px;font-weight:700;letter-spacing:.01em;text-align:center;line-height:1.3;animation:promoIn .4s ease}
+  .promo-bar .promo-ic{display:inline-flex;align-items:center}
+  .promo-bar .promo-d{font-weight:500;opacity:.92}
+  @keyframes promoIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+  @media(max-width:560px){ .promo-bar{font-size:12px;padding:7px 12px} .promo-bar .promo-d{display:none} }
   /* Drawer (menú desplegable) */
   .drawer-ov{position:fixed;inset:0;z-index:70;background:rgba(8,11,13,.55);opacity:0;pointer-events:none;transition:opacity .3s}
   .drawer-ov.open{opacity:1;pointer-events:auto}
@@ -169,6 +175,16 @@
 </style>
 </helmet>
 <div style="font-family:Archivo,Helvetica,sans-serif;color:#11181C;background:#fff;min-height:100vh;display:flex;flex-direction:column">
+
+  <sc-if value="{{ promosShow }}" hint-placeholder-val="{{ false }}">
+    <div class="promo-bar">
+      <span class="promo-ic" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+      </span>
+      <span class="promo-t">{{ promoTitulo }}</span>
+      <sc-if value="{{ promoHasDesc }}" hint-placeholder-val="{{ false }}"><span class="promo-d">· {{ promoDesc }}</span></sc-if>
+    </div>
+  </sc-if>
 
   <header class="site-header" style="position:sticky;top:0;z-index:40;background:#11181C;border-bottom:1px solid rgba(255,255,255,.1);padding:11px 16px;display:flex;align-items:center;gap:12px">
     <button class="hdr-burger" onClick="{{ toggleMenu }}" aria-label="Menú">
@@ -727,10 +743,12 @@
 
     <section style="max-width:1280px;margin:40px auto 0;padding:0 20px">
       <div class="feat-grid">
+        <sc-if value="{{ deliveryOn }}" hint-placeholder-val="{{ true }}">
         <div class="feat-item">
           <span class="feat-ic" style="color:{{ sectionAccent }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1 3h13v13H1z"/><path d="M14 8h4l3 3v5h-7z"/><circle cx="6" cy="18.5" r="1.8"/><circle cx="17.5" cy="18.5" r="1.8"/></svg></span>
-          <div><strong>Delivery gratis</strong><span>En pedidos mayores a 2.500.000 Gs.</span></div>
+          <div><strong>{{ deliveryTitulo }}</strong><span>{{ deliveryDesc }}</span></div>
         </div>
+        </sc-if>
         <div class="feat-item">
           <span class="feat-ic" style="color:{{ sectionAccent }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 3v6c0 5-3.5 8.5-8 11-4.5-2.5-8-6-8-11V5z"/><path d="M9 12l2 2 4-4"/></svg></span>
           <div><strong>Pago seguro</strong><span>Procesado online por la pasarela contratada.</span></div>
@@ -954,12 +972,18 @@ const px = (u, w) => u ? "https://wsrv.nl/?url=" + encodeURIComponent(u.replace(
 
 
 class Component extends DCLogic {
-  state = { view: "home", cat: null, query: "", cart: [], cartOpen: false, vulka: [], sel: {}, hero: 2, heroTop: "A", aIdx: 2, bIdx: 2, pd: null, pdSize: null, pdColor: null, pdQty: 1, vkHover: 0, catalog: false, sort: "relevancia", priceMin: null, priceMax: null, onlyFeatured: false, onlyPhoto: false, pdImg: null, dbProducts: null, dbCatOrder: null, dbCatImg: null, dbHero: null, dbVulkaHero: null, dbFeat: null, dbConfig: null, menuOpen: false, gen: null, coupon: "", discount: null, couponMsg: "", menuGroupsOpen: {}, payOpen: false, payLoading: false, payMsg: "", buyerNombre: "", buyerDoc: "", buyerTel: "", buyerEmail: "", buyerDir: "" };
+  state = { view: "home", cat: null, query: "", cart: [], cartOpen: false, vulka: [], sel: {}, hero: 2, heroTop: "A", aIdx: 2, bIdx: 2, pd: null, pdSize: null, pdColor: null, pdQty: 1, vkHover: 0, catalog: false, sort: "relevancia", priceMin: null, priceMax: null, onlyFeatured: false, onlyPhoto: false, pdImg: null, dbProducts: null, dbCatOrder: null, dbCatImg: null, dbHero: null, dbVulkaHero: null, dbFeat: null, dbConfig: null, menuOpen: false, gen: null, coupon: "", discount: null, couponMsg: "", menuGroupsOpen: {}, payOpen: false, payLoading: false, payMsg: "", buyerNombre: "", buyerDoc: "", buyerTel: "", buyerEmail: "", buyerDir: "", dbPromos: [], promoIdx: 0 };
 
   componentDidMount() {
     import("./vulka-catalog.js?v=2").then((m) => this.setState({ vulka: m.VULKA }));
     this.loadFromSupabase();
+    // Rota el banner de promociones cuando hay más de una activa.
+    this._promoTimer = setInterval(() => {
+      const n = (this.state.dbPromos || []).length;
+      if (n > 1) this.setState((s) => ({ promoIdx: (s.promoIdx + 1) % n }));
+    }, 4500);
   }
+  componentWillUnmount() { if (this._promoTimer) clearInterval(this._promoTimer); }
 
   // Carga catálogo/categorías/portadas en vivo desde Supabase (si está configurado).
   loadFromSupabase() {
@@ -973,10 +997,12 @@ class Component extends DCLogic {
       sb.from("categorias").select("*").order("marca").order("orden"),
       sb.from("productos").select("*, producto_imagenes(*)").eq("activo", true).order("orden"),
       sb.from("portada_slides").select("*").order("marca").order("orden"),
-      sb.from("config").select("*")
-    ]).then(([c, p, h, cf]) => {
+      sb.from("config").select("*"),
+      sb.from("promociones").select("*").eq("activo", true).order("orden")
+    ]).then(([c, p, h, cf, pr]) => {
       if (c.error || p.error || h.error) return;
       if (cf && !cf.error && cf.data) { const m = {}; cf.data.forEach((r) => (m[r.clave] = r.valor)); this.setState({ dbConfig: m }); }
+      if (pr && !pr.error && pr.data) { this.setState({ dbPromos: pr.data }); }
       const cats = c.data || [], prods = p.data || [], slides = h.data || [];
       if (!prods.length) return;
       const byId = {}; cats.forEach((x) => (byId[x.id] = x));
@@ -1189,6 +1215,15 @@ class Component extends DCLogic {
     const CATX = this.state.dbCatOrder || { aguara: CAT.aguara.concat(EXTRA_AGUARA), vulka: CAT.vulka };
     const cfgv = (k, d) => (this.state.dbConfig && this.state.dbConfig[k]) ? this.state.dbConfig[k] : d;
     const waNum = cfgv("whatsapp", "595975517443").replace(/\D/g, "");
+    // Delivery (editable desde el panel)
+    const delMonto = cfgv("delivery_monto", "2500000").replace(/\D/g, "") || "2500000";
+    const delMontoFmt = Number(delMonto).toLocaleString("es-PY");
+    const deliveryOn = cfgv("delivery_activo", "1") !== "0";
+    const deliveryTitulo = cfgv("delivery_titulo", "Delivery gratis");
+    const deliveryDesc = cfgv("delivery_desc", "En pedidos mayores a {monto} Gs.").replace(/\{monto\}/g, delMontoFmt);
+    // Promociones activas (banner)
+    const promos = this.state.dbPromos || [];
+    const promoCur = promos.length ? promos[this.state.promoIdx % promos.length] : null;
     const g = this.state.gen;
     const matchGen = (p) => !g || p.genero === g || p.genero === "unisex" || !p.genero;
     const list = ALL.filter((p) => p.b === v)
@@ -1519,6 +1554,13 @@ class Component extends DCLogic {
       footAguaraCats: catsWith("aguara", CATX.aguara).map((c) => ({
         name: c, onClick: () => { this.setState({ view: "aguara", cat: c, query: "" }); try { window.scrollTo(0, 0); } catch (e) {} }
       })),
+      deliveryOn: deliveryOn,
+      deliveryTitulo: deliveryTitulo,
+      deliveryDesc: deliveryDesc,
+      promosShow: !!promoCur,
+      promoTitulo: promoCur ? promoCur.titulo : "",
+      promoDesc: promoCur ? (promoCur.descripcion || "") : "",
+      promoHasDesc: !!(promoCur && promoCur.descripcion),
       footWaUrl: "https://wa.me/" + waNum,
       footWaLabel: "WhatsApp: +" + waNum,
       footIg: cfgv("ig_aguara", "https://www.instagram.com/aguarafitwear"),
