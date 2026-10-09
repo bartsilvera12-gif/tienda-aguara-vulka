@@ -680,7 +680,7 @@ async function generatePDF(brands){
   let firstBrand=true;
   const brandDefs=[["aguara","Aguara Fitwear"],["vulka","Vulka"]].filter(b=>brands.includes(b[0]));
   for(const [bkey,blabel] of brandDefs){
-    const items = PRODS.filter(p=>p.marca===bkey).slice().sort((a,b)=>(a.orden||0)-(b.orden||0));
+    const items = PRODS.filter(p=>p.marca===bkey && p.activo!==false).slice().sort((a,b)=>(a.orden||0)-(b.orden||0));
     if(!items.length) continue;
     const imgData = await Promise.all(items.map(p=>imgToData(p.imagen)));
     if(!firstBrand) doc.addPage(); firstBrand=false;
