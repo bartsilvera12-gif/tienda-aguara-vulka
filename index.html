@@ -1448,8 +1448,8 @@ class Component extends DCLogic {
       mAguara: "border:0;background:" + (menuBrand === "aguara" ? "rgba(255,255,255,.14)" : "transparent") + ";padding:8px 12px;border-radius:8px;cursor:pointer;opacity:" + (menuBrand === "aguara" ? "1" : ".55"),
       mVulka: "border:0;background:" + (menuBrand === "vulka" ? "rgba(255,255,255,.14)" : "transparent") + ";padding:8px 12px;border-radius:8px;cursor:pointer;opacity:" + (menuBrand === "vulka" ? "1" : ".55"),
       cartHasItems: cart.reduce((a, i) => a + i.qty, 0) > 0,
-      isHome: isHome && !pd && !q, isBrand: isBrandView && !this.state.catalog, isCatalog: inCatalog, isProduct: !!pd, cartOpen: this.state.cartOpen,
-      searchShow: isHome && !pd && !!q,
+      isHome: isHome && !pd && !q, isBrand: isBrandView && !this.state.catalog && !q, isCatalog: inCatalog, isProduct: !!pd, cartOpen: this.state.cartOpen,
+      searchShow: !pd && !inCatalog && !!q,
       searchResults: (q ? ALL.filter((p) => (p.name + " " + p.cat).toLowerCase().includes(q)) : []).map(mapProduct),
       searchTitle: "Resultados para “" + this.state.query.trim() + "”",
       searchCountLabel: (q ? ALL.filter((p) => (p.name + " " + p.cat).toLowerCase().includes(q)).length : 0) + " producto(s)",
@@ -1576,7 +1576,7 @@ class Component extends DCLogic {
         .map((o) => ({ name: o.name, style: o.on ? chipOn : chipBase, onClick: () => this.setState({ cat: o.c }) })),
 
       query: this.state.query,
-      onQuery: (e) => this.setState({ query: e.target.value }),
+      onQuery: (e) => { const val = e.target.value; this.setState(val.trim() ? { query: val, pd: null } : { query: val }); },
 
       heroStyle:
         "position:relative;min-height:420px;display:flex;align-items:flex-end;padding:36px;border-radius:14px;overflow:hidden;background:" +
