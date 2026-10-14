@@ -1001,7 +1001,15 @@ class Component extends DCLogic {
       sb.from("promociones").select("*").eq("activo", true).order("orden")
     ]).then(([c, p, h, cf, pr]) => {
       if (c.error || p.error || h.error) return;
-      if (cf && !cf.error && cf.data) { const m = {}; cf.data.forEach((r) => (m[r.clave] = r.valor)); this.setState({ dbConfig: m }); }
+      if (cf && !cf.error && cf.data) {
+        const m = {}; cf.data.forEach((r) => (m[r.clave] = r.valor)); this.setState({ dbConfig: m });
+        // La burbuja flotante de WhatsApp es HTML estático (fuera del componente): actualizamos su número desde la config.
+        try {
+          const w = (m.whatsapp || "").replace(/\D/g, "");
+          const fab = document.getElementById("waFab");
+          if (w && fab) fab.href = "https://wa.me/" + w + "?text=%C2%A1Hola!%20Quiero%20hacer%20una%20consulta%20%F0%9F%98%8A";
+        } catch (e) {}
+      }
       if (pr && !pr.error && pr.data) { this.setState({ dbPromos: pr.data }); }
       const cats = c.data || [], prods = p.data || [], slides = h.data || [];
       if (!prods.length) return;

@@ -70,6 +70,7 @@
     </section>
   </main>
 
+  <script src="/supabase-config.js"></script>
   <script>
   (function () {
     'use strict';
@@ -87,6 +88,26 @@
     var hashEl = document.querySelector('[data-hash]');
     var waEl = document.querySelector('[data-wa]');
     var iconWrap = section.querySelector('.gx-icon');
+
+    // Número de WhatsApp desde la config del panel (igual que la tienda), con fallback.
+    (function () {
+      try {
+        var cfg = window.SUPABASE_CONFIG || {};
+        if (!cfg.url || !cfg.anonKey) return;
+        var schema = cfg.schema || 'aguaravulka';
+        fetch(cfg.url.replace(/\/+$/, '') + '/rest/v1/config?select=valor&clave=eq.whatsapp', {
+          headers: { apikey: cfg.anonKey, Authorization: 'Bearer ' + cfg.anonKey, 'Accept-Profile': schema }
+        })
+        .then(function (r) { return r.ok ? r.json() : []; })
+        .then(function (rows) {
+          var w = (rows && rows[0] && rows[0].valor ? String(rows[0].valor) : '').replace(/\D/g, '');
+          if (!w) return;
+          var a = waEl ? waEl.querySelector('a') : null;
+          if (a) a.href = 'https://wa.me/' + w + '?text=Hola%2C%20tengo%20una%20consulta%20sobre%20mi%20pago';
+        })
+        .catch(function () {});
+      } catch (e) {}
+    })();
 
     var ICONS = {
       approved: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-11"/></svg>',
