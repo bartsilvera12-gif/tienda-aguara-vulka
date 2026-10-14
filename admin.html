@@ -140,6 +140,7 @@
     <button data-tab="portadas">Portadas</button>
     <button data-tab="descuentos">Descuentos</button>
     <button data-tab="promos">Promociones</button>
+    <button data-tab="envios">Envíos</button>
     <button data-tab="config">Configuración</button>
   </nav>
   <main>
@@ -306,6 +307,11 @@ MOVERTE"></textarea></div>
         <input type="hidden" id="pr_id">
         <div class="field"><label>Título</label><input id="pr_titulo" placeholder="Ej: Envío gratis este fin de semana"></div>
         <div class="field"><label>Descripción (opcional)</label><input id="pr_desc" placeholder="Ej: En pedidos seleccionados"></div>
+        <div class="row">
+          <div class="field"><label>Desde (opcional)</label><input id="pr_desde" type="date"></div>
+          <div class="field"><label>Hasta (opcional)</label><input id="pr_hasta" type="date"></div>
+        </div>
+        <label class="chk"><input type="checkbox" id="pr_delivery" style="width:auto"> 🚚 Delivery gratis mientras dure la promo (el envío se cobra Gs. 0 en el pago)</label>
         <label class="chk"><input type="checkbox" id="pr_activo" checked style="width:auto"> Activa (se muestra en la web)</label>
         <div style="display:flex;gap:10px;margin-top:10px">
           <button class="btn btn-accent" id="pr_save">Guardar promoción</button>
@@ -313,8 +319,32 @@ MOVERTE"></textarea></div>
       </div>
       <div class="panel">
         <div class="panel-head"><h2>Promociones</h2><button class="btn btn-accent" id="pr_new">+ Nueva promoción</button></div>
-        <p class="muted" style="margin-top:-8px">Aparecen como una barra arriba en la tienda. Al desactivar una, deja de mostrarse.</p>
+        <p class="muted" style="margin-top:-8px">Aparecen como una barra arriba en la tienda. Con fechas, solo se muestran dentro del rango. Si marcás "Delivery gratis", el envío sale gratis mientras la promo esté vigente.</p>
         <div class="list" id="promoList"></div>
+      </div>
+    </section>
+
+    <!-- ENVIOS -->
+    <section id="tab-envios" class="hidden">
+      <div class="panel hidden" id="zonaForm">
+        <div class="panel-head"><h2 id="zonaFormTitle">Nueva zona</h2><button class="btn btn-ghost btn-sm" id="z_cancel">Cancelar</button></div>
+        <input type="hidden" id="z_id">
+        <div class="row">
+          <div class="field"><label>Ciudad / destino</label><input id="z_nombre" placeholder="Ej: Asunción"></div>
+          <div class="field"><label>Grupo / zona (opcional)</label><input id="z_zona" placeholder="Ej: Central"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Costo de envío (Gs.)</label><input id="z_costo" placeholder="25.000"></div>
+          <div class="field" style="display:flex;align-items:flex-end"><label class="chk"><input type="checkbox" id="z_activo" checked style="width:auto"> Activa</label></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:10px">
+          <button class="btn btn-accent" id="z_save">Guardar zona</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>Zonas de envío</h2><button class="btn btn-accent" id="z_new">+ Nueva zona</button></div>
+        <p class="muted" style="margin-top:-8px">El comprador elige su ciudad al pagar y PagoPar cobra este costo (salvo envío gratis por promo o por monto mínimo).</p>
+        <div class="list" id="zonaList"></div>
       </div>
     </section>
 
@@ -422,6 +452,11 @@ document.getElementById("cfg_delivery_monto").addEventListener("input",(e)=>{
   e.target.value=fmtMiles(e.target.value);
   const np=e.target.value.length-pos; try{e.target.setSelectionRange(np,np);}catch(_){}
 });
+document.getElementById("z_costo").addEventListener("input",(e)=>{
+  const pos=e.target.value.length-e.target.selectionStart;
+  e.target.value=fmtMiles(e.target.value);
+  const np=e.target.value.length-pos; try{e.target.setSelectionRange(np,np);}catch(_){}
+});
 
 // ---------- Auth ----------
 if (!configured) {
@@ -447,7 +482,7 @@ async function boot(){
   $("login").style.display = "none";
   $("app").style.display = "block";
   $("whoEmail").textContent = session.user.email;
-  await Promise.all([loadCats(), loadProducts(), loadPortadas(), loadConfig(), loadDesc(), loadPromos()]);
+  await Promise.all([loadCats(), loadProducts(), loadPortadas(), loadConfig(), loadDesc(), loadPromos(), loadZonas()]);
   enhanceAllSelects(); enhanceAllFiles();
 }
 if (configured) sb.auth.getSession().then(({data:{session}})=>{ if(session) boot(); });
@@ -457,7 +492,7 @@ document.addEventListener("click", (e)=>{ if(e.target.id==="logout"){ e.preventD
 document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>{
   document.querySelectorAll("nav.tabs button").forEach(x=>x.classList.remove("on"));
   b.classList.add("on");
-  ["productos","categorias","portadas","descuentos","promos","config"].forEach(t=>$("tab-"+t).classList.toggle("hidden", t!==b.dataset.tab));
+  ["productos","categorias","portadas","descuentos","promos","envios","config"].forEach(t=>$("tab-"+t).classList.toggle("hidden", t!==b.dataset.tab));
 }));
 
 // ---------- Select personalizado (integrado al diseño) ----------
@@ -912,30 +947,75 @@ function renderPromoList(){
   if(!$("promoList")) return;
   $("promoList").innerHTML = PROMOS.map(p=>`
     <div class="item">
-      <div class="meta"><div class="n">${esc(p.titulo)} ${p.activo?'<span class="pill" style="background:#E7F6EC;color:#1E9E54">activa</span>':'<span class="pill">inactiva</span>'}</div><div class="s">${esc(p.descripcion||"—")}</div></div>
+      <div class="meta"><div class="n">${esc(p.titulo)} ${p.activo?'<span class="pill" style="background:#E7F6EC;color:#1E9E54">activa</span>':'<span class="pill">inactiva</span>'} ${p.delivery_gratis?'<span class="pill" style="background:#FDEFE7;color:#C2522A">🚚 delivery gratis</span>':''}</div><div class="s">${esc(p.descripcion||"—")}${(p.fecha_desde||p.fecha_hasta)?' · '+(p.fecha_desde||'…')+' → '+(p.fecha_hasta||'…'):''}</div></div>
       <button class="btn btn-ghost btn-sm" onclick="editPromo('${p.id}')">Editar</button>
       <button class="btn btn-danger btn-sm" onclick="delPromo('${p.id}')">Borrar</button>
     </div>`).join("") || `<div class="muted">Sin promociones todavía.</div>`;
 }
 window.editPromo=(id)=>{ const p=PROMOS.find(x=>x.id===id); if(!p)return;
   $("pr_id").value=p.id; $("pr_titulo").value=p.titulo; $("pr_desc").value=p.descripcion||""; $("pr_activo").checked=p.activo!==false;
+  $("pr_desde").value=p.fecha_desde||""; $("pr_hasta").value=p.fecha_hasta||""; $("pr_delivery").checked=!!p.delivery_gratis;
   $("promoFormTitle").textContent="Editar promoción"; showForm("promoForm",true);
 };
 window.delPromo=async(id)=>{ if(!await askConfirm({title:"¿Borrar promoción?",msg:"Esta promoción se eliminará."}))return;
   const {error}=await sb.from("promociones").delete().eq("id",id);
   if(error){toast("Error: "+error.message,true);return;} toast("Promoción borrada"); loadPromos();
 };
-function resetPromo(){ ["pr_id","pr_titulo","pr_desc"].forEach(i=>$(i).value=""); $("pr_activo").checked=true; $("promoFormTitle").textContent="Nueva promoción"; }
+function resetPromo(){ ["pr_id","pr_titulo","pr_desc","pr_desde","pr_hasta"].forEach(i=>$(i).value=""); $("pr_activo").checked=true; $("pr_delivery").checked=false; $("promoFormTitle").textContent="Nueva promoción"; }
 $("pr_new").addEventListener("click",()=>{ resetPromo(); showForm("promoForm",true); });
 $("pr_cancel").addEventListener("click",()=>{ resetPromo(); showForm("promoForm",false); });
 $("pr_save").addEventListener("click", async ()=>{
   const titulo=$("pr_titulo").value.trim(); if(!titulo){toast("Poné un título",true);return;}
-  const rec={ titulo, descripcion: $("pr_desc").value.trim()||null, activo: $("pr_activo").checked };
+  const rec={ titulo, descripcion: $("pr_desc").value.trim()||null, activo: $("pr_activo").checked,
+    fecha_desde: $("pr_desde").value||null, fecha_hasta: $("pr_hasta").value||null, delivery_gratis: $("pr_delivery").checked };
   let error;
-  if($("pr_id").value){ ({error}=await sb.from("promociones").update(rec).eq("id",$("pr_id").value)); }
-  else { rec.orden=PROMOS.length; ({error}=await sb.from("promociones").insert(rec)); }
+  const doSave=async(r)=>{ if($("pr_id").value){ return sb.from("promociones").update(r).eq("id",$("pr_id").value); } r.orden=PROMOS.length; return sb.from("promociones").insert(r); };
+  let r2={...rec}; let res=await doSave(r2);
+  // Tolerante: si faltan columnas nuevas (no corrió el 13), reintenta sin ellas.
+  if(res.error && /(fecha_desde|fecha_hasta|delivery_gratis|column)/i.test(res.error.message||"")){
+    delete r2.fecha_desde; delete r2.fecha_hasta; delete r2.delivery_gratis; res=await doSave(r2);
+    if(!res.error) toast("Guardado, pero faltan columnas nuevas — corré 13-envios-promos.sql para fechas y delivery gratis",true);
+  }
+  error=res.error;
   if(error){toast("Error: "+error.message+(/promociones/.test(error.message)?" (¿corriste 12-promociones.sql?)":""),true);return;}
   toast("Promoción guardada ✓"); resetPromo(); showForm("promoForm",false); loadPromos();
+});
+
+// ================= ZONAS DE ENVÍO =================
+let ZONAS = [];
+async function loadZonas(){
+  const { data, error } = await sb.from("zonas_envio").select("*").order("orden").order("nombre");
+  if (error){ return; }
+  ZONAS = data||[]; renderZonaList();
+}
+function renderZonaList(){
+  if(!$("zonaList")) return;
+  $("zonaList").innerHTML = ZONAS.map(z=>`
+    <div class="item">
+      <div class="meta"><div class="n">${esc(z.nombre)} ${z.activo?'':'<span class="pill">inactiva</span>'} ${z.zona?'<span class="pill">'+esc(z.zona)+'</span>':''}</div><div class="s">Envío: ${gs(z.costo)}</div></div>
+      <button class="btn btn-ghost btn-sm" onclick="editZona('${z.id}')">Editar</button>
+      <button class="btn btn-danger btn-sm" onclick="delZona('${z.id}')">Borrar</button>
+    </div>`).join("") || `<div class="muted">Sin zonas todavía. Corré 13-envios-promos.sql para cargar las tarifas.</div>`;
+}
+window.editZona=(id)=>{ const z=ZONAS.find(x=>x.id===id); if(!z)return;
+  $("z_id").value=z.id; $("z_nombre").value=z.nombre; $("z_zona").value=z.zona||""; $("z_costo").value=fmtMiles(String(z.costo||"")); $("z_activo").checked=z.activo!==false;
+  $("zonaFormTitle").textContent="Editar zona"; showForm("zonaForm",true);
+};
+window.delZona=async(id)=>{ if(!await askConfirm({title:"¿Borrar zona?",msg:"Esta zona de envío se eliminará."}))return;
+  const {error}=await sb.from("zonas_envio").delete().eq("id",id);
+  if(error){toast("Error: "+error.message,true);return;} toast("Zona borrada"); loadZonas();
+};
+function resetZona(){ ["z_id","z_nombre","z_zona","z_costo"].forEach(i=>$(i).value=""); $("z_activo").checked=true; $("zonaFormTitle").textContent="Nueva zona"; }
+$("z_new").addEventListener("click",()=>{ resetZona(); showForm("zonaForm",true); });
+$("z_cancel").addEventListener("click",()=>{ resetZona(); showForm("zonaForm",false); });
+$("z_save").addEventListener("click", async ()=>{
+  const nombre=$("z_nombre").value.trim(); if(!nombre){toast("Poné la ciudad/destino",true);return;}
+  const rec={ nombre, zona: $("z_zona").value.trim()||null, costo: parseInt($("z_costo").value.replace(/\D/g,"")||"0",10)||0, activo: $("z_activo").checked };
+  let error;
+  if($("z_id").value){ ({error}=await sb.from("zonas_envio").update(rec).eq("id",$("z_id").value)); }
+  else { rec.orden=ZONAS.length; ({error}=await sb.from("zonas_envio").insert(rec)); }
+  if(error){toast("Error: "+error.message+(/zonas_envio/.test(error.message)?" (¿corriste 13-envios-promos.sql?)":""),true);return;}
+  toast("Zona guardada ✓"); resetZona(); showForm("zonaForm",false); loadZonas();
 });
 </script>
 </body>
