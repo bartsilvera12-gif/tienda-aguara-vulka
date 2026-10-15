@@ -1003,6 +1003,15 @@ class Component extends DCLogic {
   componentDidMount() {
     import("./vulka-catalog.js?v=2").then((m) => this.setState({ vulka: m.VULKA }));
     this.loadFromSupabase();
+    // Deep-link al catálogo: /catalogo/ redirige con #catalogo (o ?view=catalogo).
+    try {
+      const h = (location.hash || "").toLowerCase();
+      const qp = new URLSearchParams(location.search).get("view");
+      if (h.indexOf("catalogo") >= 0 || qp === "catalogo") {
+        const b = h.indexOf("vulka") >= 0 ? "vulka" : "aguara";
+        this.openCatalog(b);
+      }
+    } catch (e) {}
     // Rota el banner de promociones cuando hay más de una activa.
     this._promoTimer = setInterval(() => {
       const n = (this.state.dbPromos || []).length;
