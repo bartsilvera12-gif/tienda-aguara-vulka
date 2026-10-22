@@ -1,5 +1,13 @@
 {
-  "rewrites": [
-    { "source": "/((?!mantenimiento\\.html$|uploads/opt/aguara-word-white\\.png$|favicon\\.(?:png|ico)$).*)", "destination": "/mantenimiento.html" }
+  "routes": [
+    {
+      "src": "/(?!mantenimiento\\.html$|uploads/opt/aguara-word-white\\.png$|favicon\\.(?:png|ico)$).*",
+      "dest": "/mantenimiento.html",
+      "status": 503,
+      "headers": {
+        "Retry-After": "86400",
+        "Cache-Control": "no-store"
+      }
+    }
   ]
 }
