@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/((?!mantenimiento\\.html$|uploads/opt/aguara-word-white\\.png$|favicon\\.(?:png|ico)$).*)", "destination": "/mantenimiento.html" }
+  ]
+}
